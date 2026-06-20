@@ -1,23 +1,21 @@
 /* =========================================================================
    PROJECT DATA
    -------------------------------------------------------------------------
-   This is the single source of truth for everything in the Work section.
-   When your real sites are ready, just edit the objects below.
+   Single source of truth for the Work section. Edit objects below.
 
    Each project:
      id        unique slug (used as a DOM anchor)
      index     "01".."NN"  — the gallery plate number
      title     display name
-     category  short label (Monitoring, Accessibility, E-commerce, ...)
+     category  short label (also feeds the filter bar)
      year      string
      role      what you did ("Front-end UI", "Design + Build", ...)
      summary   1–2 sentence description (write from the visitor's side)
      stack     array of tech tags
-     url       LIVE url (GitHub Pages / Vercel). Used for the iframe preview
-               AND the "Open live" link. Set to "" to show a placeholder.
+     url       LIVE url. Powers the iframe preview AND the "Open live" link.
+               Set to "" to show a styled placeholder.
      repo      optional source link ("" to hide)
      featured  true = large case plate near the top; false = standard plate
-     accent    optional — leave undefined to use the global signal colour
    ========================================================================= */
 
 export const projects = [
@@ -65,136 +63,145 @@ export const projects = [
     featured: true,
   },
 
-  /* ---- Front-end showcase sites (10 on standby) ----------------------- */
-  /* Replace title/category/url for each as your real sites come in.       */
+  /* ---- Front-end showcase sites (live on GitHub Pages) ---------------- */
   {
-    id: "work-04",
+    id: "autohub-marketplace",
     index: "04",
-    title: "Project Four",
-    category: "Landing Page",
-    year: "2025",
-    role: "Front-end UI",
-    summary: "Short description of what this site is and what you built.",
-    stack: ["HTML", "CSS", "JS"],
-    url: "",
-    repo: "",
-    featured: false,
-  },
-  {
-    id: "work-05",
-    index: "05",
-    title: "Project Five",
+    title: "AutoHub Car Marketplace",
     category: "E-commerce",
     year: "2025",
     role: "Front-end UI",
-    summary: "Short description of what this site is and what you built.",
-    stack: ["React", "Tailwind"],
-    url: "",
-    repo: "",
+    summary:
+      "A browse-and-list marketplace for buying and selling cars — filterable listings, rich detail pages, and a clean buyer journey.",
+    stack: ["HTML", "CSS", "JavaScript"],
+    url: "https://taif6612.github.io/autohub-car-marketplace/",
+    repo: "https://github.com/Taif6612/autohub-car-marketplace",
     featured: false,
   },
   {
-    id: "work-06",
+    id: "autohub-premium",
+    index: "05",
+    title: "AutoHub Premium Showcase",
+    category: "Automotive",
+    year: "2025",
+    role: "Front-end UI",
+    summary:
+      "A premium automotive showcase — a cinematic hero, spec highlights, and a gallery that lets the cars carry the page.",
+    stack: ["HTML", "CSS", "JavaScript"],
+    url: "https://taif6612.github.io/autohub-premium-showcase/",
+    repo: "https://github.com/Taif6612/autohub-premium-showcase",
+    featured: false,
+  },
+  {
+    id: "property-rental",
     index: "06",
-    title: "Project Six",
-    category: "Dashboard",
-    year: "2024",
+    title: "Property Rental Portfolio",
+    category: "Real Estate",
+    year: "2025",
     role: "Front-end UI",
-    summary: "Short description of what this site is and what you built.",
-    stack: ["React", "Charts"],
-    url: "",
-    repo: "",
+    summary:
+      "A rental-property portfolio with searchable listings, photo galleries, and enquiry-ready detail pages.",
+    stack: ["HTML", "CSS", "JavaScript"],
+    url: "https://taif6612.github.io/PropertyRentalPortfolio/",
+    repo: "https://github.com/Taif6612/PropertyRentalPortfolio",
     featured: false,
   },
   {
-    id: "work-07",
+    id: "nestspace",
     index: "07",
-    title: "Project Seven",
-    category: "Portfolio",
-    year: "2024",
-    role: "Front-end UI",
-    summary: "Short description of what this site is and what you built.",
-    stack: ["HTML", "CSS", "GSAP"],
-    url: "",
-    repo: "",
-    featured: false,
-  },
-  {
-    id: "work-08",
-    index: "08",
-    title: "Project Eight",
-    category: "SaaS",
-    year: "2024",
-    role: "Front-end UI",
-    summary: "Short description of what this site is and what you built.",
-    stack: ["Next.js", "Tailwind"],
-    url: "",
-    repo: "",
-    featured: false,
-  },
-  {
-    id: "work-09",
-    index: "09",
-    title: "Project Nine",
-    category: "Blog",
-    year: "2024",
-    role: "Front-end UI",
-    summary: "Short description of what this site is and what you built.",
-    stack: ["Astro", "MDX"],
-    url: "",
-    repo: "",
-    featured: false,
-  },
-  {
-    id: "work-10",
-    index: "10",
-    title: "Project Ten",
-    category: "Marketing",
-    year: "2024",
-    role: "Front-end UI",
-    summary: "Short description of what this site is and what you built.",
-    stack: ["HTML", "CSS", "JS"],
-    url: "",
-    repo: "",
-    featured: false,
-  },
-  {
-    id: "work-11",
-    index: "11",
-    title: "Project Eleven",
+    title: "NestSpace",
     category: "Web App",
-    year: "2023",
-    role: "Front-end UI",
-    summary: "Short description of what this site is and what you built.",
-    stack: ["Vue", "Pinia"],
-    url: "",
-    repo: "",
+    year: "2025",
+    role: "Front-end · React",
+    summary:
+      "A React app for discovering and booking living spaces — interactive search, saved listings, and a componentised UI.",
+    stack: ["React", "Vite"],
+    url: "https://taif6612.github.io/nestspace/",
+    repo: "https://github.com/Taif6612/nestspace",
     featured: false,
   },
   {
-    id: "work-12",
-    index: "12",
-    title: "Project Twelve",
+    id: "solar-panel",
+    index: "08",
+    title: "Solar Panel",
     category: "Landing Page",
-    year: "2023",
+    year: "2025",
     role: "Front-end UI",
-    summary: "Short description of what this site is and what you built.",
-    stack: ["HTML", "Tailwind"],
-    url: "",
-    repo: "",
+    summary:
+      "A clean-energy landing page for residential solar — benefits, savings framing, and a clear path to a quote.",
+    stack: ["HTML", "CSS", "JavaScript"],
+    url: "https://taif6612.github.io/solar-panel/",
+    repo: "https://github.com/Taif6612/solar-panel",
     featured: false,
   },
   {
-    id: "work-13",
-    index: "13",
-    title: "Project Thirteen",
-    category: "Experimental",
-    year: "2023",
+    id: "campusedge-design-system",
+    index: "09",
+    title: "CampusEdge Design System",
+    category: "Design System",
+    year: "2025",
+    role: "Design system · UI",
+    summary:
+      "A documented component library — tokens, type scale, buttons, and reusable UI patterns for a campus product.",
+    stack: ["Design System", "CSS"],
+    url: "https://taif6612.github.io/campusedge-design-system/",
+    repo: "https://github.com/Taif6612/campusedge-design-system",
+    featured: false,
+  },
+  {
+    id: "interior-design",
+    index: "10",
+    title: "Interior Design Studio",
+    category: "Studio",
+    year: "2025",
     role: "Front-end UI",
-    summary: "Short description of what this site is and what you built.",
-    stack: ["WebGL", "Three.js"],
-    url: "",
-    repo: "",
+    summary:
+      "An interior-design studio site — a calm, editorial gallery of room transformations with a clear enquiry flow.",
+    stack: ["HTML", "CSS", "JavaScript"],
+    url: "https://taif6612.github.io/interior-design/",
+    repo: "https://github.com/Taif6612/interior-design",
+    featured: false,
+  },
+  {
+    id: "urban-bistro",
+    index: "11",
+    title: "Urban Bistro",
+    category: "Restaurant",
+    year: "2025",
+    role: "Front-end UI",
+    summary:
+      "A neighbourhood café site — menu, story, and reservations in a single warm, photography-led page.",
+    stack: ["HTML", "CSS", "JavaScript"],
+    url: "https://taif6612.github.io/urban-bistro-cafe/",
+    repo: "https://github.com/Taif6612/urban-bistro-cafe",
+    featured: false,
+  },
+  {
+    id: "luxeglow-spa",
+    index: "12",
+    title: "LuxeGlow Salon & Spa",
+    category: "Beauty & Spa",
+    year: "2025",
+    role: "Front-end UI",
+    summary:
+      "A beauty-spa site — services, pricing, and booking wrapped in a soft, luxurious visual language.",
+    stack: ["HTML", "CSS", "JavaScript"],
+    url: "https://taif6612.github.io/luxeglow-beauty-spa/",
+    repo: "https://github.com/Taif6612/luxeglow-beauty-spa",
+    featured: false,
+  },
+  {
+    id: "eduprime-academy",
+    index: "13",
+    title: "EduPrime Academy",
+    category: "Education",
+    year: "2025",
+    role: "Front-end UI",
+    summary:
+      "A coaching-centre site — courses, faculty, and admissions, structured to convert enquiring students and parents.",
+    stack: ["HTML", "CSS", "JavaScript"],
+    url: "https://taif6612.github.io/eduprime-coaching-center/",
+    repo: "https://github.com/Taif6612/eduprime-coaching-center",
     featured: false,
   },
 ];
