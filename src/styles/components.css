@@ -480,6 +480,8 @@ html.is-locked {
 }
 .plate-screen iframe {
   border: 0;
+  /* Rendered at desktop width then scaled — must escape the global max-width:100% cap. */
+  max-width: none;
   transform-origin: top left;
   pointer-events: none;
   background: #fff;
@@ -503,6 +505,44 @@ html.is-locked {
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--stone);
+}
+/* Logo card — stands in for work that can't be embedded (browser extensions). */
+.plate-logocard {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 1.1rem;
+  padding: 7%;
+  text-align: center;
+}
+.plate-logocard--light {
+  background: radial-gradient(120% 120% at 50% 0%, #ffffff 0%, #f3f2ee 70%, #ebe9e2 100%);
+}
+.plate-logocard--dark {
+  background: radial-gradient(120% 120% at 50% 38%, #1c1d22 0%, #121317 55%, #0b0b0d 100%);
+}
+.plate-logocard img {
+  width: min(48%, 230px);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 34px rgba(0, 0, 0, 0.14));
+}
+.plate-logocard--dark img {
+  width: min(40%, 172px);
+  filter: drop-shadow(0 0 46px rgba(245, 208, 38, 0.45));
+}
+.plate-logocard-tag {
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.plate-logocard--light .plate-logocard-tag {
+  color: var(--stone);
+}
+.plate-logocard--dark .plate-logocard-tag {
+  color: rgba(255, 255, 255, 0.55);
 }
 .plate-open {
   position: absolute;
@@ -656,6 +696,23 @@ html.is-locked {
   font-weight: 400;
   font-size: var(--step-1);
   line-height: 1.22;
+}
+.about-pubs-link {
+  display: inline;
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.3s var(--ease-out);
+}
+.about-pubs-link span {
+  color: var(--signal);
+  display: inline-block;
+  transition: transform 0.3s var(--ease-out);
+}
+.about-pubs-link:hover {
+  color: var(--signal);
+}
+.about-pubs-link:hover span {
+  transform: translate(2px, -2px);
 }
 .about-pubs-venue {
   font-size: 0.68rem;

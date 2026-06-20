@@ -3,29 +3,34 @@ import { useEffect, useRef, useState } from "react";
 const DESIGN_W = 1440; // we render the live site at desktop width, then scale down
 
 export default function ProjectPlate({ project, isTouch }) {
-  const { id, index, title, category, year, role, summary, stack, url, repo, featured } =
+  const { id, index, title, category, year, role, summary, stack, url, repo, logo, logoTone, featured } =
     project;
 
   const frameRef = useRef(null);
-  const [scale, setScale] = useState(0.3);
+  // Measure the actual screen box so the scaled site fills it exactly.
+  const [box, setBox] = useState({ w: 0, h: 0 });
   const [load, setLoad] = useState(false);
   const hasLive = Boolean(url);
+  const hasLogo = !hasLive && Boolean(logo); // logo card stands in for non-embeddable work
+  const frameHref = url || repo; // no live preview → let the frame open the source
+  const cornerLabel = hasLive ? "Open live ↗" : repo ? "View source ↗" : null;
 
-  // Keep the scaled desktop screenshot sharp at any frame width.
+  // Track the screen box size to keep the desktop render filling it (no gaps/clipping).
   useEffect(() => {
     const el = frameRef.current;
     if (!el) return;
     const ro = new ResizeObserver(([entry]) => {
-      const w = entry.contentRect.width;
-      setScale(w / DESIGN_W);
+      const { width, height } = entry.contentRect;
+      setBox({ w: width, h: height });
     });
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
 
-  // Touch devices have no hover, so wake the preview when it nears the viewport.
+  // Wake the preview as soon as it nears the viewport — on every device, so the
+  // plates are already filled before the visitor hovers (no empty boxes).
   useEffect(() => {
-    if (!isTouch || !hasLive) return;
+    if (!hasLive) return;
     const el = frameRef.current;
     if (!el) return;
     const io = new IntersectionObserver(
@@ -35,33 +40,43 @@ export default function ProjectPlate({ project, isTouch }) {
           io.disconnect();
         }
       },
-      { rootMargin: "200px" }
+      { rootMargin: "300px" }
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [isTouch, hasLive]);
+  }, [hasLive]);
 
   const wake = () => hasLive && setLoad(true);
 
-  const screenH = DESIGN_W * 0.625; // 16:10 design canvas
+  // Render the site at desktop width, then scale so it fills the box on both axes.
+  const scale = box.w ? box.w / DESIGN_W : 0.4;
+  const frameH = box.w ? (box.h * DESIGN_W) / box.w : DESIGN_W * 0.625;
 
   return (
     <article className={`plate reveal ${featured ? "plate--featured" : ""}`} id={id}>
       <a
         className="plate-frame is-interactive"
-        href={hasLive ? url : undefined}
-        target={hasLive ? "_blank" : undefined}
+        href={frameHref || undefined}
+        target={frameHref ? "_blank" : undefined}
         rel="noreferrer"
         onPointerEnter={wake}
-        aria-label={hasLive ? `Open ${title} live in a new tab` : `${title} — preview coming soon`}
+        aria-label={
+          hasLive
+            ? `Open ${title} live in a new tab`
+            : hasLogo
+            ? `View ${title} source on GitHub`
+            : `${title} — preview coming soon`
+        }
       >
         <div className="plate-frame-bar" aria-hidden="true">
           <span /> <span /> <span />
-          <em className="mono">{hasLive ? new URL(url).host : "preview.pending"}</em>
+          <em className="mono">
+            {hasLive ? new URL(url).host : hasLogo ? "chrome web extension" : "preview.pending"}
+          </em>
         </div>
 
         <div className="plate-screen" ref={frameRef}>
-          {load && hasLive ? (
+          {hasLive && load ? (
             <iframe
               title={`${title} preview`}
               src={url}
@@ -70,21 +85,26 @@ export default function ProjectPlate({ project, isTouch }) {
               scrolling="no"
               style={{
                 width: `${DESIGN_W}px`,
-                height: `${screenH}px`,
+                height: `${frameH}px`,
                 transform: `scale(${scale})`,
               }}
             />
+          ) : hasLogo ? (
+            <div className={`plate-logocard plate-logocard--${logoTone || "light"}`}>
+              <img src={logo} alt={`${title} logo`} loading="lazy" />
+              <span className="plate-logocard-tag mono">{category} · view source ↗</span>
+            </div>
           ) : (
             <div className="plate-placeholder" style={{ "--scan": featured ? 1 : 0 }}>
               <span className="plate-placeholder-index display">{index}</span>
               <span className="plate-placeholder-tag mono">
-                {hasLive ? "hover to wake preview" : "live URL coming soon"}
+                {hasLive ? "loading preview…" : "live URL coming soon"}
               </span>
             </div>
           )}
         </div>
 
-        {hasLive && <span className="plate-open mono">Open live ↗</span>}
+        {cornerLabel && <span className="plate-open mono">{cornerLabel}</span>}
       </a>
 
       <div className="plate-meta">

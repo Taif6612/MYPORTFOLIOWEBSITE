@@ -19,9 +19,9 @@ export default function Hero({ profile, ready, reduced }) {
 
       <div className="shell hero-inner">
         <p className={`eyebrow hero-eyebrow ${ready ? "is-in" : ""}`}>
-          <span>{profile.name}</span>
-          <span className="hero-eyebrow-dot">/</span>
           <span>{profile.role}</span>
+          <span className="hero-eyebrow-dot">/</span>
+          <span>Portfolio ’26</span>
         </p>
 
         <h1 className="display hero-title" data-lines>

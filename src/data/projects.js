@@ -30,7 +30,7 @@ export const projects = [
     summary:
       "A privacy-first online exam platform that keeps assessments secure without surveillance — role-based dashboards for students, professors, and admins, with seating-aware question distribution and AI-assisted grading.",
     stack: ["Next.js", "TypeScript", "Supabase", "PostgreSQL", "Tailwind"],
-    url: "", // add a live deployment (e.g. Vercel) here if you have one
+    url: "https://proctorless-app.netlify.app/",
     repo: "https://github.com/Taif6612/proctorless-app",
     featured: true,
   },
@@ -45,6 +45,9 @@ export const projects = [
       "The companion Chrome extension for ProctorLess: it watches for session-integrity signals during an exam and streams events back to the platform — real-time monitoring without invasive proctoring.",
     stack: ["Chrome Extension", "TypeScript", "Manifest V3"],
     url: "",
+    // Chrome extensions can't be embedded live — show the product logo instead.
+    logo: "/projects/proctorless.png",
+    logoTone: "light",
     repo: "https://github.com/Taif6612/proctorless-app",
     featured: true,
   },
@@ -59,6 +62,9 @@ export const projects = [
       "A Chrome extension that makes everyday websites usable for elderly and visually-impaired people — high-contrast mode, text scaling, and link highlighting, applied by overriding each site's styles on the fly.",
     stack: ["TypeScript", "React", "WXT", "Vite"],
     url: "",
+    // Chrome extension — show the icon on a dark card (its own high-contrast motif).
+    logo: "/projects/senior-mode.png",
+    logoTone: "dark",
     repo: "https://github.com/Taif6612/senior-mode-extension",
     featured: true,
   },
@@ -233,11 +239,13 @@ export const profile = {
       title:
         "Drought-Sensitive Machine Learning for Robust Water-Level Forecasting in the Chitra and Nabaganga River Basins",
       venue: "IEEE ICSADL 2026",
+      url: "https://ieeexplore.ieee.org/document/11452092",
     },
     {
       title:
         "Machine Learning Modeling for Predicting Water Level in the Nabaganga River, Bangladesh",
       venue: "IEEE ICOIICS 2025",
+      url: "https://ieeexplore.ieee.org/document/11390660",
     },
   ],
 };

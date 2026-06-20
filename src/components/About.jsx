@@ -44,7 +44,18 @@ export default function About({ profile }) {
               <ul className="about-pubs-list">
                 {profile.publications.map((p) => (
                   <li key={p.title}>
-                    <span className="about-pubs-title">{p.title}</span>
+                    {p.url ? (
+                      <a
+                        className="about-pubs-title about-pubs-link"
+                        href={p.url}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {p.title} <span aria-hidden="true">↗</span>
+                      </a>
+                    ) : (
+                      <span className="about-pubs-title">{p.title}</span>
+                    )}
                     <span className="about-pubs-venue mono">{p.venue}</span>
                   </li>
                 ))}
