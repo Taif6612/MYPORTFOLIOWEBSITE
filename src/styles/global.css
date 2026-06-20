@@ -1,0 +1,233 @@
+/* =========================================================================
+   JABER — Editorial Gallery / Signal
+   A calm museum canvas threaded by one electric ultramarine signal line.
+   ========================================================================= */
+
+:root {
+  /* ---- Palette --------------------------------------------------------- */
+  /* Warm museum-plaster, deliberately cooler/greyer than the cream cliché  */
+  --paper: #e9e5db;
+  --paper-2: #e3ded2; /* alternating sections */
+  --paper-3: #efece4; /* lifted cards */
+  --ink: #15140f; /* warm near-black */
+  --ink-2: #3a3833; /* secondary text */
+  --stone: #7c7665; /* muted captions */
+  --line: #cbc4b2; /* hairline rules */
+  --signal: #2438ff; /* electric ultramarine — the one accent */
+  --signal-deep: #1626c4; /* AA-safe signal for small text */
+  --signal-wash: rgba(36, 56, 255, 0.08);
+
+  /* ---- Type ------------------------------------------------------------ */
+  --font-display: "Fraunces", "Times New Roman", serif;
+  --font-body: "Hanken Grotesk", system-ui, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, "Courier New", monospace;
+
+  /* ---- Scale (fluid) --------------------------------------------------- */
+  --step--1: clamp(0.78rem, 0.74rem + 0.2vw, 0.9rem);
+  --step-0: clamp(1rem, 0.95rem + 0.25vw, 1.15rem);
+  --step-1: clamp(1.25rem, 1.1rem + 0.7vw, 1.6rem);
+  --step-2: clamp(1.7rem, 1.4rem + 1.5vw, 2.6rem);
+  --step-3: clamp(2.2rem, 1.6rem + 3vw, 4rem);
+  --step-4: clamp(3rem, 1.8rem + 6vw, 6.5rem);
+  --step-hero: clamp(3.4rem, 1rem + 11vw, 11rem);
+
+  /* ---- Layout ---------------------------------------------------------- */
+  --gutter: clamp(1.25rem, 4vw, 5rem);
+  --maxw: 1440px;
+  --rail: clamp(1.25rem, 4vw, 5rem); /* signal-line rail offset */
+
+  /* ---- Motion ---------------------------------------------------------- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur: 0.6s;
+
+  /* ---- Z scale --------------------------------------------------------- */
+  --z-canvas: 0;
+  --z-content: 10;
+  --z-rail: 20;
+  --z-header: 40;
+  --z-cursor: 60;
+  --z-preloader: 100;
+
+  color-scheme: light;
+}
+
+/* ---- Reset ------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  font-weight: 400;
+  overflow-x: hidden;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Hide native cursor only where the custom cursor is active (pointer devices) */
+body[data-cursor="on"] {
+  cursor: none;
+}
+
+img,
+iframe {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: var(--signal);
+  color: var(--paper);
+}
+
+/* ---- Focus (accessibility floor) -------------------------------------- */
+:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ---- Shared primitives ------------------------------------------------ */
+.shell {
+  width: 100%;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--stone);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+}
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 380;
+  line-height: 0.96;
+  letter-spacing: -0.015em;
+  font-optical-sizing: auto;
+}
+
+.serif-italic {
+  font-style: italic;
+  font-weight: 340;
+}
+
+.section {
+  position: relative;
+  z-index: var(--z-content);
+  padding-block: clamp(5rem, 12vw, 11rem);
+}
+
+.section--alt {
+  background: var(--paper-2);
+}
+
+.rule {
+  height: 1px;
+  width: 100%;
+  background: var(--line);
+  border: 0;
+}
+
+/* Link with a signal underline that wipes in */
+.link {
+  position: relative;
+  display: inline-block;
+  color: var(--ink);
+}
+.link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  height: 1.5px;
+  width: 100%;
+  background: var(--signal);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.5s var(--ease-out);
+}
+.link:hover::after,
+.link:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Reveal primitive — JS adds .is-in to play. Falls back to visible. */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+  will-change: opacity, transform;
+}
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Split-line text reveal (per-line clip) */
+.line-mask {
+  display: block;
+  overflow: hidden;
+}
+.line-mask > span {
+  display: block;
+  transform: translateY(110%);
+}
+
+/* ---- Reduced motion: drop to a calm, static experience ---------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+  .line-mask > span {
+    transform: none;
+  }
+}
