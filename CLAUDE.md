@@ -13,9 +13,12 @@ Context for Claude Code working in this repo. (Auto-loaded each session.)
 ## Architecture
 - **`src/data/projects.js`** — single source of truth for the Work section + `profile` (name, contact, socials, about, `publications`). Edit data here, not in components.
 - **`src/components/ProjectPlate.jsx`** — renders each project "plate" and its preview (see rules below).
-- `src/components/` — Hero, HeroCanvas (WebGL), Header, About, Footer, WorkIndex, SignalRail, Cursor, Preloader.
+- `src/components/` — Hero, HeroCanvas (WebGL), Header, About, Footer, WorkIndex, SignalRail, Cursor, Preloader, **Recognition** (clock band + testimonials + Stack), **Clock** (live Dhaka analog clock), **CanvasErrorBoundary**.
+- **`src/data/recognition.js`** — testimonials + tech-stack icon list for the Recognition section. The testimonials are **design-tool placeholders** (illustrative, not real endorsements) — replace or remove before relying on them.
+- Page order (in `App.jsx`): Hero → WorkIndex → Recognition (`#praise`) → About (`#about`) → Footer.
+- **Reveal engine** (`src/lib/useReveals.js`): IntersectionObserver, not ScrollTrigger — immune to layout shift from late-loading iframes/images. Hidden initial state is gated behind `html.reveals-on` (added pre-paint only when motion allowed) so a JS/animation failure can never leave text invisible; a hero watchdog force-reveals as a last resort. **Don't reintroduce the ScrollTrigger reveal** — it caused cross-machine "missing text".
 - `src/styles/global.css` (tokens, resets) + `src/styles/components.css` (component styles).
-- Design language: warm museum-plaster canvas, warm-black ink, one ultramarine accent (`--signal`). Fonts: Fraunces / Hanken Grotesk / Space Mono.
+- Design language: warm museum-plaster canvas, warm-black ink, one ultramarine accent (`--signal`). Fonts: Fraunces / Hanken Grotesk / Space Mono. Portrait at `public/taif-portrait.jpeg`; resume at `public/Taif-Ur-Rahman-CV.pdf`.
 
 ## Project preview rules (important — easy to break)
 Each plate's preview is driven by fields on the project object:
@@ -26,7 +29,9 @@ Each plate's preview is driven by fields on the project object:
 
 ## Content status
 - All 13 plates have real content. Plates 04–13 are live GitHub Pages sites. **ProctorLess (01)** previews its live site `https://proctorless-app.netlify.app/` (marketing landing; dashboards are behind login with no demo account). **Extensions 02 (ProctorLess Integrity) & 03 (Senior Mode)** show logo cards.
-- About → "Selected research" lists 2 IEEE publications, both linking to IEEE Xplore.
+- **Recognition (`#praise`)** has: an availability card with a Resume download, a live Dhaka analog clock, a "Real artists ship." quote, two testimonial marquees (**placeholder quotes — swap for real ones**), and a Stack grid (18 devicon icons from jsDelivr CDN).
+- About has the portrait photo + "Selected research" listing 2 IEEE publications, both linking to IEEE Xplore.
+- Hero thesis is "Interfaces that watch, adapt, and include." (an earlier Claude-design pass used "read the room, and let everyone in" — repo keeps the former).
 
 ## Deploy & domain
 - Hosted on **Vercel**: project `taif-portfolio`, team `taifurrahman66123-7850s-projects`.
@@ -41,3 +46,5 @@ Each plate's preview is driven by fields on the project object:
 
 ## Recent work (2026-06-21)
 Fixed preview box-fit (the `max-width` cap), switched previews to in-view loading, wired the ProctorLess live preview, added extension logo cards, linked the IEEE papers, removed the duplicated name in the hero. Connected and verified `taif.codes` (name.com DNS + Vercel), then deployed to production.
+
+Later same day: fixed the cross-machine bug (text vanishing / animation invisible) by gating reveals behind `html.reveals-on` + a watchdog and adding a WebGL error boundary + capability check; the detection field now also renders frozen under reduced-motion. Then ported the missing Claude-design sections into React: the Recognition section (live Dhaka clock, availability/resume card, testimonial marquees, Stack grid) and the About portrait, and swapped the reveal engine from ScrollTrigger to IntersectionObserver. **Committed locally; not yet pushed/redeployed at time of writing.**
