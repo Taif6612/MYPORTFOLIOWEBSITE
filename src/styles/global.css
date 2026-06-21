@@ -1,5 +1,5 @@
 /* =========================================================================
-   JABER — Editorial Gallery / Signal
+   TAIF UR RAHMAN — Editorial Gallery / Signal
    A calm museum canvas threaded by one electric ultramarine signal line.
    ========================================================================= */
 
@@ -191,25 +191,32 @@ a {
   transform-origin: left;
 }
 
-/* Reveal primitive — JS adds .is-in to play. Falls back to visible. */
+/* Reveal primitive. The hidden initial state is gated behind `.reveals-on`,
+   which JS adds (pre-paint) only when it's confirmed it can run the animation.
+   So if the animation JS never runs — slow device, a thrown error, no-JS — the
+   content simply stays visible instead of disappearing. */
 .reveal {
-  opacity: 0;
-  transform: translateY(24px);
   transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
   will-change: opacity, transform;
+}
+.reveals-on .reveal {
+  opacity: 0;
+  transform: translateY(24px);
 }
 .reveal.is-in {
   opacity: 1;
   transform: none;
 }
 
-/* Split-line text reveal (per-line clip) */
+/* Split-line text reveal (per-line clip) — same progressive-enhancement gate. */
 .line-mask {
   display: block;
   overflow: hidden;
 }
 .line-mask > span {
   display: block;
+}
+.reveals-on .line-mask > span {
   transform: translateY(110%);
 }
 

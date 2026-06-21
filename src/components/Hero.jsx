@@ -1,19 +1,39 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useMemo } from "react";
 import { scrollToTarget } from "../lib/useSmoothScroll.js";
+import CanvasErrorBoundary from "./CanvasErrorBoundary.jsx";
 
 // Defer the WebGL bundle so first paint stays instant.
 const HeroCanvas = lazy(() => import("./HeroCanvas.jsx"));
 
+// One-time check: does this browser/GPU actually have WebGL?
+function webglSupported() {
+  try {
+    const c = document.createElement("canvas");
+    return !!(
+      window.WebGLRenderingContext &&
+      (c.getContext("webgl") || c.getContext("experimental-webgl"))
+    );
+  } catch {
+    return false;
+  }
+}
+
 export default function Hero({ profile, ready, reduced }) {
+  // Render the field whenever WebGL exists; animate only when motion is allowed
+  // (reduced-motion still gets a frozen field, so it's visible — just still).
+  const canRenderField = useMemo(() => webglSupported(), []);
+
   return (
     <section className="hero" aria-label="Introduction">
-      {/* Field: animated detection shader, or a calm static wash. */}
+      {/* Field: animated detection shader (or frozen), over a CSS gradient. */}
       <div className="hero-field" aria-hidden="true">
         <div className="hero-field-fallback" />
-        {!reduced && (
-          <Suspense fallback={null}>
-            <HeroCanvas />
-          </Suspense>
+        {canRenderField && (
+          <CanvasErrorBoundary>
+            <Suspense fallback={null}>
+              <HeroCanvas animate={!reduced} />
+            </Suspense>
+          </CanvasErrorBoundary>
         )}
       </div>
 

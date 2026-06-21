@@ -19,7 +19,7 @@ export default function App() {
   const [ready, setReady] = useState(false); // preloader finished
 
   useSmoothScroll(!reduced);
-  useReveals(reduced, [ready]);
+  useReveals(reduced, ready);
 
   // Lock scroll while the preloader runs.
   useEffect(() => {

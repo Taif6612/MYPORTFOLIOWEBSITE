@@ -82,7 +82,7 @@ const fragment = /* glsl */ `
     // melt into paper at the edges
     float vig = smoothstep(1.15, 0.25, length((uv - 0.5) * vec2(1.25, 1.5)));
 
-    float a = clamp(contour * vig, 0.0, 1.0) * 0.5;
+    float a = clamp(contour * vig, 0.0, 1.0) * 0.62;
     gl_FragColor = vec4(uSignal, a);
   }
 `;
@@ -129,12 +129,15 @@ function Field() {
   );
 }
 
-export default function HeroCanvas() {
+export default function HeroCanvas({ animate = true }) {
   return (
     <Canvas
       className="hero-canvas"
       gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
       dpr={[1, 1.75]}
+      // When motion is reduced we still render the field once (frozen), so it's
+      // visible without continuously animating.
+      frameloop={animate ? "always" : "demand"}
       camera={{ position: [0, 0, 5], fov: 45 }}
     >
       <Field />
