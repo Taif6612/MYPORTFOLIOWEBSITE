@@ -212,6 +212,26 @@ export const projects = [
   },
 ];
 
+/* Screenshot posters (public/projects/shots/<id>.jpg) shown by default on each
+   live plate; the interactive iframe fades in on hover. Add an id here when a
+   new live site gets a captured screenshot. */
+const SHOTS = new Set([
+  "proctorless",
+  "autohub-marketplace",
+  "autohub-premium",
+  "property-rental",
+  "nestspace",
+  "solar-panel",
+  "campusedge-design-system",
+  "interior-design",
+  "urban-bistro",
+  "luxeglow-spa",
+  "eduprime-academy",
+]);
+projects.forEach((p) => {
+  if (p.url && SHOTS.has(p.id)) p.poster = `/projects/shots/${p.id}.jpg`;
+});
+
 /* Distinct category list, in first-seen order — drives the filter bar. */
 export const categories = [
   "All",
