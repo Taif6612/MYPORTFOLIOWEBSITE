@@ -2,7 +2,20 @@ export default function About({ profile }) {
   return (
     <section className="section section--alt about" id="about" aria-label="About">
       <div className="shell about-grid">
-        <p className="eyebrow about-eyebrow">About</p>
+        <div className="about-aside">
+          <p className="eyebrow about-eyebrow">About</p>
+          <figure className="about-portrait reveal">
+            <div className="about-portrait-frame">
+              <img src="/taif-portrait.jpeg" alt="Taif Ur Rahman" loading="lazy" />
+              <span className="about-portrait-corner about-portrait-corner--tl" aria-hidden="true" />
+              <span className="about-portrait-corner about-portrait-corner--br" aria-hidden="true" />
+            </div>
+            <figcaption className="about-portrait-cap mono">
+              <span>Taif Ur Rahman</span>
+              <span className="about-portrait-loc">Dhaka, BD</span>
+            </figcaption>
+          </figure>
+        </div>
 
         <div className="about-body" data-lines>
           <h2 className="display about-statement">

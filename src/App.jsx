@@ -10,6 +10,7 @@ import SignalRail from "./components/SignalRail.jsx";
 import Header from "./components/Header.jsx";
 import Hero from "./components/Hero.jsx";
 import WorkIndex from "./components/WorkIndex.jsx";
+import Recognition from "./components/Recognition.jsx";
 import About from "./components/About.jsx";
 import Footer from "./components/Footer.jsx";
 
@@ -38,6 +39,7 @@ export default function App() {
       <main id="top">
         <Hero profile={profile} ready={ready} reduced={reduced} />
         <WorkIndex projects={projects} reduced={reduced} isTouch={isTouch} />
+        <Recognition />
         <About profile={profile} />
       </main>
 
