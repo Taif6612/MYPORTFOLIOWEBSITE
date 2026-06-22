@@ -12,6 +12,7 @@ import Hero from "./components/Hero.jsx";
 import WorkIndex from "./components/WorkIndex.jsx";
 import Recognition from "./components/Recognition.jsx";
 import About from "./components/About.jsx";
+import Booking from "./components/Booking.jsx";
 import Footer from "./components/Footer.jsx";
 
 export default function App() {
@@ -41,6 +42,7 @@ export default function App() {
         <WorkIndex projects={projects} reduced={reduced} isTouch={isTouch} />
         <Recognition />
         <About profile={profile} />
+        <Booking profile={profile} />
       </main>
 
       <Footer profile={profile} />

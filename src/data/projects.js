@@ -245,8 +245,8 @@ export const profile = {
   thesis: ["Interfaces that", "watch, adapt,", "and include."],
   // Subtitle under the hero headline — keep it plain and readable.
   tagline:
-    "Front-end engineer in Dhaka. I design and build interfaces with a bias toward clarity and access — from exam-integrity tools to accessibility layers that open the web to everyone.",
-  location: "Dhaka, Bangladesh · Open to remote",
+    "Front-end engineer. I design and build interfaces with a bias toward clarity and access — from exam-integrity tools to accessibility layers that open the web to everyone.",
+  location: "Available worldwide · Remote",
   status: "Open to work",
   email: "taifurrahman66123@gmail.com",
   phone: "+880 1703 306577",
@@ -256,7 +256,7 @@ export const profile = {
     { label: "Email", url: "mailto:taifurrahman66123@gmail.com" },
   ],
   about:
-    "I'm a final-year Computer Science student at Independent University, Bangladesh, building front-end interfaces with a bias toward clarity and access. My work runs from ProctorLess — a privacy-first exam platform that protects integrity without surveillance — to Senior Mode, an extension that re-renders the web for the people it usually leaves behind. I care about the moment an interface goes from confusing to obvious.",
+    "I'm a final-year Computer Science student building front-end interfaces with a bias toward clarity and access. My work runs from ProctorLess — a privacy-first exam platform that protects integrity without surveillance — to Senior Mode, an extension that re-renders the web for the people it usually leaves behind. I care about the moment an interface goes from confusing to obvious.",
   publications: [
     {
       title:
@@ -266,7 +266,7 @@ export const profile = {
     },
     {
       title:
-        "Machine Learning Modeling for Predicting Water Level in the Nabaganga River, Bangladesh",
+        "Machine Learning Modeling for Predicting Water Level in the Nabaganga River",
       venue: "IEEE ICOIICS 2025",
       url: "https://ieeexplore.ieee.org/document/11390660",
     },

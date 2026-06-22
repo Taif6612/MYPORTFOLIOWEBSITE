@@ -43,7 +43,7 @@ export default function Hero({ profile, ready, reduced }) {
           <span className="hero-eyebrow-pip" aria-hidden="true" />
           <span>{profile.role}</span>
           <span className="hero-eyebrow-dot">/</span>
-          <span>Dhaka · Portfolio ’26</span>
+          <span>Available · Portfolio ’26</span>
         </p>
 
         <h1 className="display hero-title" data-lines>
@@ -62,9 +62,9 @@ export default function Hero({ profile, ready, reduced }) {
           <button type="button" className="btn btn--primary" onClick={() => scrollToTarget("#work")}>
             View work <span aria-hidden="true">→</span>
           </button>
-          <a className="btn btn--ghost" href={`mailto:${profile.email}`}>
-            Get in touch
-          </a>
+          <button type="button" className="btn btn--ghost" onClick={() => scrollToTarget("#booking")}>
+            Book a project
+          </button>
         </div>
 
         <div className={`hero-meta ${ready ? "is-in" : ""}`}>

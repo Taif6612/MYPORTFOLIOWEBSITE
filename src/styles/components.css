@@ -1336,6 +1336,107 @@ html.is-locked {
   }
 }
 
+/* ---- Booking form ----------------------------------------------------- */
+.booking {
+  background: var(--paper-2);
+}
+.booking-grid {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: clamp(2rem, 5vw, 4.5rem);
+  align-items: start;
+}
+.booking-title {
+  font-size: var(--step-3);
+  margin: 0.5rem 0 1.2rem;
+}
+.booking-lead {
+  font-size: var(--step-1);
+  color: var(--ink-2);
+  line-height: 1.5;
+  max-width: 42ch;
+}
+.booking-mail {
+  display: inline-block;
+  margin-top: 1.4rem;
+  font-size: var(--step--1);
+  letter-spacing: 0.04em;
+}
+.booking-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+.booking-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.1rem;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.field label {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--stone);
+}
+.field input,
+.field select,
+.field textarea {
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.8em 0.9em;
+  width: 100%;
+  transition: border-color 0.3s, background-color 0.3s, box-shadow 0.3s;
+}
+.field textarea {
+  resize: vertical;
+  min-height: 7rem;
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--signal);
+  background: #fff;
+  box-shadow: 0 0 0 3px var(--signal-wash);
+}
+.booking-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  margin-top: 0.4rem;
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+  transform: none;
+}
+.booking-note {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+}
+.booking-note--err {
+  color: #b04a4a;
+}
+@media (max-width: 880px) {
+  .booking-grid,
+  .booking-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 880px) {
   .work-grid {
     grid-template-columns: 1fr;

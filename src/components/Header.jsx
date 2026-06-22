@@ -37,8 +37,8 @@ export default function Header({ profile, ready }) {
             <a href="#about" onClick={go("#about")} className="site-nav-link">
               About
             </a>
-            <a href="#contact" onClick={go("#contact")} className="site-nav-link">
-              Contact
+            <a href="#booking" onClick={go("#booking")} className="site-nav-link">
+              Booking
             </a>
           </nav>
         </div>

@@ -43,7 +43,7 @@ export default function Recognition() {
 
   return (
     <section className="section recognition" id="praise" aria-label="Availability, recognition and stack">
-      {/* Clock band: availability · live Dhaka clock · ship quote */}
+      {/* Clock band: availability · viewer's local clock · ship quote */}
       <div className="shell clock-band">
         <div className="avail-card reveal">
           <span className="avail-pip-row mono">

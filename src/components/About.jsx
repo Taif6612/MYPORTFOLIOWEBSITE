@@ -12,7 +12,7 @@ export default function About({ profile }) {
             </div>
             <figcaption className="about-portrait-cap mono">
               <span>Taif Ur Rahman</span>
-              <span className="about-portrait-loc">Dhaka, BD</span>
+              <span className="about-portrait-loc">Remote</span>
             </figcaption>
           </figure>
         </div>
@@ -39,11 +39,11 @@ export default function About({ profile }) {
             </li>
             <li>
               <span className="about-facts-k">Based</span>
-              <span className="about-facts-v">Dhaka, Bangladesh · Open to remote</span>
+              <span className="about-facts-v">Remote · Available worldwide</span>
             </li>
             <li>
               <span className="about-facts-k">Studying</span>
-              <span className="about-facts-v">BSc Computer Science, IUB — 2026</span>
+              <span className="about-facts-v">BSc Computer Science · 2026</span>
             </li>
             <li>
               <span className="about-facts-k">Status</span>

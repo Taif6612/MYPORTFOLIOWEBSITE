@@ -1,9 +1,20 @@
 import { useEffect, useRef } from "react";
 
-/* Real-time Dhaka analog clock. Ticks and hands are built imperatively (like
-   the original design) so they rotate crisply around the centre; the time is
-   read from Intl in the Asia/Dhaka zone and updated every second. */
+/* Real-time analog clock showing the VIEWER's local time. Ticks and hands are
+   built imperatively so they rotate crisply around the centre; time is read
+   from Intl in the visitor's own timezone and updated every second. */
 export default function Clock() {
+  // Label the clock with the viewer's timezone city (e.g. "NEW YORK").
+  const cityLabel = (() => {
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+      const city = tz.split("/").pop().replace(/_/g, " ");
+      return (city || "Local").toUpperCase();
+    } catch {
+      return "LOCAL";
+    }
+  })();
+
   const wrapRef = useRef(null);
   const ticksRef = useRef(null);
   const handsRef = useRef(null);
@@ -59,8 +70,8 @@ export default function Clock() {
       "background:var(--signal);box-shadow:0 0 0 3px var(--paper-3);z-index:6";
     handsBox.appendChild(cap);
 
+    // No timeZone option → the viewer's own local time.
     const fmt = new Intl.DateTimeFormat("en-US", {
-      timeZone: "Asia/Dhaka",
       hour: "numeric",
       minute: "numeric",
       second: "numeric",
@@ -103,7 +114,7 @@ export default function Clock() {
   }, []);
 
   return (
-    <div className="clock-wrap" ref={wrapRef} aria-label="Current time in Dhaka">
+    <div className="clock-wrap" ref={wrapRef} aria-label="Your current local time">
       <div className="clock-face">
         <div className="clock-ticks" ref={ticksRef} />
         <div className="clock-date">
@@ -114,7 +125,7 @@ export default function Clock() {
             21
           </span>
         </div>
-        <span className="clock-city mono">DHAKA</span>
+        <span className="clock-city mono">{cityLabel}</span>
         <div className="clock-hands" ref={handsRef} />
       </div>
     </div>
