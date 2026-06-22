@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="SolarTech BD — Professional solar energy solutions for residential, commercial, and industrial installations in Bangladesh.">
+<title>SolarTech BD — Power Your Future with Clean Solar Energy</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ══════════ RESET ══════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --c-emerald:#10b981;--c-emerald-dark:#059669;--c-emerald-deeper:#047857;
+  --c-lime:#84cc16;--c-teal:#14b8a6;--c-cyan:#06b6d4;
+  --c-bg:#fafcfa;--c-bg2:#f0f5f0;--c-surface:#fff;
+  --c-text:#0a1a0f;--c-text2:#3d5a47;--c-text3:#7a9484;--c-border:#dce8df;
+  --c-dark-bg:#080e0a;--c-dark-bg2:#0f1a12;--c-dark-surface:#162016;
+  --c-dark-text:#e4f0e7;--c-dark-text2:#a5c4ae;--c-dark-text3:#5a8a67;--c-dark-border:#1e3825;
+  --r:14px;--r-lg:22px;--r-xl:32px;
+  --font-h:'Syne',sans-serif;--font-b:'Inter',sans-serif;
+  --ease:cubic-bezier(.22,1,.36,1);--ease-out:cubic-bezier(0,.55,.45,1);--ease-spring:cubic-bezier(.34,1.56,.64,1);
+}
+html{font-size:16px}
+body{font-family:var(--font-b);color:var(--c-text);background:var(--c-bg);line-height:1.65;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body.dark{--c-bg:var(--c-dark-bg);--c-bg2:var(--c-dark-bg2);--c-surface:var(--c-dark-surface);--c-text:var(--c-dark-text);--c-text2:var(--c-dark-text2);--c-text3:var(--c-dark-text3);--c-border:var(--c-dark-border)}
+img{display:block;max-width:100%}
+a{text-decoration:none;color:inherit}
+button{font-family:var(--font-b);cursor:pointer}
+
+/* ══════════ SMOOTH SCROLL (via Lenis-like CSS) ══════════ */
+html{scroll-behavior:auto}
+body.smooth-ready{scroll-behavior:auto}
+
+/* ══════════ CUSTOM CURSOR ══════════ */
+.cursor{position:fixed;width:20px;height:20px;border:2px solid var(--c-emerald);border-radius:50%;pointer-events:none;z-index:10001;transition:width .3s var(--ease),height .3s var(--ease),border-color .3s,transform .15s ease-out;transform:translate(-50%,-50%);mix-blend-mode:difference;display:none}
+.cursor.active{width:50px;height:50px;border-color:var(--c-lime)}
+@media(pointer:fine){.cursor{display:block}}
+@media(max-width:768px){.cursor{display:none!important}}
+
+/* ══════════ LOADER ══════════ */
+.loader{position:fixed;inset:0;z-index:10000;background:#060d08;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2rem}
+.loader-logo{font-family:var(--font-h);font-size:2rem;font-weight:800;color:#fff;opacity:0;transform:translateY(20px);animation:fadeUp .6s .2s var(--ease) forwards}
+.loader-logo i{color:var(--c-emerald);margin-right:.5rem}
+.loader-bar-wrap{width:200px;height:3px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden;opacity:0;animation:fadeUp .6s .4s var(--ease) forwards}
+.loader-bar{height:100%;background:linear-gradient(90deg,var(--c-emerald),var(--c-lime));border-radius:3px;width:0;animation:loadBar 1.8s .6s var(--ease-out) forwards}
+@keyframes loadBar{to{width:100%}}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+.loader.done{opacity:0;pointer-events:none;transition:opacity .6s var(--ease)}
+
+/* ══════════ TEXT REVEAL ANIMATIONS ══════════ */
+.reveal-text{overflow:hidden;display:inline-block}
+.reveal-text .word{display:inline-block;transform:translateY(110%);opacity:0;transition:transform .8s var(--ease),opacity .8s var(--ease)}
+.reveal-text.in-view .word{transform:translateY(0);opacity:1}
+.fade-up{opacity:0;transform:translateY(50px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.fade-up.in-view{opacity:1;transform:translateY(0)}
+.scale-in{opacity:0;transform:scale(.92);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.scale-in.in-view{opacity:1;transform:scale(1)}
+.slide-right{opacity:0;transform:translateX(-60px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.slide-right.in-view{opacity:1;transform:translateX(0)}
+.slide-left{opacity:0;transform:translateX(60px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.slide-left.in-view{opacity:1;transform:translateX(0)}
+
+/* stagger children */
+.stagger-children .fade-up:nth-child(1){transition-delay:.05s}
+.stagger-children .fade-up:nth-child(2){transition-delay:.12s}
+.stagger-children .fade-up:nth-child(3){transition-delay:.19s}
+.stagger-children .fade-up:nth-child(4){transition-delay:.26s}
+.stagger-children .fade-up:nth-child(5){transition-delay:.33s}
+.stagger-children .fade-up:nth-child(6){transition-delay:.40s}
+
+/* ══════════ NAV ══════════ */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:1.25rem 0;transition:all .5s var(--ease)}
+.nav.scrolled{padding:.7rem 0;background:rgba(250,252,250,.82);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);border-bottom:1px solid var(--c-border)}
+body.dark .nav.scrolled{background:rgba(8,14,10,.85)}
+.nav-inner{max-width:1280px;margin:auto;padding:0 2rem;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:var(--font-h);font-weight:800;font-size:1.35rem;display:flex;align-items:center;gap:.5rem}
+.logo i{color:var(--c-emerald);font-size:1.2rem}
+.nav-links{display:flex;gap:2.2rem;list-style:none;align-items:center}
+.nav-links a{font-size:.85rem;font-weight:500;color:var(--c-text2);position:relative;padding:.25rem 0;transition:color .3s}
+.nav-links a::after{content:'';position:absolute;left:0;bottom:0;width:0;height:2px;background:var(--c-emerald);border-radius:1px;transition:width .4s var(--ease)}
+.nav-links a:hover{color:var(--c-text)}
+.nav-links a:hover::after{width:100%}
+.nav-right{display:flex;align-items:center;gap:1rem}
+.theme-btn{background:none;border:1.5px solid var(--c-border);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--c-text2);font-size:.9rem;transition:all .3s var(--ease)}
+.theme-btn:hover{border-color:var(--c-emerald);color:var(--c-emerald);transform:rotate(180deg)}
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.7rem 1.6rem;border-radius:60px;font-weight:600;font-size:.85rem;border:none;transition:all .4s var(--ease);position:relative;overflow:hidden}
+.btn-primary{background:var(--c-emerald);color:#fff}
+.btn-primary::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--c-teal),var(--c-emerald-dark));opacity:0;transition:opacity .4s}
+.btn-primary:hover::before{opacity:1}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(16,185,129,.35)}
+.btn-primary span,.btn-primary i{position:relative;z-index:1}
+.btn-outline{background:transparent;border:1.5px solid rgba(255,255,255,.3);color:#fff}
+.btn-outline:hover{border-color:#fff;background:rgba(255,255,255,.08);transform:translateY(-2px)}
+.btn-dark{background:var(--c-text);color:var(--c-bg)}
+.btn-dark:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.hamburger{display:none;background:none;border:none;font-size:1.4rem;color:var(--c-text)}
+
+/* ══════════ MOBILE MENU ══════════ */
+.mobile-menu{position:fixed;inset:0;background:var(--c-bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2rem;opacity:0;pointer-events:none;transition:opacity .4s var(--ease)}
+.mobile-menu.open{opacity:1;pointer-events:all}
+.mobile-menu a{font-family:var(--font-h);font-size:1.8rem;font-weight:700;color:var(--c-text);opacity:0;transform:translateY(20px);transition:all .4s var(--ease)}
+.mobile-menu.open a{opacity:1;transform:translateY(0)}
+.mobile-menu.open a:nth-child(2){transition-delay:.05s}
+.mobile-menu.open a:nth-child(3){transition-delay:.1s}
+.mobile-menu.open a:nth-child(4){transition-delay:.15s}
+.mobile-menu.open a:nth-child(5){transition-delay:.2s}
+.mobile-menu.open a:nth-child(6){transition-delay:.25s}
+.mobile-close{position:absolute;top:1.5rem;right:2rem;background:none;border:none;font-size:2rem;color:var(--c-text);cursor:pointer}
+
+/* ══════════ HERO ══════════ */
+.hero{min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden;background:var(--c-dark-bg)}
+.hero-bg{position:absolute;inset:0}
+.hero-bg img{width:100%;height:100%;object-fit:cover;opacity:.25;transform:scale(1.1);transition:transform 8s linear}
+body.loaded .hero-bg img{transform:scale(1)}
+.hero-gradient{position:absolute;inset:0;background:linear-gradient(160deg,rgba(6,78,59,.95) 0%,rgba(8,14,10,.8) 50%,rgba(30,58,90,.7) 100%)}
+.hero-inner{position:relative;max-width:1280px;margin:auto;padding:10rem 2rem 6rem;display:grid;grid-template-columns:1.1fr .9fr;gap:4rem;align-items:center;color:#fff}
+
+/* Hero text orchestration */
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.25);padding:.4rem 1rem;border-radius:60px;font-size:.76rem;font-weight:500;color:var(--c-emerald);letter-spacing:.03em;opacity:0;transform:translateY(20px);transition:all .8s var(--ease)}
+body.loaded .hero-badge{opacity:1;transform:translateY(0);transition-delay:.3s}
+.hero h1{font-family:var(--font-h);font-size:clamp(2.6rem,5.5vw,4.2rem);font-weight:800;line-height:1.08;margin:1.2rem 0 1.5rem;letter-spacing:-.03em}
+.hero h1 .line{display:block;overflow:hidden}
+.hero h1 .line span{display:block;transform:translateY(110%);transition:transform 1s var(--ease)}
+body.loaded .hero h1 .line span{transform:translateY(0)}
+body.loaded .hero h1 .line:nth-child(1) span{transition-delay:.5s}
+body.loaded .hero h1 .line:nth-child(2) span{transition-delay:.65s}
+body.loaded .hero h1 .line:nth-child(3) span{transition-delay:.8s}
+.hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--c-emerald),var(--c-lime));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-desc{font-size:1.08rem;color:rgba(255,255,255,.65);max-width:500px;line-height:1.75;opacity:0;transform:translateY(20px);transition:all .8s var(--ease)}
+body.loaded .hero-desc{opacity:1;transform:translateY(0);transition-delay:1s}
+.hero-cta{display:flex;gap:1rem;margin-top:2rem;flex-wrap:wrap;opacity:0;transform:translateY(20px);transition:all .8s var(--ease)}
+body.loaded .hero-cta{opacity:1;transform:translateY(0);transition-delay:1.15s}
+.hero-proof{display:flex;gap:2rem;margin-top:3rem;padding-top:2rem;border-top:1px solid rgba(255,255,255,.1);flex-wrap:wrap;opacity:0;transition:opacity 1s var(--ease)}
+body.loaded .hero-proof{opacity:1;transition-delay:1.4s}
+.proof-item .proof-num{font-family:var(--font-h);font-size:1.8rem;font-weight:800;color:var(--c-emerald)}
+.proof-item .proof-label{font-size:.76rem;color:rgba(255,255,255,.45);margin-top:.15rem;letter-spacing:.04em}
+
+/* Hero card */
+.hero-visual{display:flex;justify-content:center;perspective:1000px}
+.hero-card{background:rgba(255,255,255,.04);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.08);border-radius:var(--r-xl);padding:2.5rem;width:100%;max-width:380px;opacity:0;transform:translateY(40px) rotateX(5deg);transition:all 1s var(--ease)}
+body.loaded .hero-card{opacity:1;transform:translateY(0) rotateX(0);transition-delay:1s}
+.hero-card:hover{transform:translateY(-5px) rotateY(-3deg);border-color:rgba(16,185,129,.25)}
+.hc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.8rem}
+.hc-header h3{font-family:var(--font-h);font-size:.9rem;font-weight:600;color:rgba(255,255,255,.8)}
+.hc-live{display:flex;align-items:center;gap:.4rem;font-size:.7rem;color:var(--c-emerald)}
+.hc-live::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--c-emerald);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hc-value{font-family:var(--font-h);font-size:3rem;font-weight:800;color:#fff;line-height:1}
+.hc-value small{font-size:1rem;font-weight:600;color:var(--c-text3);margin-left:.3rem}
+.hc-sub{font-size:.78rem;color:rgba(255,255,255,.4);margin-top:.3rem}
+.hc-chart{display:flex;gap:3px;align-items:flex-end;height:80px;margin:1.8rem 0 .5rem}
+.hc-bar{flex:1;background:linear-gradient(to top,var(--c-emerald),var(--c-teal));border-radius:4px 4px 2px 2px;transform-origin:bottom;transform:scaleY(0);transition:transform .8s var(--ease-spring)}
+body.loaded .hc-bar{transform:scaleY(1)}
+.hc-time{display:flex;justify-content:space-between;font-size:.65rem;color:rgba(255,255,255,.3)}
+.hc-divider{height:1px;background:rgba(255,255,255,.06);margin:1.5rem 0}
+.hc-row{display:flex;justify-content:space-between;align-items:center;padding:.5rem 0}
+.hc-row .hcr-label{font-size:.78rem;color:rgba(255,255,255,.45)}
+.hc-row .hcr-value{font-family:var(--font-h);font-weight:700;font-size:.95rem;color:var(--c-emerald)}
+
+/* ══════════ MARQUEE ══════════ */
+.marquee{overflow:hidden;padding:1.5rem 0;background:var(--c-emerald);color:#fff;white-space:nowrap}
+.marquee-inner{display:flex;gap:3rem;animation:marquee 30s linear infinite;width:max-content}
+.marquee-item{display:flex;align-items:center;gap:.6rem;font-size:.85rem;font-weight:600;letter-spacing:.02em}
+.marquee-item i{opacity:.5}
+@keyframes marquee{to{transform:translateX(-50%)}}
+
+/* ══════════ SECTION DEFAULTS ══════════ */
+section{padding:7rem 2rem}
+.container{max-width:1280px;margin:auto}
+.section-eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.16em;color:var(--c-emerald);font-weight:700;margin-bottom:.8rem;display:flex;align-items:center;gap:.6rem}
+.section-eyebrow::before{content:'';width:24px;height:2px;background:var(--c-emerald);border-radius:1px}
+.section-title{font-family:var(--font-h);font-size:clamp(2rem,4vw,3rem);font-weight:800;line-height:1.1;letter-spacing:-.025em;margin-bottom:1rem}
+.section-desc{color:var(--c-text2);font-size:1rem;max-width:520px;line-height:1.75}
+.section-header{margin-bottom:4rem}
+.section-header.center{text-align:center}
+.section-header.center .section-eyebrow{justify-content:center}
+.section-header.center .section-desc{margin:0 auto}
+
+/* ══════════ STATS ══════════ */
+.stats{background:var(--c-bg2);padding:5rem 2rem}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2rem}
+.stat-card{text-align:center;padding:2.5rem 1rem;border-radius:var(--r-lg);background:var(--c-surface);border:1px solid var(--c-border);transition:all .5s var(--ease)}
+.stat-card:hover{transform:translateY(-6px);box-shadow:0 20px 50px rgba(16,185,129,.08);border-color:var(--c-emerald)}
+.stat-icon{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,rgba(16,185,129,.1),rgba(20,184,166,.1));display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem;color:var(--c-emerald);font-size:1.3rem;transition:transform .4s var(--ease-spring)}
+.stat-card:hover .stat-icon{transform:scale(1.15) rotate(-5deg)}
+.stat-num{font-family:var(--font-h);font-size:2.8rem;font-weight:800;line-height:1;background:linear-gradient(135deg,var(--c-text),var(--c-emerald-deeper));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+body.dark .stat-num{background:linear-gradient(135deg,#fff,var(--c-emerald));-webkit-background-clip:text;background-clip:text}
+.stat-label{color:var(--c-text3);font-size:.85rem;margin-top:.4rem;font-weight:500}
+
+/* ══════════ SERVICES ══════════ */
+.services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+.service-card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r-lg);padding:2.5rem 2rem;transition:all .5s var(--ease);position:relative;overflow:hidden}
+.service-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--c-emerald),var(--c-teal));transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
+.service-card:hover::before{transform:scaleX(1)}
+.service-card:hover{transform:translateY(-6px);box-shadow:0 24px 60px rgba(0,40,20,.06);border-color:transparent}
+.sc-icon{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--c-emerald),var(--c-teal));display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.15rem;margin-bottom:1.4rem;transition:transform .5s var(--ease-spring)}
+.service-card:hover .sc-icon{transform:rotate(-8deg) scale(1.1)}
+.service-card h3{font-family:var(--font-h);font-size:1.1rem;font-weight:700;margin-bottom:.6rem}
+.service-card p{color:var(--c-text2);font-size:.88rem;line-height:1.7}
+
+/* ══════════ CALCULATOR ══════════ */
+.calc-section{background:linear-gradient(160deg,#042f23 0%,#0a1a0f 50%,#0f2a3d 100%);color:#fff;position:relative;overflow:hidden}
+.calc-section::before{content:'';position:absolute;top:-50%;right:-20%;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(16,185,129,.08),transparent 70%)}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
+.calc-left .section-eyebrow{color:var(--c-emerald)}
+.calc-left .section-title{color:#fff}
+.calc-left .section-desc{color:rgba(255,255,255,.55)}
+.calc-features{display:flex;gap:1.5rem;margin-top:1.5rem;flex-wrap:wrap}
+.calc-feature{display:flex;align-items:center;gap:.4rem;font-size:.82rem;color:rgba(255,255,255,.55)}
+.calc-feature i{color:var(--c-emerald);font-size:.7rem}
+.calc-card{background:rgba(255,255,255,.04);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08);border-radius:var(--r-xl);padding:2.5rem}
+.calc-card label{display:block;font-size:.78rem;color:var(--c-emerald);font-weight:600;margin-bottom:.5rem;letter-spacing:.04em}
+.calc-card input[type=number]{width:100%;padding:.9rem 1.2rem;border:1px solid rgba(255,255,255,.1);border-radius:var(--r);background:rgba(255,255,255,.04);color:#fff;font-size:1rem;font-family:var(--font-b);outline:none;transition:all .3s var(--ease);margin-bottom:1.2rem;-moz-appearance:textfield}
+.calc-card input::-webkit-outer-spin-button,.calc-card input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.calc-card input:focus{border-color:var(--c-emerald);background:rgba(16,185,129,.04)}
+.calc-btn{width:100%;padding:1rem;background:var(--c-emerald);color:#fff;border:none;border-radius:60px;font-weight:700;font-size:.95rem;transition:all .4s var(--ease);position:relative;overflow:hidden}
+.calc-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--c-teal),var(--c-emerald-dark));opacity:0;transition:opacity .4s}
+.calc-btn:hover::before{opacity:1}
+.calc-btn:hover{transform:translateY(-2px);box-shadow:0 12px 35px rgba(16,185,129,.3)}
+.calc-btn span{position:relative;z-index:1}
+.calc-results{margin-top:1.8rem;display:grid;gap:0;opacity:0;transform:translateY(10px);transition:all .5s var(--ease)}
+.calc-results.show{opacity:1;transform:translateY(0)}
+.cr-item{display:flex;justify-content:space-between;align-items:center;padding:.85rem 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.cr-item:last-child{border:none}
+.cr-label{font-size:.82rem;color:rgba(255,255,255,.45)}
+.cr-value{font-family:var(--font-h);font-weight:700;color:var(--c-emerald);font-size:1.05rem}
+.cr-item.highlight{background:rgba(16,185,129,.06);margin:0 -1rem;padding:.85rem 1rem;border-radius:var(--r)}
+.cr-item.highlight .cr-value{font-size:1.2rem;color:var(--c-lime)}
+
+/* ══════════ WHY SOLAR ══════════ */
+.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+.why-card{padding:2.5rem 2rem;border-radius:var(--r-lg);background:var(--c-surface);border:1px solid var(--c-border);transition:all .5s var(--ease);position:relative}
+.why-card::after{content:'';position:absolute;inset:0;border-radius:var(--r-lg);background:linear-gradient(135deg,rgba(16,185,129,.04),transparent);opacity:0;transition:opacity .4s}
+.why-card:hover{transform:translateY(-5px);border-color:var(--c-emerald);box-shadow:0 20px 50px rgba(16,185,129,.06)}
+.why-card:hover::after{opacity:1}
+.why-icon{font-size:1.8rem;margin-bottom:1.2rem;display:block;transition:transform .5s var(--ease-spring)}
+.why-card:hover .why-icon{transform:scale(1.15)}
+.why-card h3{font-family:var(--font-h);font-size:1.05rem;font-weight:700;margin-bottom:.5rem;position:relative;z-index:1}
+.why-card p{font-size:.85rem;color:var(--c-text2);line-height:1.7;position:relative;z-index:1}
+
+/* ══════════ PROJECTS ══════════ */
+.projects-section{background:var(--c-bg2)}
+.projects-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+.project-card{border-radius:var(--r-lg);overflow:hidden;position:relative;aspect-ratio:3/4;cursor:pointer}
+.project-card img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
+.project-card:hover img{transform:scale(1.08)}
+.project-info{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,rgba(0,0,0,0) 55%);padding:1.5rem;display:flex;flex-direction:column;justify-content:flex-end;transform:translateY(20px);opacity:0;transition:all .5s var(--ease)}
+.project-card:hover .project-info{transform:translateY(0);opacity:1}
+.project-tag{display:inline-block;background:var(--c-emerald);color:#fff;font-size:.62rem;font-weight:700;padding:.2rem .7rem;border-radius:60px;margin-bottom:.6rem;letter-spacing:.04em;text-transform:uppercase;width:fit-content}
+.project-info h4{font-family:var(--font-h);color:#fff;font-size:1rem;font-weight:700}
+.project-info p{color:rgba(255,255,255,.6);font-size:.78rem;margin-top:.25rem}
+
+/* ══════════ PROCESS ══════════ */
+.process-track{display:grid;grid-template-columns:repeat(5,1fr);gap:0;position:relative}
+.process-track::before{content:'';position:absolute;top:36px;left:10%;right:10%;height:2px;background:var(--c-border)}
+.process-line{position:absolute;top:36px;left:10%;height:2px;background:linear-gradient(90deg,var(--c-emerald),var(--c-teal));width:0;transition:width 1.5s var(--ease)}
+.process-track.in-view .process-line{width:80%}
+.process-step{text-align:center;position:relative;z-index:2}
+.step-dot{width:72px;height:72px;border-radius:50%;background:var(--c-surface);border:3px solid var(--c-border);display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem;transition:all .5s var(--ease);font-family:var(--font-h);font-weight:800;font-size:1.1rem;color:var(--c-text3)}
+.process-track.in-view .step-dot{border-color:var(--c-emerald);color:var(--c-emerald);background:var(--c-surface)}
+.process-track.in-view .process-step:hover .step-dot{background:var(--c-emerald);color:#fff;transform:scale(1.12);box-shadow:0 8px 30px rgba(16,185,129,.3)}
+.process-step h4{font-family:var(--font-h);font-size:.95rem;font-weight:700;margin-bottom:.3rem}
+.process-step p{font-size:.78rem;color:var(--c-text3);line-height:1.5;max-width:160px;margin:0 auto}
+
+/* ══════════ PRODUCTS ══════════ */
+.products-section{background:var(--c-bg2)}
+.products-scroll{display:grid;grid-template-columns:repeat(5,1fr);gap:1.2rem}
+.product-card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r-lg);overflow:hidden;transition:all .5s var(--ease)}
+.product-card:hover{transform:translateY(-6px);box-shadow:0 20px 50px rgba(0,0,0,.06);border-color:var(--c-emerald)}
+.product-thumb{height:180px;overflow:hidden;position:relative}
+.product-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .7s var(--ease)}
+.product-card:hover .product-thumb img{transform:scale(1.06)}
+.product-body{padding:1.5rem}
+.product-body h4{font-family:var(--font-h);font-size:1rem;font-weight:700;margin-bottom:.8rem}
+.pf-list{list-style:none;margin-bottom:1rem}
+.pf-list li{font-size:.78rem;color:var(--c-text2);padding:.2rem 0;display:flex;align-items:center;gap:.4rem}
+.pf-list li i{color:var(--c-emerald);font-size:.6rem}
+.eff-bar{height:5px;background:var(--c-border);border-radius:3px;overflow:hidden}
+.eff-fill{height:100%;background:linear-gradient(90deg,var(--c-emerald),var(--c-teal));border-radius:3px;width:0;transition:width 1.2s var(--ease)}
+.in-view .eff-fill{width:var(--eff)}
+.eff-meta{display:flex;justify-content:space-between;font-size:.7rem;color:var(--c-text3);margin-top:.3rem;font-weight:500}
+
+/* ══════════ TESTIMONIALS ══════════ */
+.testimonials-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+.test-card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r-lg);padding:2.5rem 2rem;transition:all .5s var(--ease);position:relative}
+.test-card:hover{transform:translateY(-4px);border-color:var(--c-emerald);box-shadow:0 20px 50px rgba(16,185,129,.06)}
+.test-card .quote-mark{font-family:Georgia,serif;font-size:4rem;line-height:1;color:var(--c-emerald);opacity:.2;position:absolute;top:1rem;right:1.5rem}
+.test-stars{display:flex;gap:.15rem;color:#f59e0b;font-size:.8rem;margin-bottom:1rem}
+.test-card blockquote{font-size:.9rem;color:var(--c-text2);line-height:1.75;margin-bottom:1.5rem;position:relative;z-index:1}
+.test-author{display:flex;align-items:center;gap:.8rem}
+.test-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--c-emerald),var(--c-teal));display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--font-h);font-weight:800;font-size:.85rem}
+.test-name{font-weight:700;font-size:.88rem}
+.test-role{font-size:.75rem;color:var(--c-text3)}
+
+/* ══════════ FAQ ══════════ */
+.faq-section{background:var(--c-bg2)}
+.faq-list{max-width:760px;margin:0 auto}
+.faq-item{border-bottom:1px solid var(--c-border);overflow:hidden}
+.faq-q{width:100%;background:none;border:none;padding:1.5rem 0;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:1rem;font-weight:600;color:var(--c-text);text-align:left;transition:color .3s}
+.faq-q:hover{color:var(--c-emerald)}
+.faq-q .faq-icon{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--c-border);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--c-text3);transition:all .4s var(--ease);flex-shrink:0}
+.faq-item.open .faq-q .faq-icon{background:var(--c-emerald);border-color:var(--c-emerald);color:#fff;transform:rotate(180deg)}
+.faq-a{max-height:0;transition:max-height .5s var(--ease),padding .5s var(--ease);overflow:hidden}
+.faq-item.open .faq-a{max-height:300px;padding-bottom:1.5rem}
+.faq-a p{color:var(--c-text2);font-size:.9rem;line-height:1.8}
+
+/* ══════════ ABOUT ══════════ */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center}
+.about-img{border-radius:var(--r-xl);overflow:hidden;position:relative}
+.about-img img{width:100%;aspect-ratio:4/3;object-fit:cover;transition:transform .8s var(--ease)}
+.about-img:hover img{transform:scale(1.03)}
+.about-img .about-badge{position:absolute;bottom:1.5rem;left:1.5rem;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-radius:var(--r);padding:1rem 1.5rem;display:flex;align-items:center;gap:.8rem}
+body.dark .about-img .about-badge{background:rgba(0,0,0,.7)}
+.about-badge .ab-num{font-family:var(--font-h);font-size:2rem;font-weight:800;color:var(--c-emerald);line-height:1}
+.about-badge .ab-txt{font-size:.72rem;color:var(--c-text2);line-height:1.3;font-weight:500}
+.about-text .section-desc{margin-bottom:1rem}
+.about-certs{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:2rem}
+.cert{background:var(--c-bg2);border:1px solid var(--c-border);border-radius:var(--r);padding:1.2rem;display:flex;align-items:center;gap:.8rem;transition:all .4s var(--ease)}
+.cert:hover{border-color:var(--c-emerald);transform:translateX(4px)}
+.cert i{color:var(--c-emerald);font-size:1.2rem;flex-shrink:0}
+.cert h4{font-size:.85rem;font-weight:700}
+.cert p{font-size:.72rem;color:var(--c-text3)}
+
+/* ══════════ CONTACT ══════════ */
+.contact-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:4rem}
+.contact-info h3{font-family:var(--font-h);font-size:1.3rem;font-weight:700;margin-bottom:1.5rem}
+.ci-item{display:flex;gap:1rem;margin-bottom:1.8rem;align-items:flex-start}
+.ci-icon{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,rgba(16,185,129,.1),rgba(20,184,166,.08));display:flex;align-items:center;justify-content:center;color:var(--c-emerald);flex-shrink:0;transition:transform .4s var(--ease-spring)}
+.ci-item:hover .ci-icon{transform:scale(1.1) rotate(-5deg)}
+.ci-item h4{font-size:.88rem;font-weight:600;margin-bottom:.15rem}
+.ci-item p{font-size:.85rem;color:var(--c-text2)}
+.map-box{margin-top:1.5rem;height:200px;border-radius:var(--r-lg);background:var(--c-bg2);border:1px solid var(--c-border);display:flex;align-items:center;justify-content:center;color:var(--c-text3);font-size:.85rem;gap:.5rem}
+.contact-form{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r-xl);padding:2.5rem}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.form-group{margin-bottom:1.2rem}
+.form-group label{display:block;font-size:.78rem;font-weight:600;margin-bottom:.4rem;color:var(--c-text)}
+.form-group input,.form-group textarea,.form-group select{width:100%;padding:.8rem 1rem;border:1.5px solid var(--c-border);border-radius:var(--r);font-size:.9rem;font-family:var(--font-b);background:var(--c-bg);color:var(--c-text);outline:none;transition:all .3s var(--ease)}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--c-emerald);box-shadow:0 0 0 3px rgba(16,185,129,.08)}
+.form-group textarea{resize:vertical;min-height:100px}
+.form-submit{width:100%;padding:.95rem;background:var(--c-emerald);color:#fff;border:none;border-radius:60px;font-weight:700;font-size:.95rem;display:flex;align-items:center;justify-content:center;gap:.5rem;transition:all .4s var(--ease);position:relative;overflow:hidden}
+.form-submit::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--c-teal),var(--c-emerald-dark));opacity:0;transition:opacity .4s}
+.form-submit:hover::before{opacity:1}
+.form-submit:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(16,185,129,.3)}
+.form-submit span,.form-submit i{position:relative;z-index:1}
+
+/* ══════════ FOOTER ══════════ */
+.footer{background:var(--c-dark-bg);color:rgba(255,255,255,.7);padding:5rem 2rem 2rem}
+.footer-grid{max-width:1280px;margin:auto;display:grid;grid-template-columns:2fr 1fr 1fr 1.5fr;gap:3rem;padding-bottom:3rem;border-bottom:1px solid rgba(255,255,255,.06)}
+.footer h3{font-family:var(--font-h);font-size:.95rem;font-weight:700;color:#fff;margin-bottom:1rem}
+.footer-about{font-size:.85rem;line-height:1.7;color:rgba(255,255,255,.45)}
+.footer-social{display:flex;gap:.6rem;margin-top:1.2rem}
+.footer-social a{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.4);font-size:.85rem;transition:all .4s var(--ease)}
+.footer-social a:hover{border-color:var(--c-emerald);color:var(--c-emerald);transform:translateY(-3px)}
+.footer ul{list-style:none}
+.footer ul li{margin-bottom:.6rem}
+.footer ul a{font-size:.85rem;color:rgba(255,255,255,.45);transition:all .3s}
+.footer ul a:hover{color:var(--c-emerald);transform:translateX(3px);display:inline-block}
+.nl-input{display:flex;gap:.5rem;margin-top:.8rem}
+.nl-input input{flex:1;padding:.7rem 1rem;border:1px solid rgba(255,255,255,.1);border-radius:60px;background:rgba(255,255,255,.04);color:#fff;font-size:.85rem;outline:none;transition:border .3s}
+.nl-input input:focus{border-color:var(--c-emerald)}
+.nl-input button{padding:.7rem 1.2rem;background:var(--c-emerald);color:#fff;border:none;border-radius:60px;font-size:.8rem;font-weight:700;transition:all .3s var(--ease)}
+.nl-input button:hover{background:var(--c-emerald-dark)}
+.footer-bottom{max-width:1280px;margin:auto;padding-top:2rem;display:flex;justify-content:space-between;font-size:.78rem;color:rgba(255,255,255,.25)}
+
+/* ══════════ FLOATING ELEMENTS ══════════ */
+.back-top{position:fixed;bottom:6rem;right:1.5rem;width:46px;height:46px;border-radius:50%;background:var(--c-surface);border:1.5px solid var(--c-border);color:var(--c-text);display:flex;align-items:center;justify-content:center;font-size:.9rem;z-index:900;opacity:0;transform:translateY(10px);transition:all .4s var(--ease);box-shadow:0 4px 15px rgba(0,0,0,.06)}
+.back-top.show{opacity:1;transform:translateY(0)}
+.back-top:hover{background:var(--c-emerald);color:#fff;border-color:var(--c-emerald);transform:translateY(-3px)}
+.wa-btn{position:fixed;bottom:1.5rem;right:1.5rem;width:56px;height:56px;border-radius:50%;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.6rem;z-index:900;box-shadow:0 6px 20px rgba(37,211,102,.35);transition:all .4s var(--ease)}
+.wa-btn:hover{transform:scale(1.08);box-shadow:0 8px 30px rgba(37,211,102,.5)}
+
+/* ══════════ PARALLAX ══════════ */
+[data-parallax]{transition:transform .1s linear;will-change:transform}
+
+/* ══════════ RESPONSIVE ══════════ */
+@media(max-width:1024px){
+  .hero-inner{grid-template-columns:1fr;text-align:center}
+  .hero-desc{margin:0 auto}
+  .hero-cta{justify-content:center}
+  .hero-proof{justify-content:center}
+  .hero-visual{display:none}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .services-grid{grid-template-columns:1fr 1fr}
+  .projects-grid{grid-template-columns:1fr 1fr}
+  .products-scroll{grid-template-columns:repeat(3,1fr)}
+  .calc-grid,.about-grid,.contact-grid{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .process-track{grid-template-columns:repeat(3,1fr);gap:1.5rem;row-gap:2.5rem}
+  .process-track::before,.process-line{display:none}
+}
+@media(max-width:768px){
+  section{padding:5rem 1.5rem}
+  .nav-links,.nav-right .btn{display:none}
+  .nav-right{gap:.6rem}
+  .hamburger{display:block}
+  .services-grid,.why-grid,.testimonials-grid{grid-template-columns:1fr}
+  .projects-grid{grid-template-columns:1fr 1fr}
+  .products-scroll{grid-template-columns:1fr 1fr}
+  .process-track{grid-template-columns:1fr 1fr}
+  .form-row{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr}
+  .footer-bottom{flex-direction:column;gap:.6rem;text-align:center}
+  .marquee-item{font-size:.75rem}
+  .about-certs{grid-template-columns:1fr}
+}
+
+/* ══════════ REDUCED MOTION ══════════ */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}
+  .fade-up,.scale-in,.slide-right,.slide-left{opacity:1;transform:none}
+  body.loaded .hero h1 .line span{transform:none}
+  .marquee-inner{animation:none}
+}
+</style>
+</head>
+<body>
+
+<!-- CUSTOM CURSOR -->
+<div class="cursor" id="cursor"></div>
+
+<!-- LOADER -->
+<div class="loader" id="loader">
+  <div class="loader-logo"><i class="fas fa-solar-panel"></i> SolarTech BD</div>
+  <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+</div>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#" class="logo"><i class="fas fa-solar-panel"></i> SolarTech BD</a>
+    <ul class="nav-links">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#solutions">Solutions</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="theme-btn" id="themeBtn" aria-label="Toggle theme"><i class="fas fa-moon"></i></button>
+      <a href="#contact" class="btn btn-primary"><span><i class="fas fa-bolt"></i> Free Quote</span></a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><i class="fas fa-bars"></i></button>
+    </div>
+  </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" id="mobileClose"><i class="fas fa-times"></i></button>
+  <a href="#home" onclick="closeMob()">Home</a>
+  <a href="#services" onclick="closeMob()">Services</a>
+  <a href="#solutions" onclick="closeMob()">Solutions</a>
+  <a href="#projects" onclick="closeMob()">Projects</a>
+  <a href="#about" onclick="closeMob()">About</a>
+  <a href="#contact" onclick="closeMob()">Contact</a>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-bg"><img src="https://images.unsplash.com/photo-1509391366360-2e959784a276?w=1920&q=80" alt="Solar panels at sunrise" loading="eager"></div>
+  <div class="hero-gradient"></div>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-badge"><i class="fas fa-shield-halved"></i> Trusted by 15,000+ customers across Bangladesh</div>
+      <h1>
+        <span class="line"><span>Power Your Future</span></span>
+        <span class="line"><span>with <em>Clean Solar</em></span></span>
+        <span class="line"><span>Energy</span></span>
+      </h1>
+      <p class="hero-desc">Reduce electricity bills and embrace sustainable energy with professional solar solutions for homes, businesses, and industries.</p>
+      <div class="hero-cta">
+        <a href="#contact" class="btn btn-primary"><span><i class="fas fa-bolt"></i> Get Free Quote</span></a>
+        <a href="#calculator" class="btn btn-outline"><span><i class="fas fa-calculator"></i> Calculate Savings</span></a>
+      </div>
+      <div class="hero-proof">
+        <div class="proof-item"><div class="proof-num" data-count="5000">0</div><div class="proof-label">Installations</div></div>
+        <div class="proof-item"><div class="proof-num" data-count="25">0</div><div class="proof-label">MW+ Capacity</div></div>
+        <div class="proof-item"><div class="proof-num" data-count="40">0</div><div class="proof-label">% Avg Savings</div></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-card">
+        <div class="hc-header"><h3>Energy Dashboard</h3><div class="hc-live">Live</div></div>
+        <div class="hc-value">42.8<small>kWh</small></div>
+        <div class="hc-sub">Today's production &middot; +12% vs yesterday</div>
+        <div class="hc-chart" id="heroChart"></div>
+        <div class="hc-time"><span>6 AM</span><span>9 AM</span><span>12 PM</span><span>3 PM</span><span>6 PM</span></div>
+        <div class="hc-divider"></div>
+        <div class="hc-row"><span class="hcr-label">CO₂ Offset</span><span class="hcr-value">28.4 kg</span></div>
+        <div class="hc-row"><span class="hcr-label">Grid Export</span><span class="hcr-value">৳186</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee">
+  <div class="marquee-inner" id="marquee">
+    <span class="marquee-item"><i class="fas fa-solar-panel"></i> 5,000+ Installations</span>
+    <span class="marquee-item"><i class="fas fa-bolt"></i> 25 MW+ Deployed</span>
+    <span class="marquee-item"><i class="fas fa-leaf"></i> Carbon Neutral Operations</span>
+    <span class="marquee-item"><i class="fas fa-certificate"></i> ISO 9001 Certified</span>
+    <span class="marquee-item"><i class="fas fa-award"></i> SREDA Approved</span>
+    <span class="marquee-item"><i class="fas fa-handshake"></i> Tier-1 Equipment Only</span>
+    <span class="marquee-item"><i class="fas fa-headset"></i> 24/7 Monitoring</span>
+    <span class="marquee-item"><i class="fas fa-shield-halved"></i> 25-Year Warranty</span>
+    <span class="marquee-item"><i class="fas fa-solar-panel"></i> 5,000+ Installations</span>
+    <span class="marquee-item"><i class="fas fa-bolt"></i> 25 MW+ Deployed</span>
+    <span class="marquee-item"><i class="fas fa-leaf"></i> Carbon Neutral Operations</span>
+    <span class="marquee-item"><i class="fas fa-certificate"></i> ISO 9001 Certified</span>
+    <span class="marquee-item"><i class="fas fa-award"></i> SREDA Approved</span>
+    <span class="marquee-item"><i class="fas fa-handshake"></i> Tier-1 Equipment Only</span>
+    <span class="marquee-item"><i class="fas fa-headset"></i> 24/7 Monitoring</span>
+    <span class="marquee-item"><i class="fas fa-shield-halved"></i> 25-Year Warranty</span>
+  </div>
+</div>
+
+<!-- STATS -->
+<section class="stats">
+  <div class="container">
+    <div class="stats-grid stagger-children">
+      <div class="stat-card fade-up">
+        <div class="stat-icon"><i class="fas fa-solar-panel"></i></div>
+        <div class="stat-num"><span data-target="5000">0</span>+</div>
+        <div class="stat-label">Installations Completed</div>
+      </div>
+      <div class="stat-card fade-up">
+        <div class="stat-icon"><i class="fas fa-bolt"></i></div>
+        <div class="stat-num"><span data-target="25">0</span> MW+</div>
+        <div class="stat-label">Solar Capacity Deployed</div>
+      </div>
+      <div class="stat-card fade-up">
+        <div class="stat-icon"><i class="fas fa-users"></i></div>
+        <div class="stat-num"><span data-target="15000">0</span>+</div>
+        <div class="stat-label">Happy Customers</div>
+      </div>
+      <div class="stat-card fade-up">
+        <div class="stat-icon"><i class="fas fa-piggy-bank"></i></div>
+        <div class="stat-num"><span data-target="40">0</span>%</div>
+        <div class="stat-label">Average Energy Savings</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="container">
+    <div class="section-header fade-up">
+      <div class="section-eyebrow">What We Offer</div>
+      <h2 class="section-title">Comprehensive Solar Solutions</h2>
+      <p class="section-desc">End-to-end solar energy services tailored to your specific needs, from consultation through long-term maintenance.</p>
+    </div>
+    <div class="services-grid stagger-children">
+      <div class="service-card fade-up">
+        <div class="sc-icon"><i class="fas fa-home"></i></div>
+        <h3>Residential Solar</h3>
+        <p>Custom rooftop installations designed to power your home and reduce monthly electricity bills by up to 90%.</p>
+      </div>
+      <div class="service-card fade-up">
+        <div class="sc-icon"><i class="fas fa-building"></i></div>
+        <h3>Commercial Solar</h3>
+        <p>Scalable solutions for offices, retail spaces, and commercial buildings with quick ROI and minimal disruption.</p>
+      </div>
+      <div class="service-card fade-up">
+        <div class="sc-icon"><i class="fas fa-industry"></i></div>
+        <h3>Industrial Solar</h3>
+        <p>Large-scale solar power plants for factories and industrial facilities, significantly reducing operational costs.</p>
+      </div>
+      <div class="service-card fade-up">
+        <div class="sc-icon"><i class="fas fa-water"></i></div>
+        <h3>Solar Water Pumps</h3>
+        <p>Solar-powered irrigation and water pumping systems for agricultural and rural applications across Bangladesh.</p>
+      </div>
+      <div class="service-card fade-up">
+        <div class="sc-icon"><i class="fas fa-battery-full"></i></div>
+        <h3>Battery Storage</h3>
+        <p>Advanced energy storage to ensure 24/7 power availability and maximum utilization of your solar energy.</p>
+      </div>
+      <div class="service-card fade-up">
+        <div class="sc-icon"><i class="fas fa-wrench"></i></div>
+        <h3>Maintenance & Monitoring</h3>
+        <p>Scheduled cleaning, performance monitoring, and proactive servicing to keep systems at peak efficiency.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CALCULATOR -->
+<section class="calc-section" id="calculator">
+  <div class="container">
+    <div class="calc-grid">
+      <div class="calc-left fade-up">
+        <div class="section-eyebrow">Solar Savings Calculator</div>
+        <h2 class="section-title">See How Much You Can Save</h2>
+        <p class="section-desc">Enter your current monthly electricity bill to get an instant estimate of your potential savings with solar energy.</p>
+        <div class="calc-features">
+          <span class="calc-feature"><i class="fas fa-check-circle"></i> Free estimate</span>
+          <span class="calc-feature"><i class="fas fa-check-circle"></i> No obligation</span>
+          <span class="calc-feature"><i class="fas fa-check-circle"></i> Instant results</span>
+        </div>
+      </div>
+      <div class="calc-card fade-up" id="solutions">
+        <label for="billInput">Monthly Electricity Bill (BDT)</label>
+        <input type="number" id="billInput" placeholder="e.g. 5000" min="0">
+        <label for="roofInput">Available Roof Area (sq ft, optional)</label>
+        <input type="number" id="roofInput" placeholder="e.g. 300" min="0">
+        <button class="calc-btn" onclick="calculate()"><span><i class="fas fa-calculator"></i> Calculate Savings</span></button>
+        <div class="calc-results" id="calcResults">
+          <div class="cr-item"><span class="cr-label">Recommended System</span><span class="cr-value" id="rSys">—</span></div>
+          <div class="cr-item"><span class="cr-label">Monthly Savings</span><span class="cr-value" id="rMonth">—</span></div>
+          <div class="cr-item"><span class="cr-label">Annual Savings</span><span class="cr-value" id="rYear">—</span></div>
+          <div class="cr-item"><span class="cr-label">Payback Period</span><span class="cr-value" id="rPay">—</span></div>
+          <div class="cr-item highlight"><span class="cr-label">25-Year Savings</span><span class="cr-value" id="rLife">—</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY SOLAR -->
+<section id="whysolar">
+  <div class="container">
+    <div class="section-header center fade-up">
+      <div class="section-eyebrow">Benefits</div>
+      <h2 class="section-title">Why Choose Solar Energy</h2>
+      <p class="section-desc">Solar delivers long-term financial and environmental value with minimal ongoing effort.</p>
+    </div>
+    <div class="why-grid stagger-children">
+      <div class="why-card fade-up"><span class="why-icon">💰</span><h3>Lower Electricity Bills</h3><p>Cut monthly costs by up to 90% with a properly sized solar installation.</p></div>
+      <div class="why-card fade-up"><span class="why-icon">🌱</span><h3>Renewable Energy</h3><p>Clean, abundant, and infinitely renewable — reducing your carbon footprint every day.</p></div>
+      <div class="why-card fade-up"><span class="why-icon">🏛️</span><h3>Government Incentives</h3><p>Net metering policies and government subsidies available in Bangladesh.</p></div>
+      <div class="why-card fade-up"><span class="why-icon">⚙️</span><h3>Low Maintenance</h3><p>Occasional cleaning and annual inspections are typically all that's needed.</p></div>
+      <div class="why-card fade-up"><span class="why-icon">⚡</span><h3>Energy Independence</h3><p>Reduce reliance on the national grid and rising electricity tariffs.</p></div>
+      <div class="why-card fade-up"><span class="why-icon">🌍</span><h3>Environmental Impact</h3><p>Every kW installed offsets roughly 1.5 tonnes of CO₂ annually.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section class="projects-section" id="projects">
+  <div class="container">
+    <div class="section-header center fade-up">
+      <div class="section-eyebrow">Portfolio</div>
+      <h2 class="section-title">Featured Projects</h2>
+      <p class="section-desc">Completed installations across residential, commercial, and industrial sectors.</p>
+    </div>
+    <div class="projects-grid stagger-children">
+      <div class="project-card fade-up"><img src="https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?w=600&q=75" alt="Residential solar" loading="lazy"><div class="project-info"><span class="project-tag">Residential</span><h4>Gulshan Residence</h4><p>12 kW · ৳180K/year savings</p></div></div>
+      <div class="project-card fade-up"><img src="https://images.unsplash.com/photo-1559302504-64aae6ca6b6d?w=600&q=75" alt="Commercial solar" loading="lazy"><div class="project-info"><span class="project-tag">Commercial</span><h4>Banani Office Complex</h4><p>85 kW · ৳1.2M/year savings</p></div></div>
+      <div class="project-card fade-up"><img src="https://images.unsplash.com/photo-1509391366360-2e959784a276?w=600&q=75" alt="Solar farm" loading="lazy"><div class="project-info"><span class="project-tag">Industrial</span><h4>Gazipur Manufacturing</h4><p>500 kW · ৳6.5M/year savings</p></div></div>
+      <div class="project-card fade-up"><img src="https://images.unsplash.com/photo-1497440001374-f26997328c1b?w=600&q=75" alt="Rooftop" loading="lazy"><div class="project-info"><span class="project-tag">Residential</span><h4>Dhanmondi Villa</h4><p>8 kW · ৳120K/year savings</p></div></div>
+      <div class="project-card fade-up"><img src="https://images.unsplash.com/photo-1611365892117-00ac6fb0c494?w=600&q=75" alt="Mall solar" loading="lazy"><div class="project-info"><span class="project-tag">Commercial</span><h4>Uttara Shopping Mall</h4><p>120 kW · ৳1.8M/year savings</p></div></div>
+      <div class="project-card fade-up"><img src="https://images.unsplash.com/photo-1595437193398-f24279553f4f?w=600&q=75" alt="Agricultural" loading="lazy"><div class="project-info"><span class="project-tag">Agricultural</span><h4>Rajshahi Solar Pump</h4><p>15 kW · 50 acres irrigated</p></div></div>
+      <div class="project-card fade-up"><img src="https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=600&q=75" alt="Industrial" loading="lazy"><div class="project-info"><span class="project-tag">Industrial</span><h4>Chittagong EPZ</h4><p>1 MW · ৳12M/year savings</p></div></div>
+      <div class="project-card fade-up"><img src="https://images.unsplash.com/photo-1558449028-b53a39d100fc?w=600&q=75" alt="Resort solar" loading="lazy"><div class="project-info"><span class="project-tag">Hospitality</span><h4>Sylhet Eco Resort</h4><p>60 kW · ৳850K/year savings</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="container">
+    <div class="section-header center fade-up">
+      <div class="section-eyebrow">How It Works</div>
+      <h2 class="section-title">Our Installation Process</h2>
+      <p class="section-desc">From initial contact to ongoing support, we handle everything.</p>
+    </div>
+    <div class="process-track" id="processTrack">
+      <div class="process-line"></div>
+      <div class="process-step"><div class="step-dot">01</div><h4>Consultation</h4><p>Free assessment of your energy needs and goals.</p></div>
+      <div class="process-step"><div class="step-dot">02</div><h4>Site Survey</h4><p>On-site evaluation of roof, shading, and orientation.</p></div>
+      <div class="process-step"><div class="step-dot">03</div><h4>Custom Design</h4><p>Engineered layout optimized for maximum output.</p></div>
+      <div class="process-step"><div class="step-dot">04</div><h4>Installation</h4><p>Professional install by certified technicians.</p></div>
+      <div class="process-step"><div class="step-dot">05</div><h4>Monitoring</h4><p>Real-time tracking and ongoing maintenance.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<section class="products-section" id="products">
+  <div class="container">
+    <div class="section-header center fade-up">
+      <div class="section-eyebrow">Equipment</div>
+      <h2 class="section-title">Quality Solar Products</h2>
+      <p class="section-desc">Tier-1 certified equipment from globally recognized manufacturers.</p>
+    </div>
+    <div class="products-scroll stagger-children" id="productsGrid">
+      <div class="product-card fade-up">
+        <div class="product-thumb"><img src="https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400&q=70" alt="Solar panels" loading="lazy"></div>
+        <div class="product-body"><h4>Solar Panels</h4><ul class="pf-list"><li><i class="fas fa-check"></i>Monocrystalline PERC</li><li><i class="fas fa-check"></i>25-year warranty</li><li><i class="fas fa-check"></i>Anti-reflective coating</li></ul><div class="eff-bar"><div class="eff-fill" style="--eff:92%"></div></div><div class="eff-meta"><span>Efficiency</span><span>22.5%</span></div></div>
+      </div>
+      <div class="product-card fade-up">
+        <div class="product-thumb"><img src="https://images.unsplash.com/photo-1558449028-b53a39d100fc?w=400&q=70" alt="Inverters" loading="lazy"></div>
+        <div class="product-body"><h4>Inverters</h4><ul class="pf-list"><li><i class="fas fa-check"></i>Hybrid / On-grid / Off-grid</li><li><i class="fas fa-check"></i>MPPT tracking</li><li><i class="fas fa-check"></i>WiFi monitoring</li></ul><div class="eff-bar"><div class="eff-fill" style="--eff:98%"></div></div><div class="eff-meta"><span>Efficiency</span><span>98.2%</span></div></div>
+      </div>
+      <div class="product-card fade-up">
+        <div class="product-thumb"><img src="https://images.unsplash.com/photo-1620714223084-8fcacc6dfd8d?w=400&q=70" alt="Batteries" loading="lazy"></div>
+        <div class="product-body"><h4>Batteries</h4><ul class="pf-list"><li><i class="fas fa-check"></i>Lithium Iron Phosphate</li><li><i class="fas fa-check"></i>6000+ cycle life</li><li><i class="fas fa-check"></i>10-year warranty</li></ul><div class="eff-bar"><div class="eff-fill" style="--eff:95%"></div></div><div class="eff-meta"><span>Efficiency</span><span>95%</span></div></div>
+      </div>
+      <div class="product-card fade-up">
+        <div class="product-thumb"><img src="https://images.unsplash.com/photo-1497440001374-f26997328c1b?w=400&q=70" alt="Charge controllers" loading="lazy"></div>
+        <div class="product-body"><h4>Charge Controllers</h4><ul class="pf-list"><li><i class="fas fa-check"></i>MPPT technology</li><li><i class="fas fa-check"></i>LCD display</li><li><i class="fas fa-check"></i>Overcharge protection</li></ul><div class="eff-bar"><div class="eff-fill" style="--eff:88%"></div></div><div class="eff-meta"><span>Efficiency</span><span>99%</span></div></div>
+      </div>
+      <div class="product-card fade-up">
+        <div class="product-thumb"><img src="https://images.unsplash.com/photo-1595437193398-f24279553f4f?w=400&q=70" alt="Solar pumps" loading="lazy"></div>
+        <div class="product-body"><h4>Solar Water Pumps</h4><ul class="pf-list"><li><i class="fas fa-check"></i>DC submersible</li><li><i class="fas fa-check"></i>No fuel costs</li><li><i class="fas fa-check"></i>5-year warranty</li></ul><div class="eff-bar"><div class="eff-fill" style="--eff:85%"></div></div><div class="eff-meta"><span>Reliability</span><span>85%</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="container">
+    <div class="section-header center fade-up">
+      <div class="section-eyebrow">Testimonials</div>
+      <h2 class="section-title">What Our Clients Say</h2>
+    </div>
+    <div class="testimonials-grid stagger-children">
+      <div class="test-card fade-up">
+        <div class="quote-mark">"</div>
+        <div class="test-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+        <blockquote>Our electricity bill dropped from ৳12,000 to under ৳1,500 per month. The installation was professional and the team handled everything, including net metering paperwork.</blockquote>
+        <div class="test-author"><div class="test-avatar">AR</div><div><div class="test-name">Anika Rahman</div><div class="test-role">Homeowner, Gulshan</div></div></div>
+      </div>
+      <div class="test-card fade-up">
+        <div class="quote-mark">"</div>
+        <div class="test-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+        <blockquote>We installed 100 kW at our garment factory. Payback period was under 4 years and we've eliminated load-shedding issues completely. Excellent service.</blockquote>
+        <div class="test-author"><div class="test-avatar">KH</div><div><div class="test-name">Kamal Hossain</div><div class="test-role">MD, KH Textiles</div></div></div>
+      </div>
+      <div class="test-card fade-up">
+        <div class="quote-mark">"</div>
+        <div class="test-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-stroke"></i></div>
+        <blockquote>SolarTech BD designed a hybrid system with battery backup for our resort. Guests love that we run on clean energy — it's become a marketing advantage.</blockquote>
+        <div class="test-author"><div class="test-avatar">FS</div><div><div class="test-name">Fatema Sultana</div><div class="test-role">Owner, Sylhet Eco Resort</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section" id="faq">
+  <div class="container">
+    <div class="section-header center fade-up">
+      <div class="section-eyebrow">FAQ</div>
+      <h2 class="section-title">Common Questions</h2>
+    </div>
+    <div class="faq-list fade-up">
+      <div class="faq-item"><button class="faq-q">How much does a solar installation cost?<span class="faq-icon"><i class="fas fa-chevron-down"></i></span></button><div class="faq-a"><p>A typical residential system (3–5 kW) ranges from ৳3–5 lakh. Commercial and industrial systems are priced per kW and usually achieve payback within 3–5 years. We provide free, no-obligation quotes.</p></div></div>
+      <div class="faq-item"><button class="faq-q">What maintenance do solar panels need?<span class="faq-icon"><i class="fas fa-chevron-down"></i></span></button><div class="faq-a"><p>Periodic cleaning every 2–3 months and annual inspections. We offer maintenance packages covering cleaning, performance monitoring, and component checks.</p></div></div>
+      <div class="faq-item"><button class="faq-q">How long until I see a return on investment?<span class="faq-icon"><i class="fas fa-chevron-down"></i></span></button><div class="faq-a"><p>Most residential customers recover investment within 3–5 years. Commercial systems often see ROI in under 4 years. After that, you're generating essentially free electricity for 20+ years.</p></div></div>
+      <div class="faq-item"><button class="faq-q">What warranty do you provide?<span class="faq-icon"><i class="fas fa-chevron-down"></i></span></button><div class="faq-a"><p>25-year performance warranty on panels, 10-year on inverters, 5-year workmanship warranty. Battery warranties are typically 10 years.</p></div></div>
+      <div class="faq-item"><button class="faq-q">What is net metering?<span class="faq-icon"><i class="fas fa-chevron-down"></i></span></button><div class="faq-a"><p>Net metering lets you export excess solar electricity to the grid and receive credit on your bill. Bangladesh supports this under SREDA guidelines. We handle the entire application process.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-img slide-right">
+        <img src="https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=700&q=75" alt="SolarTech BD installation team" loading="lazy">
+        <div class="about-badge"><div class="ab-num">8+</div><div class="ab-txt">Years of<br>Experience</div></div>
+      </div>
+      <div class="about-text slide-left">
+        <div class="section-eyebrow">About SolarTech BD</div>
+        <h2 class="section-title">Building a Solar-Powered Bangladesh</h2>
+        <p class="section-desc">Founded with a mission to make clean energy accessible across Bangladesh, SolarTech BD has grown into one of the country's leading solar energy companies. We design, install, and maintain solar systems for homes, businesses, and industries of every scale.</p>
+        <p class="section-desc">Our vision: a Bangladesh where every rooftop generates clean, affordable electricity — reducing dependence on fossil fuels and creating a sustainable energy future.</p>
+        <div class="about-certs">
+          <div class="cert"><i class="fas fa-award"></i><div><h4>SREDA Certified</h4><p>Govt. approved installer</p></div></div>
+          <div class="cert"><i class="fas fa-certificate"></i><div><h4>ISO 9001:2015</h4><p>Quality management</p></div></div>
+          <div class="cert"><i class="fas fa-handshake"></i><div><h4>Tier-1 Partners</h4><p>JA Solar, Huawei, BYD</p></div></div>
+          <div class="cert"><i class="fas fa-headset"></i><div><h4>24/7 Support</h4><p>Dedicated service team</p></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="container">
+    <div class="section-header center fade-up">
+      <div class="section-eyebrow">Get In Touch</div>
+      <h2 class="section-title">Request a Free Consultation</h2>
+      <p class="section-desc">Our solar experts are ready to help you design the right system for your needs.</p>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-info fade-up">
+        <h3>Contact Information</h3>
+        <div class="ci-item"><div class="ci-icon"><i class="fas fa-phone"></i></div><div><h4>Phone</h4><p>+880 1700-000000</p></div></div>
+        <div class="ci-item"><div class="ci-icon"><i class="fas fa-envelope"></i></div><div><h4>Email</h4><p>info@solartechbd.com</p></div></div>
+        <div class="ci-item"><div class="ci-icon"><i class="fas fa-location-dot"></i></div><div><h4>Office</h4><p>House 42, Road 11, Block F<br>Banani, Dhaka 1213</p></div></div>
+        <div class="ci-item"><div class="ci-icon"><i class="fas fa-clock"></i></div><div><h4>Business Hours</h4><p>Sat–Thu: 9:00 AM – 6:00 PM</p></div></div>
+        <div class="map-box"><i class="fas fa-map-marker-alt"></i> Banani, Dhaka 1213</div>
+      </div>
+      <div class="contact-form fade-up">
+        <div class="form-row">
+          <div class="form-group"><label>Full Name</label><input type="text" placeholder="Your name"></div>
+          <div class="form-group"><label>Phone Number</label><input type="tel" placeholder="+880"></div>
+        </div>
+        <div class="form-group"><label>Email Address</label><input type="email" placeholder="you@example.com"></div>
+        <div class="form-group"><label>Service</label><select><option value="">Select a service</option><option>Residential Solar</option><option>Commercial Solar</option><option>Industrial Solar</option><option>Solar Water Pump</option><option>Battery Storage</option><option>Maintenance</option></select></div>
+        <div class="form-group"><label>Message</label><textarea placeholder="Tell us about your project or energy needs..."></textarea></div>
+        <button class="form-submit" onclick="alert('Thank you! We will contact you within 24 hours.')"><span><i class="fas fa-paper-plane"></i> Send Message</span></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div>
+      <h3><i class="fas fa-solar-panel" style="color:var(--c-emerald);margin-right:.4rem"></i> SolarTech BD</h3>
+      <p class="footer-about">Leading provider of solar energy solutions in Bangladesh. Making clean, affordable energy accessible for homes, businesses, and industries since 2018.</p>
+      <div class="footer-social">
+        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+      </div>
+    </div>
+    <div><h3>Company</h3><ul><li><a href="#services">Services</a></li><li><a href="#projects">Projects</a></li><li><a href="#about">About</a></li><li><a href="#faq">FAQ</a></li><li><a href="#contact">Contact</a></li></ul></div>
+    <div><h3>Services</h3><ul><li><a href="#">Residential Solar</a></li><li><a href="#">Commercial Solar</a></li><li><a href="#">Industrial Solar</a></li><li><a href="#">Battery Storage</a></li><li><a href="#">Maintenance</a></li></ul></div>
+    <div><h3>Newsletter</h3><p class="footer-about" style="margin-bottom:.5rem">Solar tips and exclusive offers delivered to your inbox.</p><div class="nl-input"><input type="email" placeholder="Your email"><button>Subscribe</button></div></div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2026 SolarTech BD. All rights reserved.</span>
+    <span>Built for a sustainable future</span>
+  </div>
+</footer>
+
+<!-- FLOATING -->
+<button class="back-top" id="backTop" aria-label="Back to top"><i class="fas fa-arrow-up"></i></button>
+<a href="https://wa.me/8801700000000" class="wa-btn" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+
+<script>
+/* ═══════ LOADER ═══════ */
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    document.getElementById('loader').classList.add('done');
+    document.body.classList.add('loaded');
+    startHeroCounters();
+  },2200);
+});
+
+/* ═══════ CUSTOM CURSOR ═══════ */
+const cursor=document.getElementById('cursor');
+let cx=0,cy=0,px=0,py=0;
+document.addEventListener('mousemove',e=>{cx=e.clientX;cy=e.clientY});
+(function moveCursor(){px+=(cx-px)*.12;py+=(cy-py)*.12;cursor.style.left=px+'px';cursor.style.top=py+'px';requestAnimationFrame(moveCursor)})();
+document.querySelectorAll('a,button,.service-card,.project-card,.product-card,.test-card,.why-card,.stat-card,.cert').forEach(el=>{
+  el.addEventListener('mouseenter',()=>cursor.classList.add('active'));
+  el.addEventListener('mouseleave',()=>cursor.classList.remove('active'));
+});
+
+/* ═══════ THEME ═══════ */
+const themeBtn=document.getElementById('themeBtn');
+const savedTheme=localStorage.getItem('st-theme');
+if(savedTheme==='dark')document.body.classList.add('dark');
+updateThemeIcon();
+themeBtn.addEventListener('click',()=>{
+  document.body.classList.toggle('dark');
+  localStorage.setItem('st-theme',document.body.classList.contains('dark')?'dark':'light');
+  updateThemeIcon();
+});
+function updateThemeIcon(){themeBtn.querySelector('i').className=document.body.classList.contains('dark')?'fas fa-sun':'fas fa-moon'}
+
+/* ═══════ NAV ═══════ */
+const nav=document.getElementById('nav');
+const backTop=document.getElementById('backTop');
+window.addEventListener('scroll',()=>{
+  nav.classList.toggle('scrolled',scrollY>80);
+  backTop.classList.toggle('show',scrollY>600);
+},{passive:true});
+backTop.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+
+/* smooth anchor */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    e.preventDefault();
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t)t.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+});
+
+/* ═══════ MOBILE ═══════ */
+document.getElementById('hamburger').addEventListener('click',()=>document.getElementById('mobileMenu').classList.add('open'));
+document.getElementById('mobileClose').addEventListener('click',closeMob);
+function closeMob(){document.getElementById('mobileMenu').classList.remove('open')}
+
+/* ═══════ INTERSECTION OBSERVER (scroll reveals) ═══════ */
+const io=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('in-view');
+      // start counters
+      if(e.target.querySelector('[data-target]')&&!e.target.dataset.counted){
+        e.target.dataset.counted='1';
+        e.target.querySelectorAll('[data-target]').forEach(animateCounter);
+      }
+    }
+  });
+},{threshold:0.15,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.fade-up,.scale-in,.slide-right,.slide-left,.process-track,.stagger-children,.stats-grid').forEach(el=>io.observe(el));
+/* observe product efficiency bars */
+const effObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in-view')})},{threshold:.3});
+document.querySelectorAll('.product-card').forEach(el=>effObs.observe(el));
+
+/* ═══════ ANIMATED COUNTERS ═══════ */
+function animateCounter(el){
+  const target=+el.dataset.target;
+  const duration=2000;
+  const start=performance.now();
+  function tick(now){
+    const elapsed=now-start;
+    const progress=Math.min(elapsed/duration,1);
+    const eased=1-Math.pow(1-progress,4); // ease out quart
+    el.textContent=Math.round(target*eased).toLocaleString();
+    if(progress<1)requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+/* hero counters */
+function startHeroCounters(){
+  document.querySelectorAll('[data-count]').forEach(el=>{
+    const target=+el.dataset.count;
+    const duration=2200;
+    const start=performance.now();
+    function tick(now){
+      const p=Math.min((now-start)/duration,1);
+      const e=1-Math.pow(1-p,4);
+      el.textContent=Math.round(target*e).toLocaleString();
+      if(p<1)requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  });
+}
+
+/* ═══════ HERO CHART ═══════ */
+(()=>{
+  const c=document.getElementById('heroChart');
+  const vals=[12,28,55,78,95,100,92,82,60,35,18,8];
+  vals.forEach((v,i)=>{
+    const bar=document.createElement('div');
+    bar.className='hc-bar';
+    bar.style.flex='1';
+    bar.style.height=v+'%';
+    bar.style.transitionDelay=(1.2+i*.08)+'s';
+    bar.style.opacity=.5+v/200;
+    c.appendChild(bar);
+  });
+})();
+
+/* ═══════ CALCULATOR ═══════ */
+function calculate(){
+  const bill=+document.getElementById('billInput').value;
+  if(!bill||bill<500){alert('Please enter a valid monthly bill (minimum ৳500).');return}
+  const rate=8;const kwh=bill/rate;const kw=Math.ceil(kwh/120*10)/10;
+  const ms=Math.round(bill*.75);const ys=ms*12;const cost=kw*75000;const pay=Math.round(cost/ys*10)/10;
+  document.getElementById('rSys').textContent=kw+' kW';
+  document.getElementById('rMonth').textContent='৳'+ms.toLocaleString();
+  document.getElementById('rYear').textContent='৳'+ys.toLocaleString();
+  document.getElementById('rPay').textContent=pay+' years';
+  document.getElementById('rLife').textContent='৳'+(ys*25).toLocaleString();
+  document.getElementById('calcResults').classList.add('show');
+}
+
+/* ═══════ FAQ ═══════ */
+document.querySelectorAll('.faq-q').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const item=btn.parentElement;
+    const wasOpen=item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+    if(!wasOpen)item.classList.add('open');
+  });
+});
+
+/* ═══════ PARALLAX ON SCROLL ═══════ */
+let ticking=false;
+window.addEventListener('scroll',()=>{
+  if(!ticking){requestAnimationFrame(()=>{
+    const s=scrollY;
+    const heroBg=document.querySelector('.hero-bg img');
+    if(heroBg&&s<window.innerHeight)heroBg.style.transform=`scale(${1+s*.0001}) translateY(${s*.15}px)`;
+    ticking=false;
+  });ticking=true}
+},{passive:true});
+
+/* ═══════ MAGNETIC BUTTON EFFECT ═══════ */
+document.querySelectorAll('.btn-primary,.form-submit,.calc-btn').forEach(btn=>{
+  btn.addEventListener('mousemove',e=>{
+    const rect=btn.getBoundingClientRect();
+    const x=e.clientX-rect.left-rect.width/2;
+    const y=e.clientY-rect.top-rect.height/2;
+    btn.style.transform=`translate(${x*.15}px,${y*.15}px)`;
+  });
+  btn.addEventListener('mouseleave',()=>{btn.style.transform=''});
+});
+
+/* ═══════ 3D TILT CARDS ═══════ */
+document.querySelectorAll('.service-card,.test-card,.why-card').forEach(card=>{
+  card.addEventListener('mousemove',e=>{
+    const rect=card.getBoundingClientRect();
+    const x=(e.clientX-rect.left)/rect.width-.5;
+    const y=(e.clientY-rect.top)/rect.height-.5;
+    card.style.transform=`translateY(-6px) perspective(600px) rotateX(${-y*6}deg) rotateY(${x*6}deg)`;
+  });
+  card.addEventListener('mouseleave',()=>{
+    card.style.transform='';
+    card.style.transition='all .5s var(--ease)';
+  });
+  card.addEventListener('mouseenter',()=>{card.style.transition='transform .1s ease-out'});
+});
+</script>
+</body>
+</html>

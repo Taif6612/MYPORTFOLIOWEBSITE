@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ========================= SEO META ========================= -->
+  <title>NestSpace — Find Your Perfect Home Near Your University</title>
+  <meta name="description" content="NestSpace is a premium student housing & rental platform. Discover verified apartments, find roommates, and rent your perfect home near your university across Dhaka." />
+  <meta name="keywords" content="student housing, rent, apartments, roommates, university housing, Dhaka, Bashundhara, Gulshan, NestSpace" />
+  <meta name="author" content="NestSpace" />
+  <meta name="theme-color" content="#0d9488" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="NestSpace — Smart Student Housing" />
+  <meta property="og:description" content="Find verified rentals and roommates near your university. Premium. Trusted. Student-friendly." />
+  <meta property="og:image" content="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&q=80" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Favicon (inline SVG) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>" />
+
+  <style>
+    /* =====================================================================
+       NESTSPACE — Premium Property Rental Platform (Frontend Demo)
+       Single-file build · Internal CSS + JS · 2026 UI/UX
+       ---------------------------------------------------------------------
+       TABLE OF CONTENTS
+       1.  Design Tokens (CSS Variables) + Theming
+       2.  Base / Reset / Typography
+       3.  Reusable Utilities (container, buttons, badges, section heads)
+       4.  Loading Screen
+       5.  Navigation Bar
+       6.  Hero Section + Search
+       7.  Animated Statistics
+       8.  Featured Properties
+       9.  Advanced Search Filters
+       10. Popular Locations
+       11. Universities
+       12. Roommate Finder
+       13. Why Choose Us
+       14. How It Works
+       15. Testimonials
+       16. FAQ Accordion
+       17. Contact
+       18. Footer + Newsletter
+       19. Back-to-Top + Misc
+       20. Scroll Reveal + Responsive
+       ===================================================================== */
+
+    /* ============================ 1. TOKENS ============================ */
+    :root {
+      /* Brand palette — premium teal/emerald with warm coral accent */
+      --brand-50:  #ecfdf5;
+      --brand-100: #d1fae5;
+      --brand-300: #5eead4;
+      --brand-400: #2dd4bf;
+      --brand-500: #14b8a6;
+      --brand-600: #0d9488;
+      --brand-700: #0f766e;
+      --brand-800: #115e59;
+
+      --accent:      #fb7185; /* coral — favorites / highlights */
+      --accent-soft: #fff1f2;
+      --gold:        #f59e0b;
+
+      /* Light theme surfaces */
+      --bg:           #f6f8fb;
+      --bg-soft:      #eef2f7;
+      --surface:      #ffffff;
+      --surface-2:    #f9fafb;
+      --glass:        rgba(255, 255, 255, 0.65);
+      --glass-border: rgba(255, 255, 255, 0.7);
+      --glass-strong: rgba(255, 255, 255, 0.85);
+
+      --text:      #0f172a;
+      --text-soft: #475569;
+      --text-mute: #94a3b8;
+      --border:    #e2e8f0;
+
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, .06);
+      --shadow:    0 8px 30px rgba(15, 23, 42, .08);
+      --shadow-lg: 0 24px 60px rgba(15, 23, 42, .14);
+      --shadow-brand: 0 16px 40px rgba(13, 148, 136, .28);
+
+      --grad-brand: linear-gradient(135deg, #14b8a6 0%, #0ea5e9 100%);
+      --grad-warm:  linear-gradient(135deg, #fb7185 0%, #f59e0b 100%);
+
+      --radius-sm: 12px;
+      --radius:    18px;
+      --radius-lg: 28px;
+      --radius-xl: 40px;
+
+      --maxw: 1240px;
+      --nav-h: 76px;
+
+      --ease: cubic-bezier(.4, 0, .2, 1);
+      --ease-out: cubic-bezier(.16, 1, .3, 1);
+    }
+
+    /* Dark theme overrides */
+    [data-theme="dark"] {
+      --bg:           #0a0f1a;
+      --bg-soft:      #0e1524;
+      --surface:      #121a2b;
+      --surface-2:    #162033;
+      --glass:        rgba(18, 26, 43, 0.6);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glass-strong: rgba(18, 26, 43, 0.85);
+
+      --text:      #f1f5f9;
+      --text-soft: #cbd5e1;
+      --text-mute: #64748b;
+      --border:    #1e293b;
+
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4);
+      --shadow:    0 10px 34px rgba(0, 0, 0, .5);
+      --shadow-lg: 0 28px 70px rgba(0, 0, 0, .6);
+      --shadow-brand: 0 16px 44px rgba(13, 148, 136, .45);
+
+      --accent-soft: rgba(251, 113, 133, .12);
+    }
+
+    /* ============================ 2. BASE ============================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; scroll-padding-top: var(--nav-h); }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      transition: background .4s var(--ease), color .4s var(--ease);
+    }
+
+    h1, h2, h3, h4, .logo { font-family: 'Plus Jakarta Sans', sans-serif; line-height: 1.15; letter-spacing: -.02em; }
+
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+    input, select, textarea { font-family: inherit; font-size: 1rem; color: var(--text); }
+    ul { list-style: none; }
+
+    ::selection { background: var(--brand-400); color: #022; }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 11px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--brand-500); border-radius: 99px; border: 3px solid var(--bg); }
+
+    /* ========================= 3. UTILITIES ========================= */
+    .container { width: min(100% - 40px, var(--maxw)); margin-inline: auto; }
+
+    .section { padding: clamp(64px, 9vw, 120px) 0; position: relative; }
+    .section--alt { background: var(--bg-soft); }
+
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: .8rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--brand-600); background: var(--brand-50);
+      padding: 7px 16px; border-radius: 99px; margin-bottom: 18px;
+    }
+    [data-theme="dark"] .eyebrow { background: rgba(20,184,166,.12); color: var(--brand-300); }
+
+    .section-head { max-width: 680px; margin-bottom: 54px; }
+    .section-head.center { margin-inline: auto; text-align: center; }
+    .section-head h2 { font-size: clamp(1.9rem, 4.2vw, 3rem); font-weight: 800; }
+    .section-head p { color: var(--text-soft); font-size: 1.08rem; margin-top: 14px; }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      font-weight: 600; font-size: .98rem; padding: 14px 26px; border-radius: 99px;
+      transition: transform .25s var(--ease-out), box-shadow .25s var(--ease), background .25s;
+      white-space: nowrap; will-change: transform;
+    }
+    .btn:active { transform: scale(.96); }
+    .btn-primary { background: var(--grad-brand); color: #fff; box-shadow: var(--shadow-brand); }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 22px 50px rgba(13,148,136,.4); }
+    .btn-ghost { background: var(--surface); color: var(--text); border: 1.5px solid var(--border); box-shadow: var(--shadow-sm); }
+    .btn-ghost:hover { transform: translateY(-3px); border-color: var(--brand-400); color: var(--brand-600); }
+    .btn-light { background: rgba(255,255,255,.16); color: #fff; backdrop-filter: blur(8px); border: 1.5px solid rgba(255,255,255,.3); }
+    .btn-light:hover { background: rgba(255,255,255,.28); transform: translateY(-3px); }
+
+    .glass {
+      background: var(--glass);
+      backdrop-filter: blur(22px) saturate(160%);
+      -webkit-backdrop-filter: blur(22px) saturate(160%);
+      border: 1px solid var(--glass-border);
+    }
+
+    /* ====================== 4. LOADING SCREEN ====================== */
+    #loader {
+      position: fixed; inset: 0; z-index: 9999;
+      display: grid; place-content: center; justify-items: center; gap: 26px;
+      background: var(--bg);
+      transition: opacity .6s var(--ease), visibility .6s;
+    }
+    #loader.hidden { opacity: 0; visibility: hidden; }
+    .loader-logo {
+      font-family: 'Plus Jakarta Sans'; font-weight: 800; font-size: 1.8rem;
+      display: flex; align-items: center; gap: 12px; color: var(--text);
+    }
+    .loader-logo .mark {
+      width: 46px; height: 46px; border-radius: 14px; display: grid; place-content: center;
+      background: var(--grad-brand); color: #fff; font-size: 1.2rem;
+      animation: pulseMark 1.4s var(--ease) infinite;
+    }
+    @keyframes pulseMark { 0%,100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+    .loader-bar { width: 220px; height: 5px; border-radius: 99px; background: var(--bg-soft); overflow: hidden; }
+    .loader-bar span { display: block; height: 100%; width: 40%; border-radius: 99px; background: var(--grad-brand); animation: loadSlide 1.1s var(--ease) infinite; }
+    @keyframes loadSlide { 0% { transform: translateX(-120%); } 100% { transform: translateX(360%); } }
+
+    /* ========================= 5. NAVBAR ========================= */
+    header.nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      height: var(--nav-h); display: flex; align-items: center;
+      transition: all .4s var(--ease);
+    }
+    header.nav.scrolled {
+      background: var(--glass-strong);
+      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      border-bottom: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-sm);
+    }
+    .nav-inner { display: flex; align-items: center; gap: 30px; width: 100%; }
+    .logo { display: flex; align-items: center; gap: 11px; font-weight: 800; font-size: 1.35rem; color: var(--text); }
+    .logo .mark {
+      width: 40px; height: 40px; border-radius: 12px; display: grid; place-content: center;
+      background: var(--grad-brand); color: #fff; font-size: 1.05rem; box-shadow: var(--shadow-brand);
+    }
+    .logo span b { color: var(--brand-600); }
+
+    .nav-links { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+    .nav-links a {
+      font-weight: 500; font-size: .96rem; color: var(--text-soft);
+      padding: 9px 15px; border-radius: 99px; position: relative; transition: color .25s, background .25s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--brand-600); background: var(--brand-50); }
+    [data-theme="dark"] .nav-links a:hover, [data-theme="dark"] .nav-links a.active { background: rgba(20,184,166,.12); color: var(--brand-300); }
+
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+    .theme-toggle {
+      width: 44px; height: 44px; border-radius: 12px; display: grid; place-content: center;
+      background: var(--surface); border: 1.5px solid var(--border); color: var(--text);
+      font-size: 1.05rem; transition: transform .3s var(--ease-out), color .25s, border-color .25s;
+    }
+    .theme-toggle:hover { transform: rotate(-20deg) scale(1.08); color: var(--gold); border-color: var(--gold); }
+    [data-theme="dark"] .theme-toggle:hover { color: var(--brand-300); border-color: var(--brand-400); }
+    .nav-cta { padding: 12px 22px; }
+
+    .burger { display: none; width: 44px; height: 44px; border-radius: 12px; background: var(--surface); border: 1.5px solid var(--border); font-size: 1.2rem; color: var(--text); }
+
+    /* Mobile drawer */
+    .mobile-menu {
+      position: fixed; inset: 0 0 0 auto; width: min(82vw, 340px); z-index: 1100;
+      transform: translateX(110%); transition: transform .45s var(--ease-out);
+      padding: 90px 26px 30px; display: flex; flex-direction: column; gap: 6px;
+      background: var(--glass-strong); backdrop-filter: blur(26px); border-left: 1px solid var(--glass-border);
+    }
+    .mobile-menu.open { transform: translateX(0); }
+    .mobile-menu a { padding: 15px 16px; border-radius: 14px; font-weight: 600; color: var(--text); font-size: 1.05rem; }
+    .mobile-menu a:hover { background: var(--brand-50); color: var(--brand-600); }
+    [data-theme="dark"] .mobile-menu a:hover { background: rgba(20,184,166,.12); }
+    .mobile-menu .btn { margin-top: 16px; }
+    .menu-close { position: absolute; top: 24px; right: 24px; font-size: 1.4rem; color: var(--text); }
+    .overlay { position: fixed; inset: 0; z-index: 1050; background: rgba(2,6,23,.5); opacity: 0; visibility: hidden; transition: .4s; backdrop-filter: blur(2px); }
+    .overlay.show { opacity: 1; visibility: visible; }
+
+    /* ========================== 6. HERO ========================== */
+    .hero { position: relative; min-height: 100vh; display: flex; align-items: center; padding-top: var(--nav-h); overflow: hidden; }
+    .hero-bg { position: absolute; inset: 0; z-index: -2; overflow: hidden; background: #04101c; }
+    /* Crossfading slideshow — each active slide runs a slow, ONE-directional
+       Ken Burns pan (no 'alternate'), so it never zooms in-and-out. */
+    .hero-slide {
+      position: absolute; inset: -3%;
+      background-size: cover; background-position: center;
+      opacity: 0; transform: scale(1.06);
+      transition: opacity 1.8s var(--ease);
+      will-change: opacity, transform;
+    }
+    .hero-slide.active { opacity: 1; animation: kenburns 9s ease-out forwards; }
+    @keyframes kenburns {
+      from { transform: scale(1.06) translate(0, 0); }
+      to   { transform: scale(1.18) translate(-2%, -1.5%); }
+    }
+    .hero-bg::after {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(105deg, rgba(4,15,28,.9) 0%, rgba(6,30,40,.72) 45%, rgba(13,148,136,.35) 100%);
+    }
+    .hero-blob { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .5; z-index: -1; }
+    .hero-blob.b1 { width: 420px; height: 420px; background: var(--brand-500); top: -120px; right: -80px; animation: float1 14s ease-in-out infinite; }
+    .hero-blob.b2 { width: 360px; height: 360px; background: #0ea5e9; bottom: -120px; left: -60px; animation: float1 18s ease-in-out infinite reverse; }
+    @keyframes float1 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(30px,40px); } }
+
+    .hero-content { max-width: 760px; color: #fff; }
+    /* Staggered entrance — plays once the loading screen clears (body.loaded) */
+    body:not(.loaded) .hero-content > * { opacity: 0; }
+    body.loaded .hero-content > *            { animation: heroUp .9s var(--ease-out) both; }
+    body.loaded .hero-content > .hero-badge  { animation-delay: .05s; }
+    body.loaded .hero-content > h1           { animation-delay: .18s; }
+    body.loaded .hero-content > .lead        { animation-delay: .32s; }
+    body.loaded .hero-content > .hero-ctas   { animation-delay: .46s; }
+    body.loaded .hero-content > .search-bar  { animation-delay: .60s; }
+    body.loaded .hero-content > .stats       { animation-delay: .74s; }
+    @keyframes heroUp { from { opacity: 0; transform: translateY(34px); } to { opacity: 1; transform: none; } }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 9px; font-size: .85rem; font-weight: 600;
+      background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.22); backdrop-filter: blur(8px);
+      padding: 8px 16px; border-radius: 99px; margin-bottom: 24px;
+    }
+    .hero-badge .dot { width: 8px; height: 8px; border-radius: 50%; background: #34d399; box-shadow: 0 0 0 4px rgba(52,211,153,.3); animation: blink 2s infinite; }
+    @keyframes blink { 50% { opacity: .4; } }
+    .hero h1 { font-size: clamp(2.4rem, 6vw, 4.4rem); font-weight: 800; line-height: 1.05; }
+    .hero h1 .grad { background: var(--grad-brand); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .hero p.lead { font-size: clamp(1.05rem, 2vw, 1.25rem); color: rgba(255,255,255,.82); margin: 22px 0 30px; max-width: 560px; }
+    .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; }
+
+    /* Search bar */
+    .search-bar {
+      margin-top: 40px; padding: 16px; border-radius: var(--radius-lg);
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr auto; gap: 12px; align-items: center;
+      background: var(--glass-strong); backdrop-filter: blur(24px) saturate(160%);
+      border: 1px solid var(--glass-border); box-shadow: var(--shadow-lg); max-width: 920px;
+    }
+    .search-field { display: flex; flex-direction: column; gap: 3px; padding: 6px 16px; border-radius: var(--radius); position: relative; }
+    .search-field + .search-field { border-left: 1px solid var(--border); }
+    .search-field label { font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-mute); }
+    .search-field .field-row { display: flex; align-items: center; gap: 9px; }
+    .search-field i { color: var(--brand-600); font-size: .95rem; }
+    .search-field input, .search-field select {
+      border: none; background: transparent; font-weight: 600; font-size: .98rem; width: 100%; outline: none; color: var(--text);
+    }
+    .search-field select { cursor: pointer; appearance: none; }
+    .search-btn { width: 56px; height: 56px; border-radius: var(--radius); background: var(--grad-brand); color: #fff; font-size: 1.15rem; display: grid; place-content: center; box-shadow: var(--shadow-brand); transition: transform .25s var(--ease-out); }
+    .search-btn:hover { transform: scale(1.07) rotate(-4deg); }
+
+    /* ========================= 7. STATS ========================= */
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 46px; max-width: 720px; }
+    .stat { padding: 24px 26px; border-radius: var(--radius); text-align: left; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); backdrop-filter: blur(10px); }
+    .stat .num { font-family: 'Plus Jakarta Sans'; font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; color: #fff; display: flex; align-items: baseline; gap: 2px; }
+    .stat .num .suffix { color: var(--brand-300); }
+    .stat .label { color: rgba(255,255,255,.78); font-size: .92rem; font-weight: 500; margin-top: 4px; }
+
+    /* ==================== 8. FEATURED PROPERTIES ==================== */
+    .prop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 26px; }
+    .prop-card {
+      background: var(--surface); border-radius: var(--radius-lg); overflow: hidden;
+      border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+      transition: transform .4s var(--ease-out), box-shadow .4s var(--ease), border-color .3s;
+      display: flex; flex-direction: column;
+    }
+    .prop-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); border-color: transparent; }
+    .prop-media { position: relative; aspect-ratio: 16/11; overflow: hidden; }
+    .prop-media img { width: 100%; height: 100%; object-fit: cover; transition: transform .7s var(--ease-out); }
+    .prop-card:hover .prop-media img { transform: scale(1.08); }
+    .prop-tag {
+      position: absolute; top: 14px; left: 14px; font-size: .76rem; font-weight: 700;
+      padding: 6px 13px; border-radius: 99px; color: #fff; backdrop-filter: blur(6px); letter-spacing: .02em;
+    }
+    .prop-tag.featured { background: var(--grad-warm); }
+    .prop-tag.new { background: var(--grad-brand); }
+    .prop-tag.verified { background: rgba(16,185,129,.92); }
+    .fav-btn {
+      position: absolute; top: 12px; right: 12px; width: 42px; height: 42px; border-radius: 50%;
+      display: grid; place-content: center; background: rgba(255,255,255,.85); backdrop-filter: blur(8px);
+      color: #64748b; font-size: 1.05rem; transition: transform .3s var(--ease-out), color .25s, background .25s;
+    }
+    .fav-btn:hover { transform: scale(1.15); color: var(--accent); }
+    .fav-btn.active { color: #fff; background: var(--accent); animation: pop .4s var(--ease-out); }
+    @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.35); } 100% { transform: scale(1); } }
+    .prop-price-badge {
+      position: absolute; bottom: 14px; left: 14px; background: var(--glass-strong); backdrop-filter: blur(10px);
+      padding: 8px 15px; border-radius: 12px; font-weight: 800; font-family: 'Plus Jakarta Sans'; color: var(--text);
+      box-shadow: var(--shadow-sm); border: 1px solid var(--glass-border);
+    }
+    .prop-price-badge small { font-weight: 500; color: var(--text-mute); font-size: .72rem; }
+
+    .prop-body { padding: 20px 22px 22px; display: flex; flex-direction: column; flex: 1; }
+    .prop-type { font-size: .78rem; font-weight: 700; color: var(--brand-600); text-transform: uppercase; letter-spacing: .06em; }
+    .prop-title { font-size: 1.18rem; font-weight: 700; margin: 6px 0 4px; }
+    .prop-loc { display: flex; align-items: center; gap: 7px; color: var(--text-soft); font-size: .92rem; }
+    .prop-loc i { color: var(--accent); }
+    .prop-meta { display: flex; gap: 18px; margin: 16px 0; padding: 14px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .prop-meta div { display: flex; align-items: center; gap: 8px; font-size: .88rem; color: var(--text-soft); font-weight: 500; }
+    .prop-meta i { color: var(--brand-600); font-size: .95rem; }
+    .prop-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; gap: 12px; }
+    .prop-rating { display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: .9rem; }
+    .prop-rating i { color: var(--gold); }
+    .view-btn { padding: 11px 18px; font-size: .9rem; }
+
+    .load-more-wrap { text-align: center; margin-top: 50px; }
+
+    /* =================== 9. ADVANCED FILTERS =================== */
+    .filters-card { padding: clamp(24px, 4vw, 44px); border-radius: var(--radius-xl); box-shadow: var(--shadow-lg); }
+    .filters-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    .filter-field { display: flex; flex-direction: column; gap: 9px; }
+    .filter-field label { font-size: .82rem; font-weight: 700; color: var(--text-soft); }
+    .filter-field label i { color: var(--brand-600); margin-right: 6px; }
+    .filter-input {
+      padding: 13px 16px; border-radius: var(--radius-sm); border: 1.5px solid var(--border);
+      background: var(--surface); transition: border-color .25s, box-shadow .25s; appearance: none;
+    }
+    .filter-field select.filter-input { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' stroke='%2394a3b8' stroke-width='2.5'%3E%3Cpath d='M2 4l5 5 5-5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px; }
+    .filter-input:focus { outline: none; border-color: var(--brand-500); box-shadow: 0 0 0 4px rgba(20,184,166,.15); }
+    .range-out { font-weight: 700; color: var(--brand-600); }
+    .filter-range { width: 100%; accent-color: var(--brand-600); }
+    .seg { display: flex; gap: 8px; flex-wrap: wrap; }
+    .seg button {
+      padding: 11px 16px; border-radius: 99px; border: 1.5px solid var(--border); font-weight: 600; font-size: .88rem;
+      color: var(--text-soft); background: var(--surface); transition: all .25s var(--ease);
+    }
+    .seg button.active { background: var(--grad-brand); color: #fff; border-color: transparent; box-shadow: var(--shadow-brand); }
+    .filters-actions { display: flex; gap: 14px; justify-content: flex-end; margin-top: 28px; flex-wrap: wrap; }
+
+    /* =================== 10. POPULAR LOCATIONS =================== */
+    .loc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    .loc-card {
+      position: relative; aspect-ratio: 3/4; border-radius: var(--radius-lg); overflow: hidden;
+      box-shadow: var(--shadow); cursor: pointer;
+    }
+    .loc-card img { width: 100%; height: 100%; object-fit: cover; transition: transform .7s var(--ease-out); }
+    .loc-card:hover img { transform: scale(1.12); }
+    .loc-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(2,6,23,.85) 8%, transparent 60%); }
+    .loc-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 22px; z-index: 2; color: #fff; }
+    .loc-info h3 { font-size: 1.25rem; font-weight: 700; }
+    .loc-info span { font-size: .85rem; color: rgba(255,255,255,.82); display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; }
+    .loc-arrow { position: absolute; top: 18px; right: 18px; width: 40px; height: 40px; border-radius: 50%; display: grid; place-content: center; background: rgba(255,255,255,.18); backdrop-filter: blur(6px); color: #fff; z-index: 2; transform: translateY(-6px); opacity: 0; transition: .35s var(--ease-out); }
+    .loc-card:hover .loc-arrow { transform: translateY(0); opacity: 1; }
+
+    /* =================== 11. UNIVERSITIES =================== */
+    .uni-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+    .uni-card {
+      display: flex; align-items: center; gap: 16px; padding: 20px 22px; border-radius: var(--radius);
+      background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+      transition: transform .35s var(--ease-out), box-shadow .35s, border-color .3s;
+    }
+    .uni-card:hover { transform: translateY(-6px); box-shadow: var(--shadow); border-color: var(--brand-400); }
+    .uni-logo { width: 56px; height: 56px; border-radius: 16px; display: grid; place-content: center; font-weight: 800; font-size: 1.1rem; color: #fff; flex-shrink: 0; font-family: 'Plus Jakarta Sans'; }
+    .uni-card h3 { font-size: 1rem; font-weight: 700; }
+    .uni-card p { font-size: .83rem; color: var(--text-soft); margin-top: 2px; }
+
+    /* =================== 12. ROOMMATE FINDER =================== */
+    .room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 24px; }
+    .room-card {
+      background: var(--surface); border-radius: var(--radius-lg); padding: 26px; border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm); transition: transform .35s var(--ease-out), box-shadow .35s; position: relative; overflow: hidden;
+    }
+    .room-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 80px; background: var(--grad-brand); opacity: .9; }
+    .room-card:hover { transform: translateY(-7px); box-shadow: var(--shadow-lg); }
+    .room-head { display: flex; align-items: center; gap: 14px; position: relative; margin-bottom: 18px; }
+    .room-avatar { width: 72px; height: 72px; border-radius: 20px; object-fit: cover; border: 3px solid var(--surface); box-shadow: var(--shadow); }
+    .room-head .meta { padding-top: 26px; }
+    .room-head .meta h3 { font-size: 1.1rem; font-weight: 700; }
+    .room-head .meta span { font-size: .85rem; color: var(--text-soft); }
+    .room-uni { display: inline-flex; align-items: center; gap: 7px; font-size: .82rem; font-weight: 600; color: var(--brand-700); background: var(--brand-50); padding: 5px 12px; border-radius: 99px; margin-bottom: 16px; }
+    [data-theme="dark"] .room-uni { background: rgba(20,184,166,.12); color: var(--brand-300); }
+    .room-detail { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px dashed var(--border); font-size: .9rem; }
+    .room-detail:last-of-type { border-bottom: none; }
+    .room-detail span:first-child { color: var(--text-soft); display: flex; align-items: center; gap: 8px; }
+    .room-detail span:first-child i { color: var(--brand-600); width: 16px; }
+    .room-detail span:last-child { font-weight: 700; }
+    .room-tags { display: flex; gap: 7px; flex-wrap: wrap; margin: 16px 0; }
+    .room-tags span { font-size: .76rem; font-weight: 600; padding: 5px 11px; border-radius: 99px; background: var(--surface-2); color: var(--text-soft); border: 1px solid var(--border); }
+    .room-card .btn { width: 100%; margin-top: 6px; }
+
+    /* =================== 13. WHY CHOOSE US =================== */
+    .why-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+    .why-card {
+      padding: 32px 26px; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm); transition: transform .4s var(--ease-out), box-shadow .4s; text-align: left;
+    }
+    .why-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); }
+    .why-icon { width: 62px; height: 62px; border-radius: 18px; display: grid; place-content: center; font-size: 1.5rem; color: #fff; margin-bottom: 20px; }
+    .why-card h3 { font-size: 1.18rem; font-weight: 700; margin-bottom: 8px; }
+    .why-card p { color: var(--text-soft); font-size: .94rem; }
+
+    /* =================== 14. HOW IT WORKS =================== */
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; position: relative; }
+    .steps::before { content: ""; position: absolute; top: 38px; left: 12%; right: 12%; height: 2px; background: repeating-linear-gradient(90deg, var(--brand-400) 0 10px, transparent 10px 20px); z-index: 0; }
+    .step { text-align: center; position: relative; z-index: 1; }
+    .step-num {
+      width: 76px; height: 76px; margin: 0 auto 22px; border-radius: 24px; display: grid; place-content: center;
+      font-size: 1.7rem; color: #fff; background: var(--grad-brand); box-shadow: var(--shadow-brand); position: relative;
+      transition: transform .4s var(--ease-out);
+    }
+    .step:hover .step-num { transform: translateY(-6px) rotate(-6deg); }
+    .step-num b { position: absolute; top: -8px; right: -8px; width: 28px; height: 28px; border-radius: 50%; background: var(--surface); color: var(--brand-600); font-size: .85rem; display: grid; place-content: center; border: 2px solid var(--brand-400); }
+    .step h3 { font-size: 1.12rem; font-weight: 700; margin-bottom: 8px; }
+    .step p { color: var(--text-soft); font-size: .92rem; max-width: 230px; margin-inline: auto; }
+
+    /* =================== 15. TESTIMONIALS =================== */
+    .test-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .test-card { padding: 32px 28px; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-sm); transition: transform .4s var(--ease-out), box-shadow .4s; position: relative; }
+    .test-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+    .test-card .quote-icon { font-size: 2.2rem; color: var(--brand-400); opacity: .5; margin-bottom: 12px; }
+    .test-stars { color: var(--gold); margin-bottom: 14px; font-size: .95rem; }
+    .test-card p { color: var(--text-soft); font-size: 1rem; line-height: 1.7; }
+    .test-author { display: flex; align-items: center; gap: 14px; margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--border); }
+    .test-author img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
+    .test-author h4 { font-size: .98rem; font-weight: 700; }
+    .test-author span { font-size: .84rem; color: var(--text-soft); }
+
+    /* =================== 16. FAQ =================== */
+    .faq-wrap { max-width: 820px; margin-inline: auto; display: flex; flex-direction: column; gap: 14px; }
+    .faq-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: border-color .3s, box-shadow .3s; }
+    .faq-item.open { border-color: var(--brand-400); box-shadow: var(--shadow); }
+    .faq-q { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 26px; font-weight: 600; font-size: 1.05rem; text-align: left; width: 100%; }
+    .faq-q .icon { width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0; display: grid; place-content: center; background: var(--brand-50); color: var(--brand-600); transition: transform .35s var(--ease), background .3s, color .3s; }
+    [data-theme="dark"] .faq-q .icon { background: rgba(20,184,166,.12); color: var(--brand-300); }
+    .faq-item.open .faq-q .icon { transform: rotate(45deg); background: var(--grad-brand); color: #fff; }
+    .faq-a { max-height: 0; overflow: hidden; transition: max-height .4s var(--ease); }
+    .faq-a p { padding: 0 26px 24px; color: var(--text-soft); }
+
+    /* =================== 17. CONTACT =================== */
+    .contact-layout { display: grid; grid-template-columns: 1fr 1.15fr; gap: 40px; align-items: stretch; }
+    .contact-info { padding: clamp(28px, 4vw, 44px); border-radius: var(--radius-xl); background: var(--grad-brand); color: #fff; position: relative; overflow: hidden; }
+    .contact-info::before { content: ""; position: absolute; width: 280px; height: 280px; border-radius: 50%; background: rgba(255,255,255,.12); top: -90px; right: -90px; }
+    .contact-info::after { content: ""; position: absolute; width: 200px; height: 200px; border-radius: 50%; background: rgba(255,255,255,.08); bottom: -70px; left: -50px; }
+    .contact-info h3 { font-size: 1.7rem; font-weight: 800; position: relative; }
+    .contact-info > p { color: rgba(255,255,255,.85); margin: 14px 0 30px; position: relative; }
+    .contact-line { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; position: relative; }
+    .contact-line .ci { width: 50px; height: 50px; border-radius: 14px; background: rgba(255,255,255,.18); display: grid; place-content: center; font-size: 1.1rem; flex-shrink: 0; }
+    .contact-line h4 { font-size: .82rem; font-weight: 500; color: rgba(255,255,255,.75); }
+    .contact-line p { font-weight: 700; font-size: 1.02rem; }
+    .contact-socials { display: flex; gap: 12px; margin-top: 34px; position: relative; }
+    .contact-socials a { width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,.16); display: grid; place-content: center; transition: transform .3s var(--ease-out), background .3s; }
+    .contact-socials a:hover { transform: translateY(-4px); background: rgba(255,255,255,.32); }
+
+    .contact-form { padding: clamp(28px, 4vw, 44px); border-radius: var(--radius-xl); background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+    .form-group label { font-size: .85rem; font-weight: 600; color: var(--text-soft); }
+    .form-control { padding: 14px 16px; border-radius: var(--radius-sm); border: 1.5px solid var(--border); background: var(--surface-2); transition: border-color .25s, box-shadow .25s; width: 100%; }
+    .form-control:focus { outline: none; border-color: var(--brand-500); box-shadow: 0 0 0 4px rgba(20,184,166,.15); background: var(--surface); }
+    textarea.form-control { resize: vertical; min-height: 130px; }
+    .form-note { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: .85rem; color: var(--text-mute); }
+    .form-success { display: none; align-items: center; gap: 10px; margin-top: 16px; padding: 14px 18px; border-radius: 12px; background: var(--brand-50); color: var(--brand-700); font-weight: 600; }
+    [data-theme="dark"] .form-success { background: rgba(20,184,166,.14); color: var(--brand-300); }
+    .form-success.show { display: flex; animation: fadeUp .4s var(--ease-out); }
+
+    /* =================== 18. FOOTER =================== */
+    footer { background: #0a0f1a; color: #cbd5e1; padding-top: 80px; }
+    [data-theme="dark"] footer { background: #060a12; }
+    .footer-top { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1.4fr; gap: 40px; padding-bottom: 56px; }
+    .footer-brand .logo { color: #fff; margin-bottom: 18px; }
+    .footer-brand p { font-size: .94rem; color: #94a3b8; max-width: 300px; }
+    .footer-col h4 { color: #fff; font-size: 1.02rem; font-weight: 700; margin-bottom: 22px; }
+    .footer-col a { display: block; color: #94a3b8; font-size: .93rem; padding: 7px 0; transition: color .25s, transform .25s; }
+    .footer-col a:hover { color: var(--brand-300); transform: translateX(5px); }
+    .footer-news p { font-size: .92rem; color: #94a3b8; margin-bottom: 18px; }
+    .news-form { display: flex; gap: 10px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 99px; padding: 6px; }
+    .news-form input { background: transparent; border: none; outline: none; padding: 10px 16px; flex: 1; color: #fff; }
+    .news-form input::placeholder { color: #64748b; }
+    .news-form button { width: 46px; height: 46px; border-radius: 50%; background: var(--grad-brand); color: #fff; flex-shrink: 0; transition: transform .25s var(--ease-out); }
+    .news-form button:hover { transform: scale(1.08); }
+    .footer-socials { display: flex; gap: 12px; margin-top: 22px; }
+    .footer-socials a { width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,.07); display: grid; place-content: center; color: #cbd5e1; transition: .3s var(--ease-out); }
+    .footer-socials a:hover { background: var(--grad-brand); color: #fff; transform: translateY(-4px); }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,.08); padding: 26px 0; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-size: .88rem; color: #94a3b8; }
+    .footer-bottom .links { display: flex; gap: 22px; }
+    .footer-bottom a:hover { color: var(--brand-300); }
+
+    /* =================== 19. BACK TO TOP + MISC =================== */
+    #toTop {
+      position: fixed; bottom: 26px; right: 26px; z-index: 900; width: 54px; height: 54px; border-radius: 50%;
+      background: var(--grad-brand); color: #fff; font-size: 1.1rem; display: grid; place-content: center;
+      box-shadow: var(--shadow-brand); opacity: 0; visibility: hidden; transform: translateY(20px) scale(.8);
+      transition: all .4s var(--ease-out);
+    }
+    #toTop.show { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+    #toTop:hover { transform: translateY(-5px) scale(1.06); }
+
+    .toast {
+      position: fixed; bottom: 26px; left: 50%; transform: translate(-50%, 120%); z-index: 1200;
+      background: var(--text); color: var(--bg); padding: 14px 22px; border-radius: 99px; font-weight: 600; font-size: .92rem;
+      box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 10px; transition: transform .45s var(--ease-out);
+    }
+    .toast.show { transform: translate(-50%, 0); }
+    .toast i { color: var(--brand-400); }
+
+    /* =================== 20. SCROLL REVEAL + RESPONSIVE =================== */
+    .reveal { opacity: 0; transform: translateY(36px); transition: opacity .7s var(--ease-out), transform .7s var(--ease-out); }
+    .reveal.in { opacity: 1; transform: none; }
+    .reveal[data-delay="1"] { transition-delay: .08s; }
+    .reveal[data-delay="2"] { transition-delay: .16s; }
+    .reveal[data-delay="3"] { transition-delay: .24s; }
+    .reveal[data-delay="4"] { transition-delay: .32s; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+      .reveal { opacity: 1; transform: none; }
+    }
+
+    /* ---------- Responsive breakpoints ---------- */
+    @media (max-width: 1080px) {
+      .filters-grid, .loc-grid, .uni-grid, .why-grid, .steps { grid-template-columns: repeat(2, 1fr); }
+      .test-grid { grid-template-columns: 1fr; max-width: 620px; margin-inline: auto; }
+      .steps::before { display: none; }
+      .contact-layout { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
+    }
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .nav-cta { display: none; }
+      .burger { display: grid; }
+      .search-bar { grid-template-columns: 1fr 1fr; }
+      .search-field + .search-field { border-left: none; }
+      .search-btn { grid-column: 1 / -1; width: 100%; height: 52px; }
+    }
+    @media (max-width: 600px) {
+      :root { --nav-h: 68px; }
+      .stats { grid-template-columns: 1fr; gap: 12px; }
+      .search-bar { grid-template-columns: 1fr; }
+      .filters-grid, .loc-grid, .uni-grid, .why-grid, .steps, .form-row { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr; }
+      .hero-ctas { width: 100%; }
+      .hero-ctas .btn { flex: 1; }
+      .section-head h2 { font-size: 1.7rem; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ====================== LOADING SCREEN ====================== -->
+  <div id="loader" aria-hidden="true">
+    <div class="loader-logo"><span class="mark"><i class="fa-solid fa-house-chimney"></i></span> Nest<b style="color:var(--brand-600)">Space</b></div>
+    <div class="loader-bar"><span></span></div>
+  </div>
+
+  <!-- ========================= NAVBAR ========================= -->
+  <header class="nav" id="navbar">
+    <nav class="nav-inner container" aria-label="Primary">
+      <a href="#home" class="logo" aria-label="NestSpace home">
+        <span class="mark"><i class="fa-solid fa-house-chimney"></i></span>
+        Nest<span><b>Space</b></span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#home" class="active">Home</a></li>
+        <li><a href="#properties">Properties</a></li>
+        <li><a href="#roommates">Roommates</a></li>
+        <li><a href="#marketplace">Marketplace</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <a href="#contact" class="btn btn-primary nav-cta"><i class="fa-solid fa-plus"></i> Post Listing</a>
+        <button class="burger" id="burger" aria-label="Open menu"><i class="fa-solid fa-bars"></i></button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Mobile drawer -->
+  <div class="overlay" id="overlay"></div>
+  <aside class="mobile-menu" id="mobileMenu" aria-label="Mobile menu">
+    <button class="menu-close" id="menuClose" aria-label="Close menu"><i class="fa-solid fa-xmark"></i></button>
+    <a href="#home">Home</a>
+    <a href="#properties">Properties</a>
+    <a href="#roommates">Roommates</a>
+    <a href="#marketplace">Marketplace</a>
+    <a href="#about">About</a>
+    <a href="#contact">Contact</a>
+    <a href="#contact" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Post Listing</a>
+  </aside>
+
+  <!-- ========================== HERO ========================== -->
+  <section class="hero" id="home">
+    <div class="hero-bg" id="heroBg" role="img" aria-label="Modern apartment interiors near campus">
+      <div class="hero-slide active" style="background-image:url('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1920&q=80&auto=format&fit=crop')"></div>
+      <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1920&q=80&auto=format&fit=crop')"></div>
+      <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=1920&q=80&auto=format&fit=crop')"></div>
+      <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1920&q=80&auto=format&fit=crop')"></div>
+    </div>
+    <span class="hero-blob b1"></span>
+    <span class="hero-blob b2"></span>
+
+    <div class="container">
+      <div class="hero-content">
+        <span class="hero-badge"><span class="dot"></span> #1 Student Housing Platform in Bangladesh</span>
+        <h1>Find Your Perfect Home <br /><span class="grad">Near Your University</span></h1>
+        <p class="lead">Discover verified apartments, sublets and roommates around your campus. Trusted by thousands of students — no brokers, no hassle, no hidden fees.</p>
+
+        <div class="hero-ctas">
+          <a href="#properties" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Explore Homes</a>
+          <a href="#roommates" class="btn btn-light"><i class="fa-solid fa-user-group"></i> Find a Roommate</a>
+        </div>
+
+        <!-- Search bar -->
+        <form class="search-bar" id="heroSearch" onsubmit="return goSearch(event)">
+          <div class="search-field">
+            <label>Search</label>
+            <div class="field-row">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" placeholder="Apartment, area, keyword…" id="searchKeyword" />
+            </div>
+          </div>
+          <div class="search-field">
+            <label>Location</label>
+            <div class="field-row">
+              <i class="fa-solid fa-location-dot"></i>
+              <select id="searchLocation">
+                <option>Any Location</option>
+                <option>Bashundhara R/A</option>
+                <option>Baridhara</option>
+                <option>Dhanmondi</option>
+                <option>Uttara</option>
+                <option>Mirpur</option>
+                <option>Mohammadpur</option>
+                <option>Banani</option>
+                <option>Gulshan</option>
+              </select>
+            </div>
+          </div>
+          <div class="search-field">
+            <label>Type</label>
+            <div class="field-row">
+              <i class="fa-solid fa-building"></i>
+              <select id="searchType">
+                <option>Any Type</option>
+                <option>Apartment</option>
+                <option>Studio</option>
+                <option>Shared Room</option>
+                <option>Sublet</option>
+                <option>Family</option>
+              </select>
+            </div>
+          </div>
+          <button class="search-btn" type="submit" aria-label="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </form>
+
+        <!-- Animated statistics -->
+        <div class="stats" id="stats">
+          <div class="stat">
+            <div class="num"><span class="counter" data-target="12500">0</span><span class="suffix">+</span></div>
+            <div class="label">Properties Listed</div>
+          </div>
+          <div class="stat">
+            <div class="num"><span class="counter" data-target="48000">0</span><span class="suffix">+</span></div>
+            <div class="label">Active Students</div>
+          </div>
+          <div class="stat">
+            <div class="num"><span class="counter" data-target="24">0</span></div>
+            <div class="label">Cities Covered</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FEATURED PROPERTIES ==================== -->
+  <section class="section" id="properties">
+    <div class="container">
+      <div class="section-head center reveal">
+        <span class="eyebrow"><i class="fa-solid fa-fire"></i> Handpicked</span>
+        <h2>Featured Properties</h2>
+        <p>Verified, student-friendly homes near top universities — updated daily by our local team.</p>
+      </div>
+      <div class="prop-grid" id="propGrid"><!-- injected by JS --></div>
+      <div class="load-more-wrap reveal">
+        <button class="btn btn-ghost" id="loadMore"><i class="fa-solid fa-arrow-down"></i> Load More Properties</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== ADVANCED FILTERS ==================== -->
+  <section class="section section--alt" id="search">
+    <div class="container">
+      <div class="section-head center reveal">
+        <span class="eyebrow"><i class="fa-solid fa-sliders"></i> Smart Search</span>
+        <h2>Advanced Search Filters</h2>
+        <p>Narrow down 12,500+ listings to find exactly what fits your budget and lifestyle.</p>
+      </div>
+
+      <div class="filters-card glass reveal">
+        <div class="filters-grid">
+          <div class="filter-field">
+            <label><i class="fa-solid fa-city"></i> City</label>
+            <select class="filter-input">
+              <option>Dhaka</option><option>Chittagong</option><option>Sylhet</option><option>Rajshahi</option><option>Khulna</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label><i class="fa-solid fa-map-location-dot"></i> Area</label>
+            <select class="filter-input">
+              <option>Any Area</option><option>Bashundhara R/A</option><option>Baridhara</option><option>Dhanmondi</option><option>Uttara</option><option>Mirpur</option><option>Mohammadpur</option><option>Banani</option><option>Gulshan</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label><i class="fa-solid fa-graduation-cap"></i> University</label>
+            <select class="filter-input">
+              <option>Any University</option><option>AIUB</option><option>NSU</option><option>BRAC University</option><option>IUB</option><option>East West University</option><option>UIU</option><option>AUST</option><option>DIU</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label><i class="fa-solid fa-building"></i> Property Type</label>
+            <select class="filter-input">
+              <option>Any Type</option><option>Apartment</option><option>Studio</option><option>Shared Room</option><option>Sublet</option><option>Family</option>
+            </select>
+          </div>
+
+          <div class="filter-field">
+            <label><i class="fa-solid fa-wallet"></i> Budget — up to <span class="range-out" id="budgetOut">৳ 25,000</span></label>
+            <input type="range" class="filter-range" id="budgetRange" min="5000" max="80000" step="1000" value="25000" />
+          </div>
+          <div class="filter-field">
+            <label><i class="fa-solid fa-bed"></i> Bedrooms</label>
+            <div class="seg" data-seg="beds">
+              <button type="button" class="active">Any</button>
+              <button type="button">1</button>
+              <button type="button">2</button>
+              <button type="button">3</button>
+              <button type="button">4+</button>
+            </div>
+          </div>
+          <div class="filter-field">
+            <label><i class="fa-solid fa-couch"></i> Furnishing</label>
+            <div class="seg" data-seg="furnish">
+              <button type="button" class="active">Any</button>
+              <button type="button">Furnished</button>
+              <button type="button">Unfurnished</button>
+            </div>
+          </div>
+          <div class="filter-field">
+            <label><i class="fa-solid fa-venus-mars"></i> Gender Preference</label>
+            <div class="seg" data-seg="gender">
+              <button type="button" class="active">Any</button>
+              <button type="button">Male</button>
+              <button type="button">Female</button>
+              <button type="button">Family</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="filters-actions">
+          <button class="btn btn-ghost" id="resetFilters"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+          <button class="btn btn-primary" id="applyFilters"><i class="fa-solid fa-magnifying-glass"></i> Search Properties</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== POPULAR LOCATIONS ==================== -->
+  <section class="section" id="marketplace">
+    <div class="container">
+      <div class="section-head center reveal">
+        <span class="eyebrow"><i class="fa-solid fa-location-dot"></i> Explore</span>
+        <h2>Popular Locations</h2>
+        <p>The most-searched neighbourhoods for students across Dhaka.</p>
+      </div>
+      <div class="loc-grid" id="locGrid"><!-- injected by JS --></div>
+    </div>
+  </section>
+
+  <!-- ==================== UNIVERSITIES ==================== -->
+  <section class="section section--alt" id="about">
+    <div class="container">
+      <div class="section-head center reveal">
+        <span class="eyebrow"><i class="fa-solid fa-graduation-cap"></i> Campuses</span>
+        <h2>Housing Near Top Universities</h2>
+        <p>Find a home within walking distance of your campus — we cover every major university.</p>
+      </div>
+      <div class="uni-grid" id="uniGrid"><!-- injected by JS --></div>
+    </div>
+  </section>
+
+  <!-- ==================== ROOMMATE FINDER ==================== -->
+  <section class="section" id="roommates">
+    <div class="container">
+      <div class="section-head center reveal">
+        <span class="eyebrow"><i class="fa-solid fa-user-group"></i> Match &amp; Move</span>
+        <h2>Find Your Ideal Roommate</h2>
+        <p>Browse verified student profiles and split rent with someone who fits your vibe.</p>
+      </div>
+      <div class="room-grid" id="roomGrid"><!-- injected by JS --></div>
+    </div>
+  </section>
+
+  <!-- ==================== WHY CHOOSE US ==================== -->
+  <section class="section section--alt">
+    <div class="container">
+      <div class="section-head center reveal">
+        <span class="eyebrow"><i class="fa-solid fa-shield-heart"></i> Our Promise</span>
+        <h2>Why Choose NestSpace</h2>
+        <p>We built the safest, simplest way for students to rent — designed around how you actually live.</p>
+      </div>
+      <div class="why-grid">
+        <div class="why-card reveal" data-delay="1">
+          <div class="why-icon" style="background:var(--grad-brand)"><i class="fa-solid fa-circle-check"></i></div>
+          <h3>Verified Listings</h3>
+          <p>Every property is physically inspected and document-checked by our local team before going live.</p>
+        </div>
+        <div class="why-card reveal" data-delay="2">
+          <div class="why-icon" style="background:var(--grad-warm)"><i class="fa-solid fa-graduation-cap"></i></div>
+          <h3>Student-Friendly Housing</h3>
+          <p>Flexible leases, near-campus filters and budgets built specifically for student life.</p>
+        </div>
+        <div class="why-card reveal" data-delay="3">
+          <div class="why-icon" style="background:linear-gradient(135deg,#8b5cf6,#6366f1)"><i class="fa-solid fa-handshake-angle"></i></div>
+          <h3>Trusted Community</h3>
+          <p>Real reviews, verified profiles and a reporting system that keeps the platform safe for everyone.</p>
+        </div>
+        <div class="why-card reveal" data-delay="4">
+          <div class="why-icon" style="background:linear-gradient(135deg,#f59e0b,#ef4444)"><i class="fa-solid fa-lock"></i></div>
+          <h3>Secure Platform</h3>
+          <p>Encrypted messaging and protected agreements — connect with owners without sharing personal data.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== HOW IT WORKS ==================== -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head center reveal">
+        <span class="eyebrow"><i class="fa-solid fa-route"></i> Simple Steps</span>
+        <h2>How It Works</h2>
+        <p>From search to move-in — four easy steps to your new home.</p>
+      </div>
+      <div class="steps">
+        <div class="step reveal" data-delay="1">
+          <div class="step-num"><i class="fa-solid fa-magnifying-glass"></i><b>1</b></div>
+          <h3>Search Property</h3>
+          <p>Filter by area, budget, university and lifestyle to shortlist your favourites.</p>
+        </div>
+        <div class="step reveal" data-delay="2">
+          <div class="step-num"><i class="fa-solid fa-comments"></i><b>2</b></div>
+          <h3>Connect Owner</h3>
+          <p>Message verified owners directly through our secure in-app chat — no middlemen.</p>
+        </div>
+        <div class="step reveal" data-delay="3">
+          <div class="step-num"><i class="fa-solid fa-calendar-check"></i><b>3</b></div>
+          <h3>Visit Property</h3>
+          <p>Schedule an in-person or virtual tour at a time that works for you.</p>
+        </div>
+        <div class="step reveal" data-delay="4">
+          <div class="step-num"><i class="fa-solid fa-key"></i><b>4</b></div>
+          <h3>Move In</h3>
+          <p>Sign a protected digital agreement, pay safely, and collect your keys.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== TESTIMONIALS ==================== -->
+  <section class="section section--alt">
+    <div class="container">
+      <div class="section-head center reveal">
+        <span class="eyebrow"><i class="fa-solid fa-star"></i> Loved by Students</span>
+        <h2>What Our Students Say</h2>
+        <p>Join 48,000+ students who found their home through NestSpace.</p>
+      </div>
+      <div class="test-grid">
+        <div class="test-card reveal" data-delay="1">
+          <div class="quote-icon"><i class="fa-solid fa-quote-right"></i></div>
+          <div class="test-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+          <p>"Found a furnished studio near NSU in two days. The listing was exactly as shown — no surprises, no broker fees. NestSpace genuinely saved my semester."</p>
+          <div class="test-author">
+            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Nusrat Jahan" />
+            <div><h4>Nusrat Jahan</h4><span>BBA Student · NSU</span></div>
+          </div>
+        </div>
+        <div class="test-card reveal" data-delay="2">
+          <div class="quote-icon"><i class="fa-solid fa-quote-right"></i></div>
+          <div class="test-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+          <p>"The roommate finder is brilliant. I matched with someone from my own department and we split a 2-bed in Bashundhara. Best decision of my first year."</p>
+          <div class="test-author">
+            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Rafiul Karim" />
+            <div><h4>Rafiul Karim</h4><span>CSE Student · AIUB</span></div>
+          </div>
+        </div>
+        <div class="test-card reveal" data-delay="3">
+          <div class="quote-icon"><i class="fa-solid fa-quote-right"></i></div>
+          <div class="test-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i></div>
+          <p>"As a parent, the verified listings gave me real peace of mind. Everything was transparent and the visit was easy to schedule. Highly recommend to other families."</p>
+          <div class="test-author">
+            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Shamima Akter" />
+            <div><h4>Shamima Akter</h4><span>Parent · Gulshan</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FAQ ==================== -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head center reveal">
+        <span class="eyebrow"><i class="fa-solid fa-circle-question"></i> Questions</span>
+        <h2>Frequently Asked Questions</h2>
+        <p>Everything you need to know before you start your search.</p>
+      </div>
+      <div class="faq-wrap" id="faqWrap"><!-- injected by JS --></div>
+    </div>
+  </section>
+
+  <!-- ==================== CONTACT ==================== -->
+  <section class="section section--alt" id="contact">
+    <div class="container">
+      <div class="section-head center reveal">
+        <span class="eyebrow"><i class="fa-solid fa-paper-plane"></i> Get in Touch</span>
+        <h2>Contact Our Team</h2>
+        <p>Have a question, a property to list, or need a hand? We usually reply within an hour.</p>
+      </div>
+
+      <div class="contact-layout">
+        <div class="contact-info reveal">
+          <h3>Let's find your nest</h3>
+          <p>Reach out and our student-housing experts will guide you through every step.</p>
+          <div class="contact-line">
+            <div class="ci"><i class="fa-solid fa-envelope"></i></div>
+            <div><h4>Email us</h4><p>hello@nestspace.com</p></div>
+          </div>
+          <div class="contact-line">
+            <div class="ci"><i class="fa-solid fa-phone"></i></div>
+            <div><h4>Call us</h4><p>+880 1700-000 123</p></div>
+          </div>
+          <div class="contact-line">
+            <div class="ci"><i class="fa-solid fa-location-dot"></i></div>
+            <div><h4>Visit us</h4><p>Level 7, Bashundhara R/A, Dhaka 1229</p></div>
+          </div>
+          <div class="contact-socials">
+            <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+            <a href="#" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a>
+            <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+          </div>
+        </div>
+
+        <form class="contact-form reveal" data-delay="1" id="contactForm" onsubmit="return submitContact(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cName">Full Name</label>
+              <input class="form-control" id="cName" type="text" placeholder="Your name" required />
+            </div>
+            <div class="form-group">
+              <label for="cEmail">Email Address</label>
+              <input class="form-control" id="cEmail" type="email" placeholder="you@email.com" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cPhone">Phone</label>
+              <input class="form-control" id="cPhone" type="tel" placeholder="+880 1XXX-XXXXXX" />
+            </div>
+            <div class="form-group">
+              <label for="cSubject">Subject</label>
+              <select class="form-control" id="cSubject">
+                <option>General Enquiry</option>
+                <option>List a Property</option>
+                <option>Find a Roommate</option>
+                <option>Report an Issue</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="cMsg">Message</label>
+            <textarea class="form-control" id="cMsg" placeholder="Tell us what you're looking for…" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%"><i class="fa-solid fa-paper-plane"></i> Send Message</button>
+          <div class="form-note"><i class="fa-solid fa-shield-halved"></i> Your details are kept private and never shared.</div>
+          <div class="form-success" id="formSuccess"><i class="fa-solid fa-circle-check"></i> Thanks! Your message has been sent — we'll be in touch shortly.</div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer>
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a href="#home" class="logo"><span class="mark"><i class="fa-solid fa-house-chimney"></i></span> Nest<b style="color:var(--brand-300)">Space</b></a>
+          <p>The smart, student-first way to find verified rentals and trusted roommates near your university.</p>
+          <div class="footer-socials">
+            <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+            <a href="#" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a>
+            <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+            <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h4>Quick Links</h4>
+          <a href="#properties">Properties</a>
+          <a href="#roommates">Roommates</a>
+          <a href="#marketplace">Marketplace</a>
+          <a href="#about">Universities</a>
+          <a href="#contact">Post a Listing</a>
+        </div>
+
+        <div class="footer-col">
+          <h4>Company</h4>
+          <a href="#about">About Us</a>
+          <a href="#">Careers</a>
+          <a href="#">Blog</a>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+        </div>
+
+        <div class="footer-col footer-news">
+          <h4>Stay in the Loop</h4>
+          <p>Get fresh listings and student housing tips delivered weekly.</p>
+          <form class="news-form" onsubmit="return subscribe(event)">
+            <input type="email" placeholder="Enter your email" required aria-label="Email" />
+            <button type="submit" aria-label="Subscribe"><i class="fa-solid fa-paper-plane"></i></button>
+          </form>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© 2026 NestSpace. Crafted for students, by students.</span>
+        <div class="links">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="#">Cookies</a>
+          <a href="#">Support</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Back to top -->
+  <button id="toTop" aria-label="Back to top"><i class="fa-solid fa-arrow-up"></i></button>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i> <span id="toastMsg">Done</span></div>
+
+  <script>
+    /* =====================================================================
+       NESTSPACE — Application JavaScript
+       Sample data + rendering + interactions. No backend, all client-side.
+       ===================================================================== */
+    'use strict';
+
+    /* ---------------------------------------------------------------
+       1) SAMPLE DATA — Properties (12), Locations (8), Universities (8),
+          Roommates (6), FAQs.  Images via Unsplash (high quality).
+       --------------------------------------------------------------- */
+    const UNSPLASH = (id, w = 800) => `https://images.unsplash.com/${id}?w=${w}&q=80&auto=format&fit=crop`;
+
+    const properties = [
+      { img:'photo-1522708323590-d24dbb6b0267', title:'Sunlit 2-Bed Apartment', type:'Apartment', loc:'Bashundhara R/A', price:'28,000', beds:2, baths:2, area:1150, tag:'featured', rating:4.9 },
+      { img:'photo-1502672260266-1c1ef2d93688', title:'Cozy Furnished Studio', type:'Studio', loc:'Gulshan', price:'22,000', beds:1, baths:1, area:620, tag:'new', rating:4.8 },
+      { img:'photo-1493809842364-78817add7ffb', title:'Modern Shared Loft', type:'Shared Room', loc:'Dhanmondi', price:'12,500', beds:1, baths:1, area:480, tag:'verified', rating:4.7 },
+      { img:'photo-1560448204-e02f11c3d0e2', title:'Premium 3-Bed Family Flat', type:'Family', loc:'Banani', price:'45,000', beds:3, baths:3, area:1680, tag:'featured', rating:5.0 },
+      { img:'photo-1556909114-f6e7ad7d3136', title:'Minimal Sublet near Campus', type:'Sublet', loc:'Uttara', price:'16,000', beds:1, baths:1, area:560, tag:'new', rating:4.6 },
+      { img:'photo-1505691938895-1758d7feb511', title:'Bright Corner Bedroom', type:'Shared Room', loc:'Mirpur', price:'9,800', beds:1, baths:1, area:420, tag:'verified', rating:4.5 },
+      { img:'photo-1554995207-c18c203602cb', title:'Designer Open-Plan Studio', type:'Studio', loc:'Baridhara', price:'26,500', beds:1, baths:1, area:700, tag:'featured', rating:4.9 },
+      { img:'photo-1567767292278-a4f21aa2d36e', title:'Spacious 2-Bed with Balcony', type:'Apartment', loc:'Mohammadpur', price:'19,500', beds:2, baths:2, area:980, tag:'verified', rating:4.7 },
+      { img:'photo-1502005229762-cf1b2da7c5d6', title:'Calm Furnished Room', type:'Shared Room', loc:'Dhanmondi', price:'11,000', beds:1, baths:1, area:450, tag:'new', rating:4.6 },
+      { img:'photo-1484154218962-a197022b5858', title:'Chic Kitchenette Apartment', type:'Apartment', loc:'Bashundhara R/A', price:'31,000', beds:2, baths:2, area:1240, tag:'featured', rating:4.8 },
+      { img:'photo-1522771739844-6a9f6d5f14af', title:'Quiet Single Sublet', type:'Sublet', loc:'Mirpur', price:'13,500', beds:1, baths:1, area:520, tag:'verified', rating:4.5 },
+      { img:'photo-1560185007-cde436f6a4d0', title:'Luxury Skyline 3-Bed', type:'Family', loc:'Gulshan', price:'58,000', beds:3, baths:3, area:1850, tag:'featured', rating:5.0 }
+    ];
+
+    const locations = [
+      { name:'Bashundhara R/A', count:'2,140', img:'photo-1545324418-cc1a3fa10c00' },
+      { name:'Baridhara',       count:'1,320', img:'photo-1512917774080-9991f1c4c750' },
+      { name:'Dhanmondi',       count:'1,980', img:'photo-1486406146926-c627a92ad1ab' },
+      { name:'Uttara',          count:'1,560', img:'photo-1449844908441-8829872d2607' },
+      { name:'Mirpur',          count:'2,410', img:'photo-1480714378408-67cf0d13bc1b' },
+      { name:'Mohammadpur',     count:'1,150', img:'photo-1494526585095-c41746248156' },
+      { name:'Banani',          count:'1,720', img:'photo-1567496898669-ee935f5f647a' },
+      { name:'Gulshan',         count:'1,890', img:'photo-1502672260266-1c1ef2d93688' }
+    ];
+
+    const universities = [
+      { abbr:'AIUB', name:'American Int. University', area:'Kuratoli', c1:'#0ea5e9', c2:'#2563eb' },
+      { abbr:'NSU',  name:'North South University', area:'Bashundhara', c1:'#14b8a6', c2:'#0d9488' },
+      { abbr:'BRAC', name:'BRAC University', area:'Merul Badda', c1:'#8b5cf6', c2:'#6366f1' },
+      { abbr:'IUB',  name:'Independent University', area:'Bashundhara', c1:'#f59e0b', c2:'#ef4444' },
+      { abbr:'EWU',  name:'East West University', area:'Aftabnagar', c1:'#ec4899', c2:'#db2777' },
+      { abbr:'UIU',  name:'United Int. University', area:'Madani Ave', c1:'#10b981', c2:'#059669' },
+      { abbr:'AUST', name:'Ahsanullah Univ. of S&T', area:'Tejgaon', c1:'#6366f1', c2:'#4338ca' },
+      { abbr:'DIU',  name:'Daffodil Int. University', area:'Ashulia', c1:'#0d9488', c2:'#0891b2' }
+    ];
+
+    const roommates = [
+      { name:'Tahmid Hasan', avatar:'https://randomuser.me/api/portraits/men/45.jpg', uni:'NSU', budget:'10,000 – 14,000', area:'Bashundhara R/A', date:'1 Jul 2026', tags:['Non-smoker','Early riser','Tidy'] },
+      { name:'Maliha Rahman', avatar:'https://randomuser.me/api/portraits/women/65.jpg', uni:'BRAC University', budget:'12,000 – 16,000', area:'Merul Badda', date:'15 Jul 2026', tags:['Female only','Quiet','Foodie'] },
+      { name:'Sadia Islam', avatar:'https://randomuser.me/api/portraits/women/12.jpg', uni:'AIUB', budget:'8,000 – 11,000', area:'Kuratoli', date:'5 Aug 2026', tags:['Pet-friendly','Gamer','Night owl'] },
+      { name:'Arif Mahmud', avatar:'https://randomuser.me/api/portraits/men/76.jpg', uni:'IUB', budget:'14,000 – 18,000', area:'Bashundhara R/A', date:'20 Jul 2026', tags:['Non-smoker','Fitness','Tidy'] },
+      { name:'Rumana Akter', avatar:'https://randomuser.me/api/portraits/women/29.jpg', uni:'East West University', budget:'9,000 – 13,000', area:'Aftabnagar', date:'10 Aug 2026', tags:['Female only','Studious','Vegetarian'] },
+      { name:'Nahid Chowdhury', avatar:'https://randomuser.me/api/portraits/men/19.jpg', uni:'UIU', budget:'11,000 – 15,000', area:'Madani Ave', date:'25 Jul 2026', tags:['Non-smoker','Music lover','Social'] }
+    ];
+
+    const faqs = [
+      { q:'Is NestSpace free for students?', a:'Yes — browsing, searching and contacting owners is completely free for students. We never charge broker fees or hidden commissions.' },
+      { q:'How are listings verified?', a:'Our local field team physically inspects each property and verifies ownership documents before a listing goes live. Verified homes carry a green badge.' },
+      { q:'Can I find a roommate through NestSpace?', a:'Absolutely. Our Roommate Finder lets you browse verified student profiles, filter by university, budget and lifestyle, and message matches securely in-app.' },
+      { q:'How do I schedule a property visit?', a:'Once you find a home you like, tap "View Details" and choose a time slot for an in-person or virtual tour. The owner confirms instantly through the app.' },
+      { q:'Is my personal information safe?', a:'Your data is encrypted and never shared with third parties. You can chat with owners without revealing your phone number or email until you choose to.' },
+      { q:'What areas and cities do you cover?', a:'We currently cover 24 cities, with the deepest inventory across Dhaka neighbourhoods like Bashundhara, Gulshan, Dhanmondi, Uttara, Mirpur and more.' }
+    ];
+
+    /* ---------------------------------------------------------------
+       2) RENDERING
+       --------------------------------------------------------------- */
+    const $  = (s, r = document) => r.querySelector(s);
+    const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+    // Property cards
+    function propCard(p) {
+      const tagLabel = { featured:'Featured', new:'New', verified:'Verified' }[p.tag];
+      return `
+      <article class="prop-card reveal">
+        <div class="prop-media">
+          <img src="${UNSPLASH(p.img, 800)}" alt="${p.title}" loading="lazy" />
+          <span class="prop-tag ${p.tag}">${tagLabel}</span>
+          <button class="fav-btn" aria-label="Add to favourites"><i class="fa-regular fa-heart"></i></button>
+          <span class="prop-price-badge">৳ ${p.price} <small>/mo</small></span>
+        </div>
+        <div class="prop-body">
+          <span class="prop-type">${p.type}</span>
+          <h3 class="prop-title">${p.title}</h3>
+          <div class="prop-loc"><i class="fa-solid fa-location-dot"></i> ${p.loc}, Dhaka</div>
+          <div class="prop-meta">
+            <div><i class="fa-solid fa-bed"></i> ${p.beds} Bed${p.beds>1?'s':''}</div>
+            <div><i class="fa-solid fa-bath"></i> ${p.baths} Bath${p.baths>1?'s':''}</div>
+            <div><i class="fa-solid fa-ruler-combined"></i> ${p.area} ft²</div>
+          </div>
+          <div class="prop-footer">
+            <span class="prop-rating"><i class="fa-solid fa-star"></i> ${p.rating.toFixed(1)}</span>
+            <button class="btn btn-primary view-btn" onclick="viewDetails('${p.title.replace(/'/g,'')}')">View Details</button>
+          </div>
+        </div>
+      </article>`;
+    }
+
+    function renderProperties(list) {
+      $('#propGrid').innerHTML = list.map(propCard).join('');
+      bindFavourites();
+      observeReveals();
+    }
+
+    // Locations
+    function renderLocations() {
+      $('#locGrid').innerHTML = locations.map((l, i) => `
+        <div class="loc-card reveal" data-delay="${(i%4)+1}">
+          <img src="${UNSPLASH(l.img, 600)}" alt="${l.name}" loading="lazy" />
+          <span class="loc-arrow"><i class="fa-solid fa-arrow-right"></i></span>
+          <div class="loc-info">
+            <h3>${l.name}</h3>
+            <span><i class="fa-solid fa-house"></i> ${l.count} listings</span>
+          </div>
+        </div>`).join('');
+    }
+
+    // Universities
+    function renderUniversities() {
+      $('#uniGrid').innerHTML = universities.map((u, i) => `
+        <div class="uni-card reveal" data-delay="${(i%4)+1}">
+          <div class="uni-logo" style="background:linear-gradient(135deg, ${u.c1}, ${u.c2})">${u.abbr}</div>
+          <div>
+            <h3>${u.name}</h3>
+            <p><i class="fa-solid fa-location-dot" style="color:var(--accent)"></i> ${u.area}</p>
+          </div>
+        </div>`).join('');
+    }
+
+    // Roommates
+    function renderRoommates() {
+      $('#roomGrid').innerHTML = roommates.map((r, i) => `
+        <article class="room-card reveal" data-delay="${(i%3)+1}">
+          <div class="room-head">
+            <img class="room-avatar" src="${r.avatar}" alt="${r.name}" loading="lazy" />
+            <div class="meta"><h3>${r.name}</h3><span>Looking for a roommate</span></div>
+          </div>
+          <span class="room-uni"><i class="fa-solid fa-graduation-cap"></i> ${r.uni}</span>
+          <div class="room-detail"><span><i class="fa-solid fa-wallet"></i> Budget</span><span>৳ ${r.budget}</span></div>
+          <div class="room-detail"><span><i class="fa-solid fa-location-dot"></i> Preferred Area</span><span>${r.area}</span></div>
+          <div class="room-detail"><span><i class="fa-solid fa-calendar-day"></i> Move-in</span><span>${r.date}</span></div>
+          <div class="room-tags">${r.tags.map(t => `<span>${t}</span>`).join('')}</div>
+          <button class="btn btn-ghost" onclick="toast('Connection request sent to ${r.name.split(' ')[0]}!')"><i class="fa-solid fa-paper-plane"></i> Connect</button>
+        </article>`).join('');
+    }
+
+    // FAQ
+    function renderFaqs() {
+      $('#faqWrap').innerHTML = faqs.map(f => `
+        <div class="faq-item">
+          <button class="faq-q">${f.q}<span class="icon"><i class="fa-solid fa-plus"></i></span></button>
+          <div class="faq-a"><p>${f.a}</p></div>
+        </div>`).join('');
+
+      $$('.faq-q').forEach(btn => btn.addEventListener('click', () => {
+        const item = btn.parentElement;
+        const ans  = btn.nextElementSibling;
+        const open = item.classList.contains('open');
+        // close all
+        $$('.faq-item').forEach(i => { i.classList.remove('open'); i.querySelector('.faq-a').style.maxHeight = null; });
+        if (!open) { item.classList.add('open'); ans.style.maxHeight = ans.scrollHeight + 'px'; }
+      }));
+    }
+
+    /* ---------------------------------------------------------------
+       3) FAVOURITES (toggle, demo only)
+       --------------------------------------------------------------- */
+    function bindFavourites() {
+      $$('.fav-btn').forEach(btn => btn.addEventListener('click', e => {
+        e.stopPropagation();
+        btn.classList.toggle('active');
+        const on = btn.classList.contains('active');
+        btn.innerHTML = `<i class="fa-${on ? 'solid' : 'regular'} fa-heart"></i>`;
+        toast(on ? 'Saved to favourites ❤' : 'Removed from favourites');
+      }));
+    }
+
+    function viewDetails(name) { toast('Opening details for ' + name + '…'); }
+
+    /* ---------------------------------------------------------------
+       4) ANIMATED COUNTERS (run once when hero stats enter view)
+       --------------------------------------------------------------- */
+    function animateCounters() {
+      $$('.counter').forEach(el => {
+        const target = +el.dataset.target;
+        const dur = 1800;
+        const start = performance.now();
+        function tick(now) {
+          const t = Math.min((now - start) / dur, 1);
+          const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
+          el.textContent = Math.floor(eased * target).toLocaleString();
+          if (t < 1) requestAnimationFrame(tick);
+          else el.textContent = target.toLocaleString();
+        }
+        requestAnimationFrame(tick);
+      });
+    }
+
+    /* ---------------------------------------------------------------
+       5) SCROLL REVEAL (IntersectionObserver)
+       --------------------------------------------------------------- */
+    let revealObserver;
+    function observeReveals() {
+      if (!revealObserver) {
+        revealObserver = new IntersectionObserver((entries) => {
+          entries.forEach(en => {
+            if (en.isIntersecting) { en.target.classList.add('in'); revealObserver.unobserve(en.target); }
+          });
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+      }
+      $$('.reveal:not(.in)').forEach(el => revealObserver.observe(el));
+    }
+
+    /* ---------------------------------------------------------------
+       6) NAVBAR behaviour: shadow on scroll, active link, mobile menu
+       --------------------------------------------------------------- */
+    const navbar = $('#navbar');
+    const sections = $$('section[id]');
+    const navLinks = $$('.nav-links a');
+
+    function onScroll() {
+      navbar.classList.toggle('scrolled', window.scrollY > 20);
+      $('#toTop').classList.toggle('show', window.scrollY > 500);
+
+      // active link via scroll-spy
+      let current = '';
+      sections.forEach(sec => {
+        if (window.scrollY >= sec.offsetTop - 140) current = sec.id;
+      });
+      navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + current));
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // Mobile menu
+    const mobileMenu = $('#mobileMenu'), overlay = $('#overlay');
+    function openMenu()  { mobileMenu.classList.add('open'); overlay.classList.add('show'); }
+    function closeMenu() { mobileMenu.classList.remove('open'); overlay.classList.remove('show'); }
+    $('#burger').addEventListener('click', openMenu);
+    $('#menuClose').addEventListener('click', closeMenu);
+    overlay.addEventListener('click', closeMenu);
+    $$('.mobile-menu a').forEach(a => a.addEventListener('click', closeMenu));
+
+    /* ---------------------------------------------------------------
+       7) THEME TOGGLE (persists in localStorage)
+       --------------------------------------------------------------- */
+    const themeToggle = $('#themeToggle');
+    const html = document.documentElement;
+    function setTheme(mode) {
+      html.setAttribute('data-theme', mode);
+      themeToggle.innerHTML = `<i class="fa-solid fa-${mode === 'dark' ? 'sun' : 'moon'}"></i>`;
+      try { localStorage.setItem('nestspace-theme', mode); } catch (e) {}
+    }
+    (function initTheme() {
+      let saved;
+      try { saved = localStorage.getItem('nestspace-theme'); } catch (e) {}
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setTheme(saved || (prefersDark ? 'dark' : 'light'));
+    })();
+    themeToggle.addEventListener('click', () =>
+      setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
+
+    /* ---------------------------------------------------------------
+       8) FILTERS — budget range, segmented controls, apply/reset
+       --------------------------------------------------------------- */
+    const budgetRange = $('#budgetRange'), budgetOut = $('#budgetOut');
+    budgetRange.addEventListener('input', () =>
+      budgetOut.textContent = '৳ ' + (+budgetRange.value).toLocaleString());
+
+    $$('.seg').forEach(group => group.addEventListener('click', e => {
+      if (e.target.tagName !== 'BUTTON') return;
+      group.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+    }));
+
+    $('#applyFilters').addEventListener('click', () => {
+      toast('Filters applied — showing best matches');
+      document.getElementById('properties').scrollIntoView({ behavior: 'smooth' });
+    });
+    $('#resetFilters').addEventListener('click', () => {
+      $$('.filter-input').forEach(el => { if (el.tagName === 'SELECT') el.selectedIndex = 0; });
+      $$('.seg').forEach(g => { g.querySelectorAll('button').forEach((b, i) => b.classList.toggle('active', i === 0)); });
+      budgetRange.value = 25000; budgetOut.textContent = '৳ 25,000';
+      toast('Filters reset');
+    });
+
+    /* ---------------------------------------------------------------
+       9) LOAD MORE (demo: duplicates a shuffled subset)
+       --------------------------------------------------------------- */
+    let loaded = false;
+    $('#loadMore').addEventListener('click', e => {
+      if (loaded) { toast("You've reached the end of featured listings"); return; }
+      const extra = [...properties].sort(() => Math.random() - 0.5).slice(0, 6);
+      $('#propGrid').insertAdjacentHTML('beforeend', extra.map(propCard).join(''));
+      bindFavourites(); observeReveals();
+      loaded = true;
+      e.currentTarget.innerHTML = '<i class="fa-solid fa-check"></i> All Properties Loaded';
+      toast('6 more properties loaded');
+    });
+
+    /* ---------------------------------------------------------------
+       10) FORMS — hero search, contact, newsletter (demo handlers)
+       --------------------------------------------------------------- */
+    function goSearch(e) {
+      e.preventDefault();
+      toast('Searching homes for you…');
+      document.getElementById('properties').scrollIntoView({ behavior: 'smooth' });
+      return false;
+    }
+    function submitContact(e) {
+      e.preventDefault();
+      $('#formSuccess').classList.add('show');
+      e.target.reset();
+      setTimeout(() => $('#formSuccess').classList.remove('show'), 5000);
+      return false;
+    }
+    function subscribe(e) {
+      e.preventDefault();
+      e.target.reset();
+      toast('Subscribed! Welcome to NestSpace 🎉');
+      return false;
+    }
+
+    /* ---------------------------------------------------------------
+       11) TOAST helper
+       --------------------------------------------------------------- */
+    let toastTimer;
+    function toast(msg) {
+      const t = $('#toast');
+      $('#toastMsg').textContent = msg;
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    /* ---------------------------------------------------------------
+       12) BACK TO TOP
+       --------------------------------------------------------------- */
+    $('#toTop').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+    /* ---------------------------------------------------------------
+       13) HERO BACKGROUND SLIDESHOW — crossfade + restart Ken Burns
+       --------------------------------------------------------------- */
+    function startHeroSlideshow() {
+      const slides = $$('#heroBg .hero-slide');
+      if (slides.length < 2) return;
+      let i = 0;
+      setInterval(() => {
+        slides[i].classList.remove('active');
+        i = (i + 1) % slides.length;
+        const next = slides[i];
+        next.classList.add('active');
+        // Re-trigger the CSS Ken Burns animation from the start on each show
+        next.style.animation = 'none';
+        void next.offsetWidth; // force reflow
+        next.style.animation = '';
+      }, 6000);
+    }
+
+    /* ---------------------------------------------------------------
+       14) INIT — render everything, hide loader, kick off animations
+       --------------------------------------------------------------- */
+    function init() {
+      renderProperties(properties);
+      renderLocations();
+      renderUniversities();
+      renderRoommates();
+      renderFaqs();
+      startHeroSlideshow();
+      observeReveals();
+      onScroll();
+
+      // Counters: trigger once the hero stats are visible
+      const statObs = new IntersectionObserver((entries, obs) => {
+        entries.forEach(en => { if (en.isIntersecting) { animateCounters(); obs.disconnect(); } });
+      }, { threshold: 0.4 });
+      statObs.observe($('#stats'));
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+
+    // Reveal the app: hide the loader AND trigger the hero entrance animation
+    function revealApp() {
+      $('#loader')?.classList.add('hidden');
+      document.body.classList.add('loaded');
+    }
+    window.addEventListener('load', () => setTimeout(revealApp, 600));
+    // Safety fallback so the loader never sticks / hero never stays hidden
+    setTimeout(revealApp, 3500);
+  </script>
+</body>
+</html>

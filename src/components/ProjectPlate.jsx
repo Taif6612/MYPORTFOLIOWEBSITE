@@ -16,6 +16,20 @@ export default function ProjectPlate({ project }) {
   const hasLogo = !hasLive && Boolean(logo); // logo card stands in for non-embeddable work
   const frameHref = url || repo; // no live preview → let the frame open the source
   const cornerLabel = hasLive ? "Open live ↗" : repo ? "View source ↗" : null;
+  // Host label for the faux browser bar — works for absolute and relative
+  // (embedded /sites/…) urls alike.
+  const liveHost = (() => {
+    if (!url) return "";
+    try {
+      return new URL(url, window.location.origin).host;
+    } catch {
+      return "preview";
+    }
+  })();
+  // Embedded sites use a clean directory url (/sites/<id>/) for the shareable
+  // link; the iframe needs the explicit index.html so it loads in dev too.
+  const iframeSrc =
+    url && url.startsWith("/sites/") && url.endsWith("/") ? `${url}index.html` : url;
 
   // Track the screen box size to keep the desktop render filling it (no gaps/clipping).
   useEffect(() => {
@@ -57,7 +71,7 @@ export default function ProjectPlate({ project }) {
         <div className="plate-frame-bar" aria-hidden="true">
           <span /> <span /> <span />
           <em className="mono">
-            {hasLive ? new URL(url).host : hasLogo ? "chrome web extension" : "preview.pending"}
+            {hasLive ? liveHost : hasLogo ? "chrome web extension" : "preview.pending"}
           </em>
         </div>
 
@@ -77,7 +91,7 @@ export default function ProjectPlate({ project }) {
                 <iframe
                   className={`plate-live ${shown ? "is-shown" : ""}`}
                   title={`${title} live preview`}
-                  src={url}
+                  src={iframeSrc}
                   loading="lazy"
                   tabIndex={-1}
                   scrolling="no"

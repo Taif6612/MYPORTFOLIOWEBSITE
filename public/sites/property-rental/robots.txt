@@ -1,0 +1,6 @@
+# NestSpace — allow all crawlers
+User-agent: *
+Allow: /
+
+# Sitemap (update with your deployed domain)
+Sitemap: https://nestspace.example.com/sitemap.xml

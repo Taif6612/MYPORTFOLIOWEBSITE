@@ -1,0 +1,106 @@
+/* ==========================================================================
+   CampusEdge Institute — Color System
+   Premium academic palette: deep navy + royal blue, warm gold accent, on white.
+   Base ramps first, then semantic aliases. Dark theme overrides at the bottom.
+   ========================================================================== */
+
+:root {
+  /* ---- Brand: Navy (primary anchor) ---------------------------------- */
+  --navy-950: #060f24;
+  --navy-900: #0a1a3f;   /* core brand navy */
+  --navy-800: #102a5e;
+  --navy-700: #173a7e;
+  --navy-600: #1f4da0;
+
+  /* ---- Brand: Royal Blue (interactive / primary action) -------------- */
+  --blue-700: #1746b5;
+  --blue-600: #1f5bdb;   /* primary button */
+  --blue-500: #3b78f0;
+  --blue-400: #6f9df6;
+  --blue-300: #a8c4fa;
+  --blue-100: #e3edfd;
+  --blue-50:  #f2f7fe;
+
+  /* ---- Accent: Heritage Gold (prestige / highlights) ----------------- */
+  --gold-700: #9a751f;
+  --gold-600: #c79a2e;
+  --gold-500: #e0b443;   /* core accent */
+  --gold-300: #f0d488;
+  --gold-100: #faf0d2;
+
+  /* ---- Neutrals (warm-cool slate) ------------------------------------ */
+  --white:    #ffffff;
+  --slate-50:  #f6f8fb;
+  --slate-100: #eef2f8;
+  --slate-200: #dde4ee;
+  --slate-300: #c3cedd;
+  --slate-400: #98a6bd;
+  --slate-500: #6b7a93;
+  --slate-600: #4b5a72;
+  --slate-700: #34425a;
+  --slate-800: #1f2b40;
+  --slate-900: #111a2b;
+
+  /* ---- Semantic status ----------------------------------------------- */
+  --success: #1f9d6b;
+  --warning: #d98a1f;
+  --danger:  #d6453c;
+  --info:    var(--blue-600);
+
+  /* ====== SEMANTIC ALIASES (use these in components) ================== */
+  --surface-page:    var(--white);
+  --surface-subtle:  var(--slate-50);
+  --surface-card:    var(--white);
+  --surface-inverse: var(--navy-900);
+  --surface-tint:    var(--blue-50);
+
+  --text-strong:  var(--navy-900);
+  --text-body:    var(--slate-700);
+  --text-muted:   var(--slate-500);
+  --text-ondark:  var(--slate-100);
+  --text-ondark-muted: var(--slate-400);
+  --text-link:    var(--blue-600);
+
+  --border-subtle: var(--slate-200);
+  --border-default: var(--slate-300);
+  --border-strong: var(--slate-400);
+
+  --action-primary: var(--blue-600);
+  --action-primary-hover: var(--blue-700);
+  --action-accent: var(--gold-500);
+  --action-accent-hover: var(--gold-600);
+
+  --focus-ring: var(--blue-500);
+
+  /* glass surfaces (glassmorphism) */
+  --glass-light: rgba(255, 255, 255, 0.65);
+  --glass-light-border: rgba(255, 255, 255, 0.55);
+  --glass-dark: rgba(10, 26, 63, 0.55);
+  --glass-dark-border: rgba(255, 255, 255, 0.16);
+}
+
+/* ====== DARK THEME ===================================================== */
+:root[data-theme="dark"],
+.theme-dark {
+  --surface-page:    var(--navy-950);
+  --surface-subtle:  var(--navy-900);
+  --surface-card:    #0d1d40;
+  --surface-inverse: var(--white);
+  --surface-tint:    rgba(31, 91, 219, 0.12);
+
+  --text-strong:  #f3f7ff;
+  --text-body:    var(--slate-300);
+  --text-muted:   var(--slate-400);
+  --text-ondark:  var(--slate-100);
+  --text-link:    var(--blue-400);
+
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-default: rgba(255, 255, 255, 0.14);
+  --border-strong: rgba(255, 255, 255, 0.24);
+
+  --action-primary: var(--blue-500);
+  --action-primary-hover: var(--blue-400);
+
+  --glass-light: rgba(13, 29, 64, 0.55);
+  --glass-light-border: rgba(255, 255, 255, 0.12);
+}

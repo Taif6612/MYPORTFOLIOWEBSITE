@@ -1,0 +1,1747 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#1a1410" />
+<title>LuxeGlow Salon &amp; Spa — Beauty, Wellness &amp; Confidence in Every Visit</title>
+<meta name="description" content="LuxeGlow Salon & Spa — premium beauty treatments, spa therapies, skincare and salon services. Step inside our immersive 3D sanctuary and book your luxury experience today." />
+<meta name="keywords" content="luxury salon, spa, beauty treatments, hair styling, makeup, skincare, massage, nail art, bridal package, wellness" />
+<meta name="author" content="LuxeGlow Salon & Spa" />
+
+<!-- Open Graph / Social -->
+<meta property="og:title" content="LuxeGlow Salon & Spa" />
+<meta property="og:description" content="Beauty, Wellness & Confidence in Every Visit." />
+<meta property="og:type" content="website" />
+
+<!-- Favicon (inline SVG) -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9C%A6%3C/text%3E%3C/svg%3E" />
+
+<!-- Google Fonts: Cormorant Garamond (luxury serif) + Jost (modern sans) -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+<!-- Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" referrerpolicy="no-referrer" />
+
+<style>
+/* ============================================================
+   LuxeGlow Salon & Spa
+   Single-file luxury website — embedded CSS + JS
+   Sections: Loader, Cursor, Nav, Hero, Stats, 3D Tour + Rooms,
+   Services, Packages, Why Us, Before/After, Gallery, Team,
+   Testimonials, Booking, FAQ, Blog, Instagram, Contact, Footer.
+   ============================================================ */
+
+/* ---------- Design Tokens ---------- */
+:root{
+  /* Rose-gold & luxe palette */
+  --rose:#b76e79;
+  --rose-soft:#d8a7a7;
+  --rose-light:#f0d4d4;
+  --gold:#c9a16b;
+  --gold-soft:#e6cba8;
+  --champagne:#f3e7d8;
+
+  /* Dark theme (default) */
+  --bg:#16110d;
+  --bg-2:#1f1813;
+  --bg-3:#28201a;
+  --surface:rgba(255,255,255,.045);
+  --surface-2:rgba(255,255,255,.08);
+  --border:rgba(255,255,255,.10);
+  --text:#f4ece3;
+  --text-soft:#cbbfb2;
+  --text-mute:#9a8f82;
+  --hero-overlay:linear-gradient(180deg,rgba(15,11,8,.35) 0%,rgba(15,11,8,.55) 55%,rgba(15,11,8,.92) 100%);
+  --glass:rgba(28,22,17,.55);
+  --shadow:0 30px 60px -25px rgba(0,0,0,.7);
+
+  --grad-rose:linear-gradient(120deg,#b76e79 0%,#c9a16b 100%);
+  --grad-rose-soft:linear-gradient(120deg,#e8c0c0 0%,#e6cba8 100%);
+
+  --font-serif:'Cormorant Garamond',Georgia,serif;
+  --font-sans:'Jost',-apple-system,system-ui,sans-serif;
+
+  --maxw:1280px;
+  --radius:22px;
+  --radius-sm:14px;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --nav-h:80px;
+}
+
+/* Light theme */
+html[data-theme="light"]{
+  --bg:#f7f1ea;
+  --bg-2:#fbf6f0;
+  --bg-3:#ffffff;
+  --surface:rgba(120,80,60,.05);
+  --surface-2:rgba(120,80,60,.09);
+  --border:rgba(90,60,45,.14);
+  --text:#2b2018;
+  --text-soft:#5b4a3c;
+  --text-mute:#8a7565;
+  --hero-overlay:linear-gradient(180deg,rgba(247,241,234,.20) 0%,rgba(247,241,234,.45) 55%,rgba(247,241,234,.95) 100%);
+  --glass:rgba(255,250,244,.6);
+  --shadow:0 30px 60px -28px rgba(120,80,60,.4);
+}
+
+/* ---------- Reset ---------- */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--font-sans);
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.65;
+  overflow-x:hidden;
+  transition:background .6s var(--ease),color .6s var(--ease);
+  cursor:auto;
+}
+@media (pointer:fine){body{cursor:none}}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+ul{list-style:none}
+section{position:relative}
+::selection{background:var(--rose);color:#fff}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:10px}
+::-webkit-scrollbar-track{background:var(--bg-2)}
+::-webkit-scrollbar-thumb{background:linear-gradient(var(--rose),var(--gold));border-radius:20px}
+
+h1,h2,h3,h4{font-family:var(--font-serif);font-weight:500;line-height:1.08;letter-spacing:.3px}
+.serif-i{font-style:italic;font-weight:400}
+
+/* ---------- Layout helpers ---------- */
+.wrap{width:min(var(--maxw),92vw);margin-inline:auto}
+.eyebrow{
+  font-size:.72rem;letter-spacing:.42em;text-transform:uppercase;
+  color:var(--rose-soft);font-weight:500;display:inline-flex;align-items:center;gap:.7em;
+}
+.eyebrow::before{content:"";width:34px;height:1px;background:linear-gradient(90deg,transparent,var(--rose))}
+.eyebrow.center::after{content:"";width:34px;height:1px;background:linear-gradient(90deg,var(--rose),transparent)}
+.section-head{max-width:680px;margin:0 auto 60px;text-align:center}
+.section-head h2{font-size:clamp(2.3rem,5vw,4rem);margin:18px 0 14px}
+.section-head p{color:var(--text-soft);font-size:1.05rem}
+.section-pad{padding:clamp(70px,9vw,140px) 0}
+
+.text-grad{background:var(--grad-rose);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* ---------- Buttons ---------- */
+.btn{
+  --pad:16px 32px;
+  position:relative;display:inline-flex;align-items:center;gap:.6em;
+  padding:var(--pad);border-radius:50px;font-size:.82rem;letter-spacing:.16em;
+  text-transform:uppercase;font-weight:500;overflow:hidden;
+  transition:transform .5s var(--ease),box-shadow .5s var(--ease),color .4s;
+  will-change:transform;
+}
+.btn i{transition:transform .4s var(--ease)}
+.btn--solid{background:var(--grad-rose);color:#fff;box-shadow:0 14px 30px -10px rgba(183,110,121,.6)}
+.btn--solid::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,#c9a16b,#b76e79);opacity:0;transition:opacity .5s}
+.btn--solid:hover::after{opacity:1}
+.btn--solid span,.btn--solid i{position:relative;z-index:1}
+.btn--solid:hover{transform:translateY(-3px);box-shadow:0 22px 44px -12px rgba(183,110,121,.7)}
+.btn--solid:hover i{transform:translateX(4px)}
+.btn--ghost{border:1px solid var(--border);color:var(--text);background:var(--surface);backdrop-filter:blur(8px)}
+.btn--ghost:hover{border-color:var(--rose);color:var(--rose-soft);transform:translateY(-3px)}
+.btn--sm{padding:11px 22px;font-size:.72rem}
+
+/* ============================================================
+   LOADING SCREEN
+   ============================================================ */
+#loader{
+  position:fixed;inset:0;z-index:9999;display:grid;place-items:center;
+  background:var(--bg);transition:opacity .8s ease,visibility .8s;
+}
+#loader.done{opacity:0;visibility:hidden}
+.loader-inner{text-align:center}
+.loader-mark{
+  font-family:var(--font-serif);font-size:clamp(2.4rem,7vw,4.2rem);letter-spacing:.18em;
+  background:var(--grad-rose);-webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.loader-mark .star{display:inline-block;animation:spin 3s linear infinite;color:var(--gold);-webkit-text-fill-color:var(--gold)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-sub{margin-top:10px;font-size:.7rem;letter-spacing:.5em;text-transform:uppercase;color:var(--text-mute)}
+.loader-bar{margin:26px auto 0;width:220px;height:2px;background:var(--border);border-radius:2px;overflow:hidden}
+.loader-bar i{display:block;height:100%;width:0;background:var(--grad-rose);animation:load 1.8s var(--ease) forwards}
+@keyframes load{to{width:100%}}
+
+/* ============================================================
+   CUSTOM CURSOR
+   ============================================================ */
+.cursor-dot,.cursor-ring{position:fixed;top:0;left:0;border-radius:50%;pointer-events:none;z-index:9998;mix-blend-mode:difference}
+.cursor-dot{width:7px;height:7px;background:#fff;transform:translate(-50%,-50%)}
+.cursor-ring{width:42px;height:42px;border:1px solid rgba(255,255,255,.6);transform:translate(-50%,-50%);transition:width .3s,height .3s,background .3s,border-color .3s,opacity .3s}
+.cursor-ring.grow{width:74px;height:74px;background:rgba(255,255,255,.12);border-color:transparent}
+@media (pointer:coarse){.cursor-dot,.cursor-ring{display:none}}
+
+/* Scroll progress */
+#progress{position:fixed;top:0;left:0;height:3px;width:0;z-index:9997;background:var(--grad-rose);box-shadow:0 0 12px var(--rose)}
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+header.nav{
+  position:fixed;top:0;left:0;right:0;height:var(--nav-h);z-index:900;
+  display:flex;align-items:center;
+  transition:height .4s var(--ease),background .4s,backdrop-filter .4s,border-color .4s;
+  border-bottom:1px solid transparent;
+}
+header.nav.scrolled{
+  height:64px;background:var(--glass);backdrop-filter:blur(18px) saturate(140%);
+  border-bottom:1px solid var(--border);
+}
+.nav-inner{width:min(var(--maxw),94vw);margin-inline:auto;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.logo{display:flex;align-items:center;gap:.5em;font-family:var(--font-serif);font-size:1.55rem;letter-spacing:.04em}
+.logo .star{color:var(--gold);animation:spin 6s linear infinite;display:inline-block}
+.logo b{font-weight:600}
+.logo span{color:var(--rose-soft);font-style:italic;font-weight:400}
+.nav-links{display:flex;align-items:center;gap:6px}
+.nav-links a{
+  position:relative;padding:10px 16px;font-size:.82rem;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--text-soft);transition:color .3s;font-weight:400;
+}
+.nav-links a::after{content:"";position:absolute;left:16px;right:16px;bottom:6px;height:1px;background:var(--rose);transform:scaleX(0);transform-origin:left;transition:transform .4s var(--ease)}
+.nav-links a:hover,.nav-links a.active{color:var(--text)}
+.nav-links a:hover::after,.nav-links a.active::after{transform:scaleX(1)}
+.nav-actions{display:flex;align-items:center;gap:14px}
+.theme-toggle{
+  width:42px;height:42px;border-radius:50%;display:grid;place-items:center;
+  border:1px solid var(--border);background:var(--surface);transition:.4s var(--ease);font-size:.95rem;color:var(--text);
+}
+.theme-toggle:hover{border-color:var(--rose);transform:rotate(35deg) scale(1.05);color:var(--rose-soft)}
+html[data-theme="dark"] .theme-toggle .fa-sun{display:block}
+html[data-theme="dark"] .theme-toggle .fa-moon{display:none}
+html[data-theme="light"] .theme-toggle .fa-sun{display:none}
+html[data-theme="light"] .theme-toggle .fa-moon{display:block}
+
+.burger{display:none;width:42px;height:42px;border-radius:50%;border:1px solid var(--border);background:var(--surface);position:relative}
+.burger i{display:block;width:18px;height:1.5px;background:var(--text);margin:4px auto;transition:.3s}
+.burger.open i:nth-child(1){transform:translateY(5.5px) rotate(45deg)}
+.burger.open i:nth-child(2){opacity:0}
+.burger.open i:nth-child(3){transform:translateY(-5.5px) rotate(-45deg)}
+
+/* Mobile menu */
+.mobile-menu{
+  position:fixed;inset:0;z-index:899;background:var(--bg-2);
+  display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;
+  opacity:0;visibility:hidden;transform:translateY(-12px);transition:.5s var(--ease);
+}
+.mobile-menu.open{opacity:1;visibility:visible;transform:none}
+.mobile-menu a{font-family:var(--font-serif);font-size:2rem;color:var(--text-soft);transition:.3s}
+.mobile-menu a:hover{color:var(--rose-soft);letter-spacing:.04em}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{min-height:100vh;display:flex;align-items:center;overflow:hidden;padding-top:var(--nav-h)}
+.hero__bg{position:absolute;inset:0;z-index:-2}
+.hero__bg img{width:100%;height:100%;object-fit:cover;transform:scale(1.12);animation:heroZoom 18s ease-in-out infinite alternate}
+@keyframes heroZoom{to{transform:scale(1.02) translateY(-12px)}}
+.hero__overlay{position:absolute;inset:0;z-index:-1;background:var(--hero-overlay)}
+.hero__glow{position:absolute;border-radius:50%;filter:blur(90px);opacity:.5;z-index:-1}
+.hero__glow.a{width:480px;height:480px;background:radial-gradient(circle,var(--rose),transparent 70%);top:-10%;right:-6%;animation:float 12s ease-in-out infinite}
+.hero__glow.b{width:420px;height:420px;background:radial-gradient(circle,var(--gold),transparent 70%);bottom:-12%;left:-8%;animation:float 15s ease-in-out infinite reverse}
+@keyframes float{50%{transform:translate(20px,-30px)}}
+
+.hero__content{max-width:880px}
+.hero__badges{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:26px}
+.trust{display:inline-flex;align-items:center;gap:.5em;padding:8px 16px;border-radius:50px;background:var(--surface);border:1px solid var(--border);backdrop-filter:blur(10px);font-size:.74rem;letter-spacing:.06em}
+.trust i{color:var(--gold)}
+.hero h1{font-size:clamp(2.8rem,8vw,6.2rem);font-weight:400;margin:8px 0 22px}
+.hero h1 .line{display:block;overflow:hidden}
+.hero h1 .line>span{display:inline-block;transform:translateY(110%);animation:rise 1s var(--ease) forwards}
+.hero h1 .line:nth-child(2)>span{animation-delay:.12s}
+.hero h1 .line:nth-child(3)>span{animation-delay:.24s}
+@keyframes rise{to{transform:none}}
+.hero p.lead{max-width:560px;color:var(--text-soft);font-size:1.12rem;margin-bottom:36px;opacity:0;animation:fadeUp .9s var(--ease) .5s forwards}
+.hero__cta{display:flex;flex-wrap:wrap;gap:16px;opacity:0;animation:fadeUp .9s var(--ease) .7s forwards}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+.scroll-hint{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;font-size:.66rem;letter-spacing:.3em;text-transform:uppercase;color:var(--text-mute)}
+.scroll-hint .mouse{width:24px;height:38px;border:1.5px solid var(--text-mute);border-radius:14px;position:relative}
+.scroll-hint .mouse::after{content:"";position:absolute;top:7px;left:50%;width:3px;height:7px;border-radius:3px;background:var(--rose);transform:translateX(-50%);animation:wheel 1.6s infinite}
+@keyframes wheel{0%{opacity:0;transform:translate(-50%,0)}40%{opacity:1}100%{opacity:0;transform:translate(-50%,12px)}}
+
+/* ============================================================
+   STATS
+   ============================================================ */
+.stats{position:relative;z-index:2;margin-top:-2px}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;backdrop-filter:blur(10px)}
+.stat{background:var(--bg-2);padding:42px 24px;text-align:center;transition:background .4s}
+.stat:hover{background:var(--bg-3)}
+.stat .num{font-family:var(--font-serif);font-size:clamp(2.4rem,4.5vw,3.6rem);line-height:1;background:var(--grad-rose);-webkit-background-clip:text;background-clip:text;color:transparent}
+.stat .label{margin-top:10px;font-size:.74rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-mute)}
+
+/* ============================================================
+   3D IMMERSIVE TOUR (first-person corridor)
+   ============================================================ */
+.tour{background:linear-gradient(180deg,var(--bg) 0%,var(--bg-2) 100%);overflow:hidden}
+.tour-head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:24px;margin-bottom:40px}
+.tour-head .eyebrow{margin-bottom:14px}
+.tour-head h2{font-size:clamp(2.2rem,5vw,3.8rem);max-width:8ch;line-height:1}
+.tour-head p{max-width:380px;color:var(--text-soft)}
+
+.stage{
+  position:relative;height:min(72vh,640px);border-radius:var(--radius);overflow:hidden;
+  border:1px solid var(--border);
+  background:radial-gradient(120% 80% at 50% 0%,#3a2c22,#160f0a 75%);
+  perspective:1100px;perspective-origin:50% 46%;
+  cursor:grab;user-select:none;touch-action:pan-y;
+}
+.stage:active{cursor:grabbing}
+.world{position:absolute;inset:0;transform-style:preserve-3d;transition:transform 1.4s var(--ease)}
+.plane{position:absolute;top:50%;left:50%;backface-visibility:hidden}
+
+/* Corridor box: W=620 H=520 D=3400, centered at origin */
+.floor,.ceil{width:620px;height:3400px;margin-left:-310px;margin-top:-1700px}
+.floor{
+  transform:rotateX(90deg) translateZ(260px);
+  background:
+    repeating-linear-gradient(90deg,rgba(0,0,0,.18) 0 2px,transparent 2px 156px),
+    repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 2px,transparent 2px 156px),
+    linear-gradient(180deg,#2a201a,#160f0a);
+  box-shadow:inset 0 0 200px rgba(0,0,0,.6);
+}
+.ceil{
+  transform:rotateX(-90deg) translateZ(260px);
+  background:linear-gradient(180deg,#241b15,#15100b);
+}
+.ceil::after{
+  /* runway of warm ceiling lights */
+  content:"";position:absolute;left:50%;top:0;bottom:0;width:60px;transform:translateX(-50%);
+  background:repeating-linear-gradient(0deg,rgba(233,196,160,.9) 0 50px,transparent 50px 300px);
+  filter:blur(2px);opacity:.85;
+}
+.wall{width:3400px;height:520px;margin-left:-1700px;margin-top:-260px}
+.wall-l{transform:rotateY(90deg) translateZ(310px)}
+.wall-r{transform:rotateY(-90deg) translateZ(310px)}
+.wall{
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.4),transparent 18%,transparent 82%,rgba(0,0,0,.4)),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.03) 0 2px,transparent 2px 340px),
+    linear-gradient(180deg,#2c211b 0%,#221a14 55%,#1b140f 100%);
+}
+.far{width:620px;height:520px;margin-left:-310px;margin-top:-260px;transform:rotateY(180deg) translateZ(1700px)}
+.far{background:radial-gradient(circle at 50% 40%,rgba(201,161,107,.35),#160f0a 70%);display:grid;place-items:center}
+.far .far-mark{transform:rotateY(180deg);text-align:center;color:var(--gold-soft);font-family:var(--font-serif)}
+.far .far-mark span{font-size:.7rem;letter-spacing:.4em;text-transform:uppercase;color:var(--text-mute)}
+
+/* Doors sit ON the walls (children inherit wall 3D transform) */
+.door{
+  position:absolute;top:90px;width:300px;height:360px;
+  border-radius:160px 160px 12px 12px;overflow:hidden;cursor:pointer;
+  border:2px solid rgba(201,161,107,.35);
+  box-shadow:0 0 0 8px rgba(0,0,0,.25),0 30px 60px rgba(0,0,0,.5);
+  transition:box-shadow .5s,border-color .5s,filter .5s;
+}
+.wall-l .door{transform:scaleX(-1)} /* keep imagery upright on mirrored wall */
+.door img{width:100%;height:100%;object-fit:cover;transform:scale(1.05);transition:transform 1.2s var(--ease);filter:brightness(.72)}
+.door:hover{border-color:var(--gold);box-shadow:0 0 0 8px rgba(201,161,107,.25),0 0 60px rgba(201,161,107,.45)}
+.door:hover img{transform:scale(1.16);filter:brightness(.9)}
+.door .door-tag{
+  position:absolute;left:0;right:0;bottom:0;padding:46px 18px 18px;
+  background:linear-gradient(transparent,rgba(0,0,0,.85));color:#fff;text-align:center;
+}
+.wall-l .door .door-tag{transform:scaleX(-1)}
+.door .door-tag h4{font-size:1.5rem;line-height:1}
+.door .door-tag em{font-size:.66rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold-soft);font-style:normal}
+.door .enter{display:inline-flex;align-items:center;gap:.4em;margin-top:8px;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:#fff;opacity:.7}
+
+/* Stage UI controls */
+.stage-ui{position:absolute;left:0;right:0;bottom:18px;display:flex;justify-content:center;gap:12px;z-index:5}
+.stage-ui button{
+  width:54px;height:54px;border-radius:50%;display:grid;place-items:center;
+  background:var(--glass);border:1px solid var(--border);backdrop-filter:blur(12px);
+  color:var(--text);font-size:1rem;transition:.4s var(--ease);
+}
+.stage-ui button:hover{background:var(--rose);color:#fff;transform:translateY(-3px)}
+.stage-hint{position:absolute;top:16px;left:16px;z-index:5;font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-soft);display:flex;align-items:center;gap:.5em;background:var(--glass);border:1px solid var(--border);padding:8px 14px;border-radius:50px;backdrop-filter:blur(10px)}
+.stage-vignette{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 160px 30px rgba(0,0,0,.65);z-index:4;border-radius:var(--radius)}
+.depth-dots{position:absolute;top:16px;right:16px;z-index:5;display:flex;flex-direction:column;gap:8px}
+.depth-dots button{width:10px;height:10px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border);transition:.3s}
+.depth-dots button.on{background:var(--rose);transform:scale(1.3)}
+
+/* ============================================================
+   ROOM PAGES (full-screen immersive overlay)
+   ============================================================ */
+.room-overlay{
+  position:fixed;inset:0;z-index:1000;visibility:hidden;opacity:0;
+  transition:opacity .6s var(--ease),visibility .6s;
+  background:#0c0805;perspective:1200px;
+}
+.room-overlay.open{visibility:visible;opacity:1}
+.room{
+  position:absolute;inset:0;opacity:0;visibility:hidden;
+  display:flex;align-items:flex-end;
+  transform:scale(.35) translateZ(-300px);transform-origin:center;
+  transition:transform 1s var(--ease),opacity .8s,visibility .8s,filter 1s;
+  filter:blur(14px);
+}
+.room.active{opacity:1;visibility:visible;transform:none;filter:none}
+.room.exit-left{transform:scale(2.4);opacity:0;filter:blur(20px)} /* walk forward out */
+.room__bg{position:absolute;inset:0}
+.room__bg img{width:100%;height:100%;object-fit:cover}
+.room__bg::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,rgba(8,5,3,.92) 0%,rgba(8,5,3,.6) 45%,rgba(8,5,3,.25) 100%)}
+.room__inner{position:relative;width:min(var(--maxw),92vw);margin-inline:auto;padding:0 0 8vh;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:end}
+.room__intro .eyebrow{margin-bottom:16px}
+.room__num{font-family:var(--font-serif);font-size:clamp(3rem,9vw,7rem);line-height:.8;color:rgba(255,255,255,.08);position:absolute;top:14vh;left:0}
+.room__intro h2{font-size:clamp(2.6rem,7vw,5.5rem);color:#fff;margin:6px 0 16px}
+.room__intro p{color:rgba(255,255,255,.7);max-width:46ch;margin-bottom:24px}
+.room__services{display:flex;flex-direction:column;gap:12px}
+.room-serv{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:18px 22px;border-radius:var(--radius-sm);
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
+  backdrop-filter:blur(14px);transition:.4s var(--ease);
+}
+.room-serv:hover{background:rgba(255,255,255,.12);transform:translateX(-6px)}
+.room-serv h4{font-size:1.4rem;color:#fff}
+.room-serv .meta{font-size:.72rem;letter-spacing:.1em;color:var(--gold-soft);text-transform:uppercase}
+.room-serv .price{font-family:var(--font-serif);font-size:1.6rem;color:#fff;white-space:nowrap}
+.room-serv .price small{font-size:.62rem;letter-spacing:.1em;color:rgba(255,255,255,.5);display:block;text-transform:uppercase}
+
+/* Room navigation chrome */
+.room-nav{position:fixed;z-index:1002;display:flex;align-items:center;gap:10px}
+.room-nav button{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(12px);color:#fff;font-size:1rem;transition:.4s var(--ease)}
+.room-nav button:hover{background:var(--rose);transform:scale(1.08)}
+.rn-arrows{bottom:5vh;left:50%;transform:translateX(-50%)}
+.rn-close{top:24px;right:24px}
+.rn-label{position:fixed;top:30px;left:50%;transform:translateX(-50%);z-index:1002;font-size:.68rem;letter-spacing:.36em;text-transform:uppercase;color:rgba(255,255,255,.65)}
+.room-progress{position:fixed;bottom:5vh;left:0;right:0;z-index:1001;display:flex;justify-content:center;gap:8px;pointer-events:none}
+.room-progress i{width:40px;height:2px;background:rgba(255,255,255,.2);transition:.4s}
+.room-progress i.on{background:var(--gold)}
+.book-from-room{position:fixed;bottom:5vh;right:24px;z-index:1002}
+
+/* ============================================================
+   SERVICES
+   ============================================================ */
+.services{background:var(--bg-2)}
+.cat-tabs{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-bottom:48px}
+.cat-tabs button{padding:10px 24px;border-radius:50px;border:1px solid var(--border);background:var(--surface);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-soft);transition:.4s var(--ease)}
+.cat-tabs button.active{background:var(--grad-rose);color:#fff;border-color:transparent}
+.services-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:26px}
+.svc-card{
+  position:relative;border-radius:var(--radius);overflow:hidden;background:var(--bg-3);
+  border:1px solid var(--border);transition:transform .5s var(--ease),box-shadow .5s;
+}
+.svc-card:hover{transform:translateY(-8px);box-shadow:var(--shadow)}
+.svc-img{position:relative;aspect-ratio:4/3;overflow:hidden}
+.svc-img img{width:100%;height:100%;object-fit:cover;transition:transform .9s var(--ease)}
+.svc-card:hover .svc-img img{transform:scale(1.1)}
+.svc-img .dur{position:absolute;top:14px;left:14px;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;padding:6px 12px;border-radius:50px;background:var(--glass);backdrop-filter:blur(8px);border:1px solid var(--border)}
+.svc-body{padding:22px}
+.svc-body h3{font-size:1.55rem;margin-bottom:6px}
+.svc-body p{font-size:.9rem;color:var(--text-mute);margin-bottom:18px;min-height:42px}
+.svc-foot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding-top:16px}
+.svc-price{font-family:var(--font-serif);font-size:1.5rem;color:var(--rose-soft)}
+.svc-price small{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-mute);display:block;font-family:var(--font-sans)}
+.svc-book{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;display:inline-flex;align-items:center;gap:.4em;color:var(--text);transition:.3s}
+.svc-book:hover{color:var(--rose-soft);gap:.7em}
+
+/* ============================================================
+   PACKAGES
+   ============================================================ */
+.packages{background:var(--bg)}
+.pkg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;align-items:stretch}
+.pkg{
+  position:relative;border-radius:var(--radius);padding:36px 28px;background:var(--bg-3);
+  border:1px solid var(--border);transition:transform .5s var(--ease),box-shadow .5s,border-color .5s;
+  display:flex;flex-direction:column;
+}
+.pkg:hover{transform:translateY(-10px);box-shadow:var(--shadow)}
+.pkg.featured{border-color:var(--rose);background:linear-gradient(180deg,var(--bg-3),rgba(183,110,121,.08))}
+.pkg.featured::before{content:"Most Popular";position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--grad-rose);color:#fff;font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;padding:6px 18px;border-radius:50px;white-space:nowrap;box-shadow:0 10px 20px -8px rgba(183,110,121,.7)}
+.pkg .pkg-name{font-size:1.7rem;margin-bottom:6px}
+.pkg .pkg-desc{font-size:.84rem;color:var(--text-mute);margin-bottom:20px;min-height:40px}
+.pkg .pkg-price{font-family:var(--font-serif);font-size:3rem;line-height:1;color:var(--text)}
+.pkg .pkg-price small{font-size:.8rem;color:var(--text-mute);font-family:var(--font-sans)}
+.pkg .pkg-per{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-mute);margin-bottom:22px}
+.pkg ul{display:flex;flex-direction:column;gap:12px;margin-bottom:26px;flex:1}
+.pkg ul li{display:flex;gap:.7em;font-size:.9rem;color:var(--text-soft)}
+.pkg ul li i{color:var(--gold);margin-top:5px;font-size:.78rem}
+.pkg .btn{width:100%;justify-content:center}
+
+/* ============================================================
+   WHY US
+   ============================================================ */
+.why{background:var(--bg-2)}
+.why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.why-card{background:var(--bg);padding:38px 30px;transition:background .4s}
+.why-card:hover{background:var(--bg-3)}
+.why-icon{width:58px;height:58px;border-radius:16px;display:grid;place-items:center;font-size:1.3rem;color:var(--rose-soft);background:var(--surface-2);border:1px solid var(--border);margin-bottom:20px}
+.why-card h3{font-size:1.45rem;margin-bottom:10px}
+.why-card p{font-size:.9rem;color:var(--text-mute)}
+
+/* ============================================================
+   BEFORE / AFTER
+   ============================================================ */
+.ba{background:var(--bg)}
+.ba-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:26px}
+.ba-card{border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);background:var(--bg-3)}
+.ba-stage{position:relative;aspect-ratio:4/3;overflow:hidden;user-select:none}
+.ba-stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.ba-after{clip-path:inset(0 0 0 50%)}
+.ba-line{position:absolute;top:0;bottom:0;left:50%;width:2px;background:#fff;transform:translateX(-50%);box-shadow:0 0 12px rgba(0,0,0,.5)}
+.ba-handle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:#fff;display:grid;place-items:center;color:#1a1a1a;box-shadow:0 6px 18px rgba(0,0,0,.4);cursor:ew-resize}
+.ba-range{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;margin:0}
+.ba-tag{position:absolute;bottom:12px;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;padding:5px 12px;border-radius:50px;background:rgba(0,0,0,.55);color:#fff;backdrop-filter:blur(4px)}
+.ba-tag.b{left:12px}.ba-tag.a{right:12px;background:var(--rose)}
+.ba-card h4{padding:18px 20px 4px;font-size:1.4rem}
+.ba-card p{padding:0 20px 20px;font-size:.84rem;color:var(--text-mute)}
+
+/* ============================================================
+   GALLERY (masonry)
+   ============================================================ */
+.gallery{background:var(--bg-2)}
+.masonry{columns:4;column-gap:16px}
+.masonry figure{break-inside:avoid;margin-bottom:16px;border-radius:var(--radius-sm);overflow:hidden;position:relative;cursor:pointer}
+.masonry img{width:100%;display:block;transition:transform .9s var(--ease)}
+.masonry figure::after{content:"\f00e";font-family:"Font Awesome 6 Free";font-weight:900;position:absolute;inset:0;display:grid;place-items:center;color:#fff;background:rgba(20,12,8,.4);opacity:0;transition:.4s}
+.masonry figure:hover::after{opacity:1}
+.masonry figure:hover img{transform:scale(1.08)}
+
+/* Lightbox */
+.lightbox{position:fixed;inset:0;z-index:1100;background:rgba(8,5,3,.92);display:grid;place-items:center;opacity:0;visibility:hidden;transition:.4s;backdrop-filter:blur(8px)}
+.lightbox.open{opacity:1;visibility:visible}
+.lightbox img{max-width:88vw;max-height:84vh;border-radius:12px;box-shadow:0 40px 80px rgba(0,0,0,.6)}
+.lightbox .lb-close{position:absolute;top:24px;right:28px;font-size:1.6rem;color:#fff}
+
+/* ============================================================
+   TEAM
+   ============================================================ */
+.team{background:var(--bg)}
+.team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px}
+.member{border-radius:var(--radius);overflow:hidden;position:relative;background:var(--bg-3);border:1px solid var(--border)}
+.member-img{aspect-ratio:3/4;overflow:hidden;position:relative}
+.member-img img{width:100%;height:100%;object-fit:cover;transition:transform .9s var(--ease);filter:grayscale(.15)}
+.member:hover .member-img img{transform:scale(1.08);filter:none}
+.member-social{position:absolute;left:0;right:0;bottom:-60px;display:flex;justify-content:center;gap:12px;padding:16px;transition:bottom .5s var(--ease);background:linear-gradient(transparent,rgba(12,8,5,.85))}
+.member:hover .member-social{bottom:0}
+.member-social a{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;transition:.3s}
+.member-social a:hover{background:var(--rose)}
+.member-body{padding:20px;text-align:center}
+.member-body h3{font-size:1.4rem}
+.member-body .role{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--rose-soft);margin:4px 0 8px}
+.member-body .exp{font-size:.82rem;color:var(--text-mute)}
+
+/* ============================================================
+   TESTIMONIALS
+   ============================================================ */
+.testi{background:var(--bg-2);overflow:hidden}
+.testi-track{position:relative;max-width:820px;margin:0 auto;min-height:300px}
+.testi-slide{position:absolute;inset:0;opacity:0;transform:translateY(20px);transition:.7s var(--ease);text-align:center;pointer-events:none}
+.testi-slide.active{opacity:1;transform:none;pointer-events:auto}
+.testi-stars{color:var(--gold);font-size:1rem;letter-spacing:.2em;margin-bottom:22px}
+.testi-quote{font-family:var(--font-serif);font-size:clamp(1.4rem,3vw,2.1rem);line-height:1.4;font-style:italic;color:var(--text);margin-bottom:30px}
+.testi-author{display:flex;align-items:center;justify-content:center;gap:14px}
+.testi-author img{width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--rose)}
+.testi-author .who{text-align:left}
+.testi-author .who b{font-family:var(--font-serif);font-size:1.2rem;font-weight:500;display:block}
+.testi-author .who span{font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-mute)}
+.testi-dots{display:flex;justify-content:center;gap:10px;margin-top:40px}
+.testi-dots button{width:11px;height:11px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border);transition:.3s}
+.testi-dots button.on{background:var(--rose);width:30px;border-radius:50px}
+
+/* ============================================================
+   BOOKING
+   ============================================================ */
+.booking{background:linear-gradient(180deg,var(--bg),var(--bg-2))}
+.booking-card{
+  display:grid;grid-template-columns:.9fr 1.1fr;border-radius:var(--radius);overflow:hidden;
+  border:1px solid var(--border);box-shadow:var(--shadow);
+}
+.booking-aside{position:relative;padding:50px 44px;display:flex;flex-direction:column;justify-content:flex-end;min-height:480px;color:#fff}
+.booking-aside img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+.booking-aside::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(20,12,8,.3),rgba(20,12,8,.85))}
+.booking-aside .eyebrow{color:var(--gold-soft)}
+.booking-aside h3{font-size:2.4rem;margin:14px 0 14px}
+.booking-aside p{color:rgba(255,255,255,.78);font-size:.95rem}
+.booking-aside ul{margin-top:24px;display:flex;flex-direction:column;gap:12px}
+.booking-aside li{display:flex;gap:.7em;align-items:center;font-size:.9rem}
+.booking-aside li i{color:var(--gold-soft)}
+.booking-form{background:var(--bg-3);padding:50px 44px}
+.booking-form h3{font-size:1.9rem;margin-bottom:6px}
+.booking-form>p{color:var(--text-mute);font-size:.9rem;margin-bottom:28px}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-mute);margin-bottom:8px}
+.field input,.field select{
+  width:100%;padding:14px 16px;border-radius:12px;background:var(--surface);
+  border:1px solid var(--border);color:var(--text);font-family:inherit;font-size:.95rem;transition:.3s;
+}
+.field input:focus,.field select:focus{outline:none;border-color:var(--rose);background:var(--surface-2)}
+.field select option{background:var(--bg-3);color:var(--text)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.booking-form .btn{width:100%;justify-content:center;margin-top:8px}
+.form-note{font-size:.74rem;color:var(--text-mute);margin-top:14px;text-align:center}
+
+/* Toast */
+.toast{position:fixed;bottom:30px;left:50%;transform:translate(-50%,140%);z-index:1200;background:var(--bg-3);border:1px solid var(--rose);border-radius:14px;padding:16px 24px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);transition:transform .6s var(--ease);max-width:90vw}
+.toast.show{transform:translate(-50%,0)}
+.toast i{color:#5cc98a;font-size:1.3rem}
+.toast b{font-family:var(--font-serif);font-size:1.1rem;font-weight:500}
+.toast p{font-size:.8rem;color:var(--text-mute)}
+
+/* ============================================================
+   FAQ
+   ============================================================ */
+.faq{background:var(--bg-2)}
+.faq-list{max-width:820px;margin:0 auto}
+.faq-item{border-bottom:1px solid var(--border)}
+.faq-q{width:100%;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:26px 4px;text-align:left;font-family:var(--font-serif);font-size:1.35rem;transition:color .3s}
+.faq-q:hover{color:var(--rose-soft)}
+.faq-q .ic{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);display:grid;place-items:center;flex-shrink:0;transition:.4s var(--ease);font-size:.8rem}
+.faq-item.open .faq-q .ic{transform:rotate(135deg);background:var(--rose);color:#fff;border-color:transparent}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .5s var(--ease)}
+.faq-a p{padding:0 4px 26px;color:var(--text-soft);font-size:.95rem;max-width:90%}
+
+/* ============================================================
+   BLOG
+   ============================================================ */
+.blog{background:var(--bg)}
+.blog-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:26px}
+.post{border-radius:var(--radius);overflow:hidden;background:var(--bg-3);border:1px solid var(--border);transition:transform .5s var(--ease),box-shadow .5s}
+.post:hover{transform:translateY(-8px);box-shadow:var(--shadow)}
+.post-img{aspect-ratio:16/10;overflow:hidden}
+.post-img img{width:100%;height:100%;object-fit:cover;transition:transform .9s var(--ease)}
+.post:hover .post-img img{transform:scale(1.08)}
+.post-body{padding:24px}
+.post-cat{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--rose-soft)}
+.post-body h3{font-size:1.4rem;margin:10px 0 10px;line-height:1.2}
+.post-body p{font-size:.86rem;color:var(--text-mute);margin-bottom:16px}
+.post-meta{display:flex;align-items:center;justify-content:space-between;font-size:.74rem;color:var(--text-mute);border-top:1px solid var(--border);padding-top:14px}
+.post-meta .read{color:var(--text);display:inline-flex;gap:.4em;align-items:center;transition:.3s}
+.post:hover .read{color:var(--rose-soft);gap:.7em}
+
+/* ============================================================
+   INSTAGRAM
+   ============================================================ */
+.insta{background:var(--bg-2)}
+.insta-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.insta-grid a{position:relative;aspect-ratio:1;overflow:hidden;border-radius:12px}
+.insta-grid img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
+.insta-grid a::after{content:"\f16d";font-family:"Font Awesome 6 Brands";position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-size:1.4rem;background:rgba(183,110,121,.65);opacity:0;transition:.4s}
+.insta-grid a:hover::after{opacity:1}
+.insta-grid a:hover img{transform:scale(1.12)}
+
+/* ============================================================
+   CONTACT
+   ============================================================ */
+.contact{background:var(--bg)}
+.contact-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:40px;align-items:stretch}
+.contact-info{display:flex;flex-direction:column;gap:18px}
+.ci-card{display:flex;gap:18px;align-items:flex-start;padding:24px;border-radius:var(--radius-sm);background:var(--bg-3);border:1px solid var(--border);transition:.4s var(--ease)}
+.ci-card:hover{transform:translateX(6px);border-color:var(--rose)}
+.ci-card .ic{width:50px;height:50px;border-radius:14px;display:grid;place-items:center;background:var(--surface-2);color:var(--rose-soft);font-size:1.15rem;flex-shrink:0}
+.ci-card h4{font-size:1.25rem;margin-bottom:4px}
+.ci-card p{font-size:.9rem;color:var(--text-soft)}
+.map-wrap{border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);position:relative;min-height:420px;background:
+  linear-gradient(135deg,var(--bg-3),var(--bg-2));}
+.map-grid{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:40px 40px;opacity:.6}
+.map-roads{position:absolute;inset:0}
+.map-roads::before,.map-roads::after{content:"";position:absolute;background:var(--surface-2)}
+.map-roads::before{top:55%;left:0;right:0;height:18px}
+.map-roads::after{left:38%;top:0;bottom:0;width:16px}
+.map-pin{position:absolute;top:48%;left:42%;transform:translate(-50%,-100%);text-align:center;color:var(--rose);z-index:2}
+.map-pin i{font-size:2.4rem;filter:drop-shadow(0 8px 10px rgba(0,0,0,.4));animation:pinBounce 2s ease-in-out infinite}
+@keyframes pinBounce{50%{transform:translateY(-8px)}}
+.map-pin span{display:block;margin-top:6px;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;background:var(--bg-3);padding:4px 12px;border-radius:50px;border:1px solid var(--border);color:var(--text)}
+.map-badge{position:absolute;bottom:18px;left:18px;z-index:2;background:var(--glass);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:12px;padding:12px 18px;font-size:.8rem}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer.foot{background:var(--bg-2);border-top:1px solid var(--border);padding-top:80px}
+.foot-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1.4fr;gap:40px;padding-bottom:60px}
+.foot-brand .logo{font-size:1.8rem;margin-bottom:18px}
+.foot-brand p{color:var(--text-mute);font-size:.9rem;max-width:34ch;margin-bottom:22px}
+.foot-soc{display:flex;gap:12px}
+.foot-soc a{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:1px solid var(--border);transition:.4s var(--ease)}
+.foot-soc a:hover{background:var(--rose);color:#fff;transform:translateY(-4px)}
+.foot-col h4{font-size:1.2rem;margin-bottom:20px}
+.foot-col ul{display:flex;flex-direction:column;gap:11px}
+.foot-col a{color:var(--text-mute);font-size:.9rem;transition:.3s}
+.foot-col a:hover{color:var(--rose-soft);padding-left:5px}
+.news p{color:var(--text-mute);font-size:.88rem;margin-bottom:16px}
+.news form{display:flex;gap:8px}
+.news input{flex:1;padding:13px 16px;border-radius:50px;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:inherit;font-size:.88rem}
+.news input:focus{outline:none;border-color:var(--rose)}
+.news button{width:50px;height:50px;border-radius:50%;background:var(--grad-rose);color:#fff;flex-shrink:0;transition:.4s var(--ease)}
+.news button:hover{transform:scale(1.08)}
+.foot-bottom{border-top:1px solid var(--border);padding:24px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:.8rem;color:var(--text-mute)}
+.foot-bottom a{color:var(--text-soft)}
+
+/* ============================================================
+   FLOATING UI
+   ============================================================ */
+.whatsapp{position:fixed;bottom:28px;left:28px;z-index:880;width:60px;height:60px;border-radius:50%;background:#25d366;color:#fff;display:grid;place-items:center;font-size:1.6rem;box-shadow:0 14px 30px -8px rgba(37,211,102,.6);transition:.4s var(--ease)}
+.whatsapp::before{content:"";position:absolute;inset:0;border-radius:50%;background:#25d366;animation:ring 2s ease-out infinite;z-index:-1}
+@keyframes ring{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.8);opacity:0}}
+.whatsapp:hover{transform:scale(1.1)}
+.to-top{position:fixed;bottom:28px;right:28px;z-index:880;width:52px;height:52px;border-radius:50%;background:var(--grad-rose);color:#fff;display:grid;place-items:center;font-size:1rem;box-shadow:0 14px 30px -8px rgba(183,110,121,.6);opacity:0;visibility:hidden;transform:translateY(20px);transition:.5s var(--ease)}
+.to-top.show{opacity:1;visibility:visible;transform:none}
+.to-top:hover{transform:translateY(-4px)}
+
+/* Marquee */
+.marquee{padding:26px 0;border-block:1px solid var(--border);background:var(--bg-3);overflow:hidden;white-space:nowrap}
+.marquee-track{display:inline-flex;gap:60px;animation:marq 28s linear infinite}
+.marquee:hover .marquee-track{animation-play-state:paused}
+.marquee span{font-family:var(--font-serif);font-size:1.8rem;font-style:italic;color:var(--text-soft);display:inline-flex;align-items:center;gap:60px}
+.marquee span::after{content:"\2726";color:var(--gold);font-style:normal;font-size:1rem}
+@keyframes marq{to{transform:translateX(-50%)}}
+
+/* ---------- Reveal animations ---------- */
+.reveal{opacity:0;transform:translateY(40px);transition:opacity 1s var(--ease),transform 1s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+.reveal.d1{transition-delay:.1s}.reveal.d2{transition-delay:.2s}.reveal.d3{transition-delay:.3s}.reveal.d4{transition-delay:.4s}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width:1100px){
+  .masonry{columns:3}
+  .insta-grid{grid-template-columns:repeat(4,1fr)}
+  .room__inner{grid-template-columns:1fr}
+  .room__services{max-width:520px}
+}
+@media (max-width:900px){
+  .nav-links{display:none}
+  .burger{display:block}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .booking-card{grid-template-columns:1fr}
+  .contact-grid{grid-template-columns:1fr}
+  .foot-grid{grid-template-columns:1fr 1fr}
+  .masonry{columns:2}
+}
+@media (max-width:600px){
+  :root{--nav-h:68px}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .insta-grid{grid-template-columns:repeat(3,1fr)}
+  .foot-grid{grid-template-columns:1fr}
+  .two-col{grid-template-columns:1fr}
+  .booking-form,.booking-aside{padding:34px 24px}
+  .room__inner{padding-bottom:14vh}
+  .stage{height:64vh}
+  .door{width:240px;height:300px}
+  .marquee span{font-size:1.4rem}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.2s!important}
+  .hero__bg img{animation:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== LOADING SCREEN ===================== -->
+<div id="loader">
+  <div class="loader-inner">
+    <div class="loader-mark"><span class="star">✦</span> LuxeGlow</div>
+    <div class="loader-sub">Salon &amp; Spa</div>
+    <div class="loader-bar"><i></i></div>
+  </div>
+</div>
+
+<!-- ===================== CUSTOM CURSOR + PROGRESS ===================== -->
+<div class="cursor-dot"></div>
+<div class="cursor-ring"></div>
+<div id="progress"></div>
+
+<!-- ===================== NAVIGATION ===================== -->
+<header class="nav">
+  <div class="nav-inner">
+    <a href="#home" class="logo" data-cursor><span class="star">✦</span><b>Luxe</b><span>Glow</span></a>
+    <nav class="nav-links">
+      <a href="#home">Home</a>
+      <a href="#services">Services</a>
+      <a href="#packages">Pricing</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="theme-toggle" id="themeBtn" aria-label="Toggle theme" data-cursor>
+        <i class="fa-solid fa-sun"></i><i class="fa-solid fa-moon"></i>
+      </button>
+      <a href="#booking" class="btn btn--solid btn--sm" data-cursor><span>Book Appointment</span><i class="fa-solid fa-arrow-right"></i></a>
+      <button class="burger" id="burger" aria-label="Menu"><i></i><i></i><i></i></button>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#home">Home</a>
+  <a href="#services">Services</a>
+  <a href="#packages">Pricing</a>
+  <a href="#gallery">Gallery</a>
+  <a href="#about">About</a>
+  <a href="#contact">Contact</a>
+  <a href="#booking" class="text-grad">Book Appointment ✦</a>
+</div>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero" id="home">
+  <div class="hero__bg">
+    <img src="https://images.unsplash.com/photo-1633681926022-84c23e8cb2d6?auto=format&fit=crop&w=1920&q=80" alt="Luxury salon interior" onerror="this.style.display='none'">
+  </div>
+  <div class="hero__overlay"></div>
+  <div class="hero__glow a"></div>
+  <div class="hero__glow b"></div>
+
+  <div class="wrap hero__content">
+    <div class="hero__badges">
+      <span class="trust"><i class="fa-solid fa-star"></i> 4.9 Rated Experience</span>
+      <span class="trust"><i class="fa-solid fa-award"></i> Award-Winning Stylists</span>
+      <span class="trust"><i class="fa-solid fa-leaf"></i> Organic Premium Products</span>
+    </div>
+    <h1>
+      <span class="line"><span>Experience Luxury</span></span>
+      <span class="line"><span class="serif-i text-grad">Beauty &amp; Relaxation</span></span>
+    </h1>
+    <p class="lead">Professional beauty treatments, spa therapies, skincare solutions, and premium salon services designed to help you look and feel your absolute best.</p>
+    <div class="hero__cta">
+      <a href="#booking" class="btn btn--solid" data-cursor><span>Book Appointment</span><i class="fa-solid fa-calendar-check"></i></a>
+      <a href="#tour" class="btn btn--ghost" data-cursor><span>Explore Our Sanctuary</span><i class="fa-solid fa-compass"></i></a>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <div class="mouse"></div>
+    Scroll
+  </div>
+</section>
+
+<!-- ===================== STATISTICS ===================== -->
+<section class="stats wrap" style="margin-top:-70px">
+  <div class="stats-grid reveal">
+    <div class="stat"><div class="num" data-count="15000" data-suffix="+">0</div><div class="label">Happy Clients</div></div>
+    <div class="stat"><div class="num" data-count="50" data-suffix="+">0</div><div class="label">Beauty Experts</div></div>
+    <div class="stat"><div class="num" data-count="20" data-suffix="+">0</div><div class="label">Premium Treatments</div></div>
+    <div class="stat"><div class="num" data-count="4.9" data-suffix="★" data-dec="1">0</div><div class="label">Average Rating</div></div>
+  </div>
+</section>
+
+<!-- ===================== 3D IMMERSIVE TOUR ===================== -->
+<section class="tour section-pad" id="tour">
+  <div class="wrap">
+    <div class="tour-head reveal">
+      <div>
+        <span class="eyebrow">The Experience</span>
+        <h2>Walk Through Our Sanctuary</h2>
+      </div>
+      <p>Step into a first-person journey down our marble corridor. Drag to move through the hall, then open any glowing doorway to enter the room — each space is a world of its own.</p>
+    </div>
+
+    <!-- 3D corridor stage -->
+    <div class="stage reveal" id="stage">
+      <div class="stage-hint"><i class="fa-solid fa-up-down-left-right"></i> Drag · Scroll · or use the arrows</div>
+      <div class="world" id="world">
+        <div class="plane floor"></div>
+        <div class="plane ceil"></div>
+        <div class="plane wall wall-l" id="wallL"></div>
+        <div class="plane wall wall-r" id="wallR"></div>
+        <div class="plane far"><div class="far-mark"><span>est. 2026</span><br>LuxeGlow</div></div>
+      </div>
+      <div class="stage-vignette"></div>
+      <div class="depth-dots" id="depthDots"></div>
+      <div class="stage-ui">
+        <button id="walkBack" aria-label="Move back"><i class="fa-solid fa-chevron-up"></i></button>
+        <button id="walkFwd" aria-label="Move forward"><i class="fa-solid fa-chevron-down"></i></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ROOM OVERLAY (each room = a page) ===================== -->
+<div class="room-overlay" id="roomOverlay" aria-hidden="true">
+  <!-- rooms injected by JS -->
+  <div class="rn-label" id="rnLabel"></div>
+  <div class="room-nav rn-close"><button id="roomClose" aria-label="Exit sanctuary"><i class="fa-solid fa-xmark"></i></button></div>
+  <div class="room-nav rn-arrows">
+    <button id="roomPrev" aria-label="Previous room"><i class="fa-solid fa-arrow-left"></i></button>
+    <button id="roomNext" aria-label="Next room"><i class="fa-solid fa-arrow-right"></i></button>
+  </div>
+  <div class="book-from-room"><a href="#booking" class="btn btn--solid btn--sm" id="roomBook" data-cursor><span>Book This Room</span></a></div>
+  <div class="room-progress" id="roomProgress"></div>
+</div>
+
+<!-- ===================== MARQUEE ===================== -->
+<div class="marquee">
+  <div class="marquee-track">
+    <span>Hair Artistry</span><span>Spa Therapy</span><span>Glowing Skin</span><span>Bridal Glam</span><span>Nail Couture</span><span>Pure Wellness</span>
+    <span>Hair Artistry</span><span>Spa Therapy</span><span>Glowing Skin</span><span>Bridal Glam</span><span>Nail Couture</span><span>Pure Wellness</span>
+  </div>
+</div>
+
+<!-- ===================== SERVICES ===================== -->
+<section class="services section-pad" id="services">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow center">Our Services</span>
+      <h2>Treatments Crafted <span class="serif-i text-grad">For You</span></h2>
+      <p>From precision hair artistry to restorative spa rituals — explore our full menu of luxury services.</p>
+    </div>
+
+    <div class="cat-tabs reveal" id="catTabs">
+      <button class="active" data-cat="all">All</button>
+      <button data-cat="hair">Hair</button>
+      <button data-cat="beauty">Beauty</button>
+      <button data-cat="spa">Spa</button>
+      <button data-cat="nails">Nails</button>
+    </div>
+
+    <div class="services-grid" id="servicesGrid"><!-- injected by JS --></div>
+  </div>
+</section>
+
+<!-- ===================== PACKAGES ===================== -->
+<section class="packages section-pad" id="packages">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow center">Featured Packages</span>
+      <h2>Curated <span class="serif-i text-grad">Beauty Journeys</span></h2>
+      <p>Save more with our signature bundles — designed for every occasion and every kind of glow.</p>
+    </div>
+    <div class="pkg-grid">
+      <div class="pkg reveal">
+        <h3 class="pkg-name">Bridal Glow</h3>
+        <p class="pkg-desc">The complete head-to-toe transformation for your big day.</p>
+        <div class="pkg-price">$499<small></small></div>
+        <div class="pkg-per">per bride · full day</div>
+        <ul>
+          <li><i class="fa-solid fa-check"></i> Trial + Bridal Makeup</li>
+          <li><i class="fa-solid fa-check"></i> Hair Styling &amp; Updo</li>
+          <li><i class="fa-solid fa-check"></i> Luxury Facial &amp; Glow</li>
+          <li><i class="fa-solid fa-check"></i> Manicure &amp; Pedicure</li>
+          <li><i class="fa-solid fa-check"></i> Complimentary Champagne</li>
+        </ul>
+        <a href="#booking" class="btn btn--ghost" data-cursor><span>Reserve</span><i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+
+      <div class="pkg featured reveal d1">
+        <h3 class="pkg-name">Premium Spa Day</h3>
+        <p class="pkg-desc">A full sensory escape — relax, restore, and renew completely.</p>
+        <div class="pkg-price">$249<small></small></div>
+        <div class="pkg-per">per person · 4 hours</div>
+        <ul>
+          <li><i class="fa-solid fa-check"></i> 90-min Signature Massage</li>
+          <li><i class="fa-solid fa-check"></i> Aromatherapy Body Spa</li>
+          <li><i class="fa-solid fa-check"></i> Hydrating Facial Ritual</li>
+          <li><i class="fa-solid fa-check"></i> Sauna &amp; Lounge Access</li>
+          <li><i class="fa-solid fa-check"></i> Herbal Tea Service</li>
+        </ul>
+        <a href="#booking" class="btn btn--solid" data-cursor><span>Reserve</span><i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+
+      <div class="pkg reveal d2">
+        <h3 class="pkg-name">Beauty Membership</h3>
+        <p class="pkg-desc">Monthly indulgence with members-only perks &amp; priority booking.</p>
+        <div class="pkg-price">$129<small>/mo</small></div>
+        <div class="pkg-per">billed monthly</div>
+        <ul>
+          <li><i class="fa-solid fa-check"></i> 2 Services Every Month</li>
+          <li><i class="fa-solid fa-check"></i> 20% Off All Add-ons</li>
+          <li><i class="fa-solid fa-check"></i> Free Birthday Treatment</li>
+          <li><i class="fa-solid fa-check"></i> Priority Appointments</li>
+          <li><i class="fa-solid fa-check"></i> Exclusive Events</li>
+        </ul>
+        <a href="#booking" class="btn btn--ghost" data-cursor><span>Join Now</span><i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+
+      <div class="pkg reveal d3">
+        <h3 class="pkg-name">Couple's Retreat</h3>
+        <p class="pkg-desc">Side-by-side serenity — the perfect shared escape for two.</p>
+        <div class="pkg-price">$389<small></small></div>
+        <div class="pkg-per">for two · 3 hours</div>
+        <ul>
+          <li><i class="fa-solid fa-check"></i> Dual Massage Suite</li>
+          <li><i class="fa-solid fa-check"></i> Couple's Aromatherapy</li>
+          <li><i class="fa-solid fa-check"></i> Private Lounge &amp; Spa</li>
+          <li><i class="fa-solid fa-check"></i> Chocolate &amp; Wine Pairing</li>
+          <li><i class="fa-solid fa-check"></i> Keepsake Photo</li>
+        </ul>
+        <a href="#booking" class="btn btn--ghost" data-cursor><span>Reserve</span><i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== WHY CHOOSE US ===================== -->
+<section class="why section-pad" id="about">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow center">Why LuxeGlow</span>
+      <h2>The Difference Is <span class="serif-i text-grad">In The Detail</span></h2>
+      <p>Every visit is built on expertise, care, and an obsession with the experience.</p>
+    </div>
+    <div class="why-grid">
+      <div class="why-card reveal"><div class="why-icon"><i class="fa-solid fa-certificate"></i></div><h3>Certified Experts</h3><p>Internationally trained stylists, therapists, and specialists with years of mastery.</p></div>
+      <div class="why-card reveal d1"><div class="why-icon"><i class="fa-solid fa-spa"></i></div><h3>Premium Products</h3><p>Only luxury, cruelty-free, organic-grade brands touch your skin and hair.</p></div>
+      <div class="why-card reveal d2"><div class="why-icon"><i class="fa-solid fa-gem"></i></div><h3>Luxury Environment</h3><p>A serene, design-led sanctuary engineered for total relaxation.</p></div>
+      <div class="why-card reveal"><div class="why-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div><h3>Personalized Care</h3><p>Bespoke consultations so every treatment is tailored uniquely to you.</p></div>
+      <div class="why-card reveal d1"><div class="why-icon"><i class="fa-solid fa-shield-heart"></i></div><h3>Hygienic Standards</h3><p>Hospital-grade sanitation and single-use tools for total peace of mind.</p></div>
+      <div class="why-card reveal d2"><div class="why-icon"><i class="fa-solid fa-face-smile"></i></div><h3>Satisfaction First</h3><p>A 100% love-it guarantee — we perfect every detail until you glow.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== BEFORE / AFTER ===================== -->
+<section class="ba section-pad">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow center">Transformations</span>
+      <h2>Before <span class="serif-i text-grad">&amp; After</span></h2>
+      <p>Drag the slider to reveal the LuxeGlow transformation. Real results, real radiance.</p>
+    </div>
+    <div class="ba-grid" id="baGrid"><!-- injected --></div>
+  </div>
+</section>
+
+<!-- ===================== GALLERY ===================== -->
+<section class="gallery section-pad" id="gallery">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow center">Gallery</span>
+      <h2>Inside The <span class="serif-i text-grad">Atelier</span></h2>
+      <p>Salon interiors, spa rooms, and stunning client transformations.</p>
+    </div>
+    <div class="masonry reveal" id="masonry"><!-- injected --></div>
+  </div>
+</section>
+
+<!-- ===================== TEAM ===================== -->
+<section class="team section-pad">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow center">Meet The Artists</span>
+      <h2>Hands That <span class="serif-i text-grad">Create Magic</span></h2>
+      <p>A collective of passionate beauty professionals devoted to your glow.</p>
+    </div>
+    <div class="team-grid" id="teamGrid"><!-- injected --></div>
+  </div>
+</section>
+
+<!-- ===================== TESTIMONIALS ===================== -->
+<section class="testi section-pad">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow center">Kind Words</span>
+      <h2>Loved By <span class="serif-i text-grad">Our Clients</span></h2>
+    </div>
+    <div class="testi-track reveal" id="testiTrack"><!-- injected --></div>
+    <div class="testi-dots" id="testiDots"></div>
+  </div>
+</section>
+
+<!-- ===================== BOOKING ===================== -->
+<section class="booking section-pad" id="booking">
+  <div class="wrap">
+    <div class="booking-card reveal">
+      <aside class="booking-aside">
+        <img src="https://images.unsplash.com/photo-1600334129128-685c5582fd35?auto=format&fit=crop&w=900&q=80" alt="Spa treatment" onerror="this.style.display='none'">
+        <span class="eyebrow">Reserve Your Glow</span>
+        <h3>Book Your Visit</h3>
+        <p>Tell us what you'd love, and our concierge will confirm your appointment within the hour.</p>
+        <ul>
+          <li><i class="fa-solid fa-clock"></i> Open Daily · 9AM – 9PM</li>
+          <li><i class="fa-solid fa-phone"></i> +1 (555) 240-9080</li>
+          <li><i class="fa-solid fa-location-dot"></i> 24 Rose Avenue, Beverly Hills</li>
+        </ul>
+      </aside>
+      <form class="booking-form" id="bookingForm" novalidate>
+        <h3>Appointment Request</h3>
+        <p>No payment required — secure your slot in seconds.</p>
+        <div class="field">
+          <label for="bName">Full Name</label>
+          <input type="text" id="bName" placeholder="Your name" required>
+        </div>
+        <div class="field">
+          <label for="bService">Select Service</label>
+          <select id="bService" required>
+            <option value="">Choose a treatment…</option>
+            <optgroup label="Hair"><option>Haircut &amp; Styling</option><option>Hair Coloring</option><option>Hair Treatment</option></optgroup>
+            <optgroup label="Beauty"><option>Makeup</option><option>Facial Treatment</option><option>Eyebrow &amp; Lash</option></optgroup>
+            <optgroup label="Spa"><option>Massage Therapy</option><option>Body Spa</option><option>Aromatherapy</option></optgroup>
+            <optgroup label="Nails"><option>Manicure</option><option>Pedicure</option><option>Nail Art</option></optgroup>
+            <optgroup label="Packages"><option>Bridal Glow</option><option>Premium Spa Day</option><option>Couple's Retreat</option></optgroup>
+          </select>
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label for="bDate">Preferred Date</label>
+            <input type="date" id="bDate" required>
+          </div>
+          <div class="field">
+            <label for="bTime">Preferred Time</label>
+            <select id="bTime" required>
+              <option value="">Select…</option>
+              <option>09:00 AM</option><option>10:30 AM</option><option>12:00 PM</option>
+              <option>02:00 PM</option><option>03:30 PM</option><option>05:00 PM</option><option>07:00 PM</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="bPhone">Phone Number</label>
+          <input type="tel" id="bPhone" placeholder="+1 (555) 000-0000" required>
+        </div>
+        <button type="submit" class="btn btn--solid" data-cursor><span>Confirm Appointment</span><i class="fa-solid fa-calendar-check"></i></button>
+        <p class="form-note"><i class="fa-solid fa-lock"></i> Your details are safe. This is a demo form — no data is stored.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FAQ ===================== -->
+<section class="faq section-pad">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow center">Good To Know</span>
+      <h2>Frequently <span class="serif-i text-grad">Asked</span></h2>
+    </div>
+    <div class="faq-list" id="faqList"><!-- injected --></div>
+  </div>
+</section>
+
+<!-- ===================== BLOG ===================== -->
+<section class="blog section-pad">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow center">Beauty Journal</span>
+      <h2>Tips From <span class="serif-i text-grad">The Experts</span></h2>
+      <p>Insider rituals, seasonal guides, and wellness wisdom from our team.</p>
+    </div>
+    <div class="blog-grid" id="blogGrid"><!-- injected --></div>
+  </div>
+</section>
+
+<!-- ===================== INSTAGRAM ===================== -->
+<section class="insta section-pad">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow center">@luxeglow.spa</span>
+      <h2>Follow The <span class="serif-i text-grad">Glow</span></h2>
+      <p>Join 120k+ beauty lovers — tag us for a chance to be featured.</p>
+    </div>
+    <div class="insta-grid reveal" id="instaGrid"><!-- injected --></div>
+  </div>
+</section>
+
+<!-- ===================== CONTACT ===================== -->
+<section class="contact section-pad" id="contact">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow center">Visit Us</span>
+      <h2>Come Say <span class="serif-i text-grad">Hello</span></h2>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-info reveal">
+        <div class="ci-card"><div class="ic"><i class="fa-solid fa-phone"></i></div><div><h4>Call Us</h4><p>+1 (555) 240-9080<br>+1 (555) 240-9081</p></div></div>
+        <div class="ci-card"><div class="ic"><i class="fa-solid fa-envelope"></i></div><div><h4>Email</h4><p>hello@luxeglow.spa<br>bookings@luxeglow.spa</p></div></div>
+        <div class="ci-card"><div class="ic"><i class="fa-solid fa-location-dot"></i></div><div><h4>Address</h4><p>24 Rose Avenue, Beverly Hills, CA 90210</p></div></div>
+        <div class="ci-card"><div class="ic"><i class="fa-solid fa-clock"></i></div><div><h4>Opening Hours</h4><p>Mon – Sun · 9:00 AM – 9:00 PM</p></div></div>
+      </div>
+      <div class="map-wrap reveal d1">
+        <div class="map-grid"></div>
+        <div class="map-roads"></div>
+        <div class="map-pin"><i class="fa-solid fa-location-dot"></i><span>LuxeGlow Salon &amp; Spa</span></div>
+        <div class="map-badge"><b>24 Rose Avenue</b><br><span style="color:var(--text-mute)">Beverly Hills · Free Valet Parking</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a href="#home" class="logo"><span class="star">✦</span><b>Luxe</b><span>Glow</span></a>
+        <p>Beauty, wellness &amp; confidence in every visit. Your sanctuary for luxury salon and spa experiences.</p>
+        <div class="foot-soc">
+          <a href="#" aria-label="Instagram" data-cursor><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" aria-label="Facebook" data-cursor><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="#" aria-label="TikTok" data-cursor><i class="fa-brands fa-tiktok"></i></a>
+          <a href="#" aria-label="Pinterest" data-cursor><i class="fa-brands fa-pinterest-p"></i></a>
+        </div>
+      </div>
+      <div class="foot-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#tour">The Sanctuary</a></li>
+          <li><a href="#packages">Pricing</a></li>
+          <li><a href="#gallery">Gallery</a></li>
+          <li><a href="#about">About</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Services</h4>
+        <ul>
+          <li><a href="#services">Hair Studio</a></li>
+          <li><a href="#services">Beauty &amp; Makeup</a></li>
+          <li><a href="#services">Spa Therapy</a></li>
+          <li><a href="#services">Nail Lounge</a></li>
+          <li><a href="#booking">Book Now</a></li>
+        </ul>
+      </div>
+      <div class="foot-col news">
+        <h4>Newsletter</h4>
+        <p>Subscribe for exclusive offers, beauty tips, and members-only events.</p>
+        <form id="newsForm">
+          <input type="email" placeholder="Your email address" required aria-label="Email">
+          <button type="submit" aria-label="Subscribe" data-cursor><i class="fa-solid fa-paper-plane"></i></button>
+        </form>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <p>© <span id="year"></span> LuxeGlow Salon &amp; Spa. All rights reserved.</p>
+      <p>Crafted with <i class="fa-solid fa-heart" style="color:var(--rose)"></i> · <a href="#">Privacy</a> · <a href="#">Terms</a></p>
+    </div>
+  </div>
+</footer>
+
+<!-- ===================== FLOATING UI ===================== -->
+<a href="https://wa.me/15552409080" class="whatsapp" target="_blank" rel="noopener" aria-label="Book via WhatsApp" data-cursor><i class="fa-brands fa-whatsapp"></i></a>
+<button class="to-top" id="toTop" aria-label="Back to top" data-cursor><i class="fa-solid fa-arrow-up"></i></button>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox"><span class="lb-close" id="lbClose"><i class="fa-solid fa-xmark"></i></span><img src="" alt="Gallery preview" id="lbImg"></div>
+
+<!-- Toast -->
+<div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i><div><b id="toastTitle">Booking Confirmed!</b><p id="toastMsg">We'll contact you shortly to confirm.</p></div></div>
+
+<script>
+/* ============================================================
+   LuxeGlow — Application JavaScript
+   ============================================================ */
+(function(){
+'use strict';
+
+/* ---------- Image pool (Unsplash) ---------- */
+const IMG = {
+  hair:    'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=900&q=80',
+  hair2:   'https://images.unsplash.com/photo-1522336572468-97b06e8ef143?auto=format&fit=crop&w=900&q=80',
+  color:   'https://images.unsplash.com/photo-1605497788044-5a32c7078486?auto=format&fit=crop&w=900&q=80',
+  makeup:  'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?auto=format&fit=crop&w=900&q=80',
+  facial:  'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=900&q=80',
+  brow:    'https://images.unsplash.com/photo-1583001931096-959e9a1a6223?auto=format&fit=crop&w=900&q=80',
+  massage: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=900&q=80',
+  spa:     'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=900&q=80',
+  aroma:   'https://images.unsplash.com/photo-1600334129128-685c5582fd35?auto=format&fit=crop&w=900&q=80',
+  mani:    'https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=900&q=80',
+  pedi:    'https://images.unsplash.com/photo-1519014816548-bf5fe059798b?auto=format&fit=crop&w=900&q=80',
+  nailart: 'https://images.unsplash.com/photo-1632345031435-8727f6897d53?auto=format&fit=crop&w=900&q=80',
+  interior:'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=900&q=80',
+  woman:   'https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&w=900&q=80',
+  glow:    'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?auto=format&fit=crop&w=900&q=80'
+};
+
+const $ = (s,p=document)=>p.querySelector(s);
+const $$ = (s,p=document)=>[...p.querySelectorAll(s)];
+
+/* ============================================================
+   1. LOADER
+   ============================================================ */
+window.addEventListener('load',()=>{
+  setTimeout(()=>$('#loader').classList.add('done'),1100);
+});
+
+/* ============================================================
+   2. CUSTOM CURSOR (lerp follow + hover grow)
+   ============================================================ */
+(function cursor(){
+  if(window.matchMedia('(pointer:coarse)').matches) return;
+  const dot=$('.cursor-dot'), ring=$('.cursor-ring');
+  let mx=innerWidth/2,my=innerHeight/2,rx=mx,ry=my;
+  addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.transform=`translate(${mx}px,${my}px) translate(-50%,-50%)`;});
+  (function loop(){rx+=(mx-rx)*.18;ry+=(my-ry)*.18;ring.style.transform=`translate(${rx}px,${ry}px) translate(-50%,-50%)`;requestAnimationFrame(loop);})();
+  const grow=()=>ring.classList.add('grow'), shrink=()=>ring.classList.remove('grow');
+  document.addEventListener('mouseover',e=>{ if(e.target.closest('a,button,[data-cursor],.door,.svc-card,.masonry figure,.member')) grow(); });
+  document.addEventListener('mouseout',e=>{ if(e.target.closest('a,button,[data-cursor],.door,.svc-card,.masonry figure,.member')) shrink(); });
+})();
+
+/* ============================================================
+   3. SCROLL PROGRESS + NAV STATE
+   ============================================================ */
+const nav=$('header.nav'), progress=$('#progress'), toTop=$('#toTop');
+addEventListener('scroll',()=>{
+  const sc=scrollY, h=document.documentElement.scrollHeight-innerHeight;
+  progress.style.width=(sc/h*100)+'%';
+  nav.classList.toggle('scrolled',sc>40);
+  toTop.classList.toggle('show',sc>700);
+},{passive:true});
+toTop.addEventListener('click',()=>scrollTo({top:0,behavior:'smooth'}));
+
+/* ============================================================
+   4. THEME TOGGLE
+   ============================================================ */
+const root=document.documentElement, themeBtn=$('#themeBtn');
+const savedTheme=localStorage.getItem('lg-theme');
+if(savedTheme) root.setAttribute('data-theme',savedTheme);
+themeBtn.addEventListener('click',()=>{
+  const next=root.getAttribute('data-theme')==='dark'?'light':'dark';
+  root.setAttribute('data-theme',next);
+  localStorage.setItem('lg-theme',next);
+});
+
+/* ============================================================
+   5. MOBILE MENU
+   ============================================================ */
+const burger=$('#burger'), mobile=$('#mobileMenu');
+burger.addEventListener('click',()=>{burger.classList.toggle('open');mobile.classList.toggle('open');document.body.style.overflow=mobile.classList.contains('open')?'hidden':'';});
+$$('#mobileMenu a').forEach(a=>a.addEventListener('click',()=>{burger.classList.remove('open');mobile.classList.remove('open');document.body.style.overflow='';}));
+
+/* ============================================================
+   6. REVEAL ON SCROLL
+   ============================================================ */
+const io=new IntersectionObserver((ents)=>{
+  ents.forEach(en=>{ if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);} });
+},{threshold:.12});
+const observeReveals=()=>$$('.reveal:not(.in)').forEach(el=>io.observe(el));
+
+/* ============================================================
+   7. ANIMATED COUNTERS
+   ============================================================ */
+const countIO=new IntersectionObserver((ents)=>{
+  ents.forEach(en=>{
+    if(!en.isIntersecting) return;
+    const el=en.target, target=parseFloat(el.dataset.count), dec=parseInt(el.dataset.dec||0), suf=el.dataset.suffix||'';
+    const dur=1800, t0=performance.now();
+    const tick=(now)=>{
+      const p=Math.min((now-t0)/dur,1), eased=1-Math.pow(1-p,3), val=target*eased;
+      el.textContent=(dec?val.toFixed(dec):Math.floor(val).toLocaleString())+suf;
+      if(p<1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+    countIO.unobserve(el);
+  });
+},{threshold:.5});
+$$('[data-count]').forEach(el=>countIO.observe(el));
+
+/* ============================================================
+   8. ACTIVE NAV LINK (scrollspy)
+   ============================================================ */
+const spy=new IntersectionObserver((ents)=>{
+  ents.forEach(en=>{
+    if(en.isIntersecting){
+      const id=en.target.id;
+      $$('.nav-links a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+id));
+    }
+  });
+},{rootMargin:'-45% 0px -50% 0px'});
+['home','services','packages','gallery','about','contact'].forEach(id=>{const el=document.getElementById(id);if(el)spy.observe(el);});
+
+/* ============================================================
+   9. DATA — Rooms / Services
+   ============================================================ */
+const ROOMS=[
+  {key:'hair',name:'Hair Atelier',tag:'Studio One',bg:IMG.hair,
+   blurb:'Precision cuts, dimensional color and reviving rituals — sculpted by master stylists in a chair you won\'t want to leave.',
+   services:[
+     {name:'Haircut & Styling',meta:'45–60 min',price:'$65'},
+     {name:'Hair Coloring',meta:'2–3 hrs',price:'$140'},
+     {name:'Hair Treatment',meta:'45 min',price:'$80'}
+   ]},
+  {key:'beauty',name:'Beauty Studio',tag:'Studio Two',bg:IMG.makeup,
+   blurb:'From flawless makeup to glass-skin facials and feathered brows — the finishing touches that make you unmistakably you.',
+   services:[
+     {name:'Signature Makeup',meta:'60 min',price:'$90'},
+     {name:'Luxury Facial',meta:'75 min',price:'$110'},
+     {name:'Eyebrow & Lash',meta:'40 min',price:'$55'}
+   ]},
+  {key:'spa',name:'Spa Sanctuary',tag:'Studio Three',bg:IMG.spa,
+   blurb:'A candlelit escape of warm stones, aromatic oils and healing hands. Step in tense, float out renewed.',
+   services:[
+     {name:'Massage Therapy',meta:'60–90 min',price:'$95'},
+     {name:'Body Spa Ritual',meta:'90 min',price:'$130'},
+     {name:'Aromatherapy',meta:'60 min',price:'$85'}
+   ]},
+  {key:'nails',name:'Nail Lounge',tag:'Studio Four',bg:IMG.mani,
+   blurb:'Couture nail art, mirror-shine gels and indulgent hand & foot rituals in our pampered window-lit lounge.',
+   services:[
+     {name:'Luxury Manicure',meta:'45 min',price:'$45'},
+     {name:'Spa Pedicure',meta:'60 min',price:'$60'},
+     {name:'Nail Art & Design',meta:'60 min',price:'$70'}
+   ]}
+];
+
+/* ============================================================
+   10. 3D CORRIDOR TOUR
+   ============================================================ */
+(function corridor(){
+  const stage=$('#stage'), world=$('#world'), wallL=$('#wallL'), wallR=$('#wallR'),
+        dotsWrap=$('#depthDots');
+  // Door depth positions along the wall (left% of 3400px wall = world Z mapping)
+  // Doors alternate sides; positioned by left% on each wall.
+  const doorDefs=[
+    {room:0,side:'l',pos:18},
+    {room:1,side:'r',pos:38},
+    {room:2,side:'l',pos:58},
+    {room:3,side:'r',pos:78}
+  ];
+  // depth presets (translateZ of world) — bigger = further in
+  const stops=[0,420,900,1380,1860];
+  let idx=0;
+
+  doorDefs.forEach(d=>{
+    const R=ROOMS[d.room];
+    const el=document.createElement('div');
+    el.className='door';
+    el.style.left=d.pos+'%';
+    el.style.top='90px';
+    el.dataset.room=d.room;
+    el.innerHTML=`<img src="${R.bg}" alt="${R.name}" onerror="this.style.opacity=0">
+      <div class="door-tag"><h4>${R.name}</h4><em>${R.tag}</em>
+      <span class="enter"><i class="fa-solid fa-door-open"></i> Enter</span></div>`;
+    (d.side==='l'?wallL:wallR).appendChild(el);
+    el.addEventListener('click',()=>openRoom(d.room));
+  });
+
+  // depth dots
+  stops.forEach((s,i)=>{
+    const b=document.createElement('button');
+    if(i===0)b.classList.add('on');
+    b.addEventListener('click',()=>go(i));
+    dotsWrap.appendChild(b);
+  });
+
+  function render(){
+    world.style.transform=`translateZ(${stops[idx]}px)`;
+    $$('#depthDots button').forEach((b,i)=>b.classList.toggle('on',i===idx));
+  }
+  function go(i){ idx=Math.max(0,Math.min(stops.length-1,i)); render(); }
+
+  $('#walkFwd').addEventListener('click',()=>go(idx+1));
+  $('#walkBack').addEventListener('click',()=>go(idx-1));
+
+  // drag to move
+  let down=false,startY=0;
+  stage.addEventListener('pointerdown',e=>{ if(e.target.closest('.door,.stage-ui,.depth-dots'))return; down=true;startY=e.clientY;stage.setPointerCapture(e.pointerId); });
+  stage.addEventListener('pointermove',e=>{
+    if(!down)return;
+    const dy=e.clientY-startY;
+    if(Math.abs(dy)>50){ go(idx+(dy<0?1:-1)); startY=e.clientY; }
+  });
+  stage.addEventListener('pointerup',()=>down=false);
+  stage.addEventListener('pointercancel',()=>down=false);
+
+  // wheel inside stage moves through corridor
+  stage.addEventListener('wheel',e=>{
+    if(idx>0 && idx<stops.length-1) e.preventDefault();
+    else if((idx===0&&e.deltaY<0)||(idx===stops.length-1&&e.deltaY>0)) return;
+    if(corridor._lock) return;
+    corridor._lock=true;
+    go(idx+(e.deltaY>0?1:-1));
+    setTimeout(()=>corridor._lock=false,650);
+  },{passive:false});
+
+  // subtle parallax camera tilt on mouse
+  stage.addEventListener('mousemove',e=>{
+    const r=stage.getBoundingClientRect();
+    const px=(e.clientX-r.left)/r.width-.5, py=(e.clientY-r.top)/r.height-.5;
+    stage.style.perspectiveOrigin=`${50+px*16}% ${46+py*12}%`;
+  });
+  stage.addEventListener('mouseleave',()=>stage.style.perspectiveOrigin='50% 46%');
+
+  render();
+})();
+
+/* ============================================================
+   11. ROOM OVERLAY (each room = a page, door-zoom transitions)
+   ============================================================ */
+const RoomUI=(function(){
+  const overlay=$('#roomOverlay'), label=$('#rnLabel'), prog=$('#roomProgress'), bookBtn=$('#roomBook');
+  let cur=0, built=false;
+
+  function build(){
+    ROOMS.forEach((R,i)=>{
+      const sec=document.createElement('section');
+      sec.className='room';
+      sec.dataset.i=i;
+      sec.innerHTML=`
+        <div class="room__bg"><img src="${R.bg}" alt="${R.name}" onerror="this.style.opacity=0"></div>
+        <div class="room__num">0${i+1}</div>
+        <div class="room__inner">
+          <div class="room__intro">
+            <span class="eyebrow">${R.tag} · LuxeGlow Sanctuary</span>
+            <h2>${R.name}</h2>
+            <p>${R.blurb}</p>
+          </div>
+          <div class="room__services">
+            ${R.services.map(s=>`
+              <div class="room-serv">
+                <div><h4>${s.name}</h4><div class="meta">${s.meta}</div></div>
+                <div class="price">${s.price}<small>starting</small></div>
+              </div>`).join('')}
+          </div>
+        </div>`;
+      overlay.insertBefore(sec,label);
+      const i0=document.createElement('i'); prog.appendChild(i0);
+    });
+    built=true;
+  }
+
+  function show(i){
+    cur=(i+ROOMS.length)%ROOMS.length;
+    $$('.room',overlay).forEach((r,k)=>{
+      r.classList.remove('active','exit-left');
+      if(k===cur) r.classList.add('active');
+    });
+    label.textContent=`Room ${cur+1} of ${ROOMS.length} — ${ROOMS[cur].name}`;
+    $$('#roomProgress i').forEach((p,k)=>p.classList.toggle('on',k===cur));
+  }
+
+  function open(i){
+    if(!built) build();
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';
+    requestAnimationFrame(()=>show(i));
+  }
+  function close(){
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden','true');
+    document.body.style.overflow='';
+  }
+  function step(dir){
+    // door-zoom: current walks forward out, next zooms in
+    const cards=$$('.room',overlay);
+    if(dir>0) cards[cur].classList.add('exit-left');
+    setTimeout(()=>show(cur+dir),120);
+  }
+
+  $('#roomClose').addEventListener('click',close);
+  $('#roomNext').addEventListener('click',()=>step(1));
+  $('#roomPrev').addEventListener('click',()=>step(-1));
+  bookBtn.addEventListener('click',close);
+  document.addEventListener('keydown',e=>{
+    if(!overlay.classList.contains('open'))return;
+    if(e.key==='Escape')close();
+    if(e.key==='ArrowRight')step(1);
+    if(e.key==='ArrowLeft')step(-1);
+  });
+
+  return {open,close};
+})();
+function openRoom(i){ RoomUI.open(i); }
+
+/* ============================================================
+   12. SERVICES GRID + FILTER
+   ============================================================ */
+const SERVICES=[
+  {cat:'hair',name:'Haircut & Styling',desc:'Bespoke cuts & blowouts tailored to your face shape.',dur:'45 min',price:'$65',img:IMG.hair},
+  {cat:'hair',name:'Hair Coloring',desc:'Balayage, highlights & dimensional gloss.',dur:'2.5 hrs',price:'$140',img:IMG.color},
+  {cat:'hair',name:'Hair Treatment',desc:'Keratin & deep-repair rituals for silky strands.',dur:'45 min',price:'$80',img:IMG.hair2},
+  {cat:'beauty',name:'Signature Makeup',desc:'Editorial to natural glam for any occasion.',dur:'60 min',price:'$90',img:IMG.makeup},
+  {cat:'beauty',name:'Facial Treatment',desc:'Hydra-glow facials for luminous, fresh skin.',dur:'75 min',price:'$110',img:IMG.facial},
+  {cat:'beauty',name:'Eyebrow & Lash',desc:'Brow shaping, lamination & volume lash sets.',dur:'40 min',price:'$55',img:IMG.brow},
+  {cat:'spa',name:'Massage Therapy',desc:'Deep-tissue, Swedish & hot-stone relief.',dur:'60 min',price:'$95',img:IMG.massage},
+  {cat:'spa',name:'Body Spa',desc:'Exfoliating scrubs & wraps for renewed skin.',dur:'90 min',price:'$130',img:IMG.spa},
+  {cat:'spa',name:'Aromatherapy',desc:'Essential-oil rituals to calm body & mind.',dur:'60 min',price:'$85',img:IMG.aroma},
+  {cat:'nails',name:'Manicure',desc:'Gel & classic manicures with luxe finishes.',dur:'45 min',price:'$45',img:IMG.mani},
+  {cat:'nails',name:'Pedicure',desc:'Spa pedicures with massage & callus care.',dur:'60 min',price:'$60',img:IMG.pedi},
+  {cat:'nails',name:'Nail Art',desc:'Custom couture designs & crystal detailing.',dur:'60 min',price:'$70',img:IMG.nailart}
+];
+const grid=$('#servicesGrid');
+function renderServices(cat='all'){
+  grid.innerHTML=SERVICES.filter(s=>cat==='all'||s.cat===cat).map(s=>`
+    <article class="svc-card reveal">
+      <div class="svc-img"><img src="${s.img}" alt="${s.name}" loading="lazy" onerror="this.style.opacity=.2"><span class="dur"><i class="fa-regular fa-clock"></i> ${s.dur}</span></div>
+      <div class="svc-body">
+        <h3>${s.name}</h3>
+        <p>${s.desc}</p>
+        <div class="svc-foot">
+          <div class="svc-price">${s.price}<small>Starting</small></div>
+          <a href="#booking" class="svc-book" data-cursor>Book Now <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </article>`).join('');
+  observeReveals();
+}
+$$('#catTabs button').forEach(b=>b.addEventListener('click',()=>{
+  $$('#catTabs button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  renderServices(b.dataset.cat);
+}));
+renderServices();
+
+/* ============================================================
+   13. BEFORE / AFTER SLIDERS
+   ============================================================ */
+const BA=[
+  {title:'Hair Makeover',desc:'From dull to dazzling balayage.',before:IMG.hair2,after:IMG.color},
+  {title:'Facial Glow',desc:'Hydra-facial radiance in one session.',before:IMG.woman,after:IMG.facial},
+  {title:'Bridal Makeup',desc:'Soft natural beauty to red-carpet glam.',before:IMG.glow,after:IMG.makeup},
+  {title:'Nail Couture',desc:'Bare nails to crystal-art masterpiece.',before:IMG.pedi,after:IMG.nailart}
+];
+$('#baGrid').innerHTML=BA.map((b,i)=>`
+  <div class="ba-card reveal">
+    <div class="ba-stage" data-i="${i}">
+      <img class="ba-before" src="${b.before}" alt="Before" onerror="this.style.opacity=.2">
+      <img class="ba-after" src="${b.after}" alt="After" onerror="this.style.opacity=.2">
+      <div class="ba-line"><div class="ba-handle"><i class="fa-solid fa-left-right"></i></div></div>
+      <span class="ba-tag b">Before</span><span class="ba-tag a">After</span>
+      <input class="ba-range" type="range" min="0" max="100" value="50" aria-label="Reveal transformation">
+    </div>
+    <h4>${b.title}</h4><p>${b.desc}</p>
+  </div>`).join('');
+$$('.ba-stage').forEach(st=>{
+  const after=$('.ba-after',st), line=$('.ba-line',st), range=$('.ba-range',st);
+  range.addEventListener('input',()=>{
+    const v=range.value;
+    after.style.clipPath=`inset(0 0 0 ${v}%)`;
+    line.style.left=v+'%';
+  });
+});
+
+/* ============================================================
+   14. GALLERY (masonry) + LIGHTBOX
+   ============================================================ */
+const GAL=[IMG.interior,IMG.spa,IMG.makeup,IMG.hair,IMG.facial,IMG.nailart,IMG.massage,IMG.mani,IMG.aroma,IMG.color,IMG.glow,IMG.woman];
+$('#masonry').innerHTML=GAL.map(src=>`<figure data-cursor><img src="${src}" alt="LuxeGlow gallery" loading="lazy" onerror="this.style.opacity=.2"></figure>`).join('');
+const lb=$('#lightbox'), lbImg=$('#lbImg');
+$$('#masonry figure').forEach(f=>f.addEventListener('click',()=>{lbImg.src=$('img',f).src;lb.classList.add('open');document.body.style.overflow='hidden';}));
+const closeLb=()=>{lb.classList.remove('open');document.body.style.overflow='';};
+$('#lbClose').addEventListener('click',closeLb);
+lb.addEventListener('click',e=>{if(e.target===lb)closeLb();});
+
+/* ============================================================
+   15. TEAM
+   ============================================================ */
+const TEAM=[
+  {name:'Isabella Rose',role:'Senior Stylist',exp:'12 yrs · Color & Cutting',img:IMG.woman},
+  {name:'Sofia Lane',role:'Makeup Artist',exp:'9 yrs · Bridal & Editorial',img:IMG.makeup},
+  {name:'Amara Skin',role:'Skin Specialist',exp:'10 yrs · Advanced Facials',img:IMG.facial},
+  {name:'Elena Vita',role:'Spa Therapist',exp:'8 yrs · Holistic Massage',img:IMG.spa}
+];
+$('#teamGrid').innerHTML=TEAM.map(m=>`
+  <article class="member reveal">
+    <div class="member-img">
+      <img src="${m.img}" alt="${m.name}" loading="lazy" onerror="this.style.opacity=.2">
+      <div class="member-social">
+        <a href="#" data-cursor><i class="fa-brands fa-instagram"></i></a>
+        <a href="#" data-cursor><i class="fa-brands fa-tiktok"></i></a>
+        <a href="#booking" data-cursor><i class="fa-solid fa-calendar"></i></a>
+      </div>
+    </div>
+    <div class="member-body"><h3>${m.name}</h3><div class="role">${m.role}</div><div class="exp">${m.exp}</div></div>
+  </article>`).join('');
+
+/* ============================================================
+   16. TESTIMONIALS CAROUSEL
+   ============================================================ */
+const TESTI=[
+  {q:'I came in for my bridal trial and left in tears of joy. The team made me feel like absolute royalty — every detail was flawless.',name:'Olivia M.',role:'Bride',img:IMG.glow},
+  {q:'The spa day was pure magic. I have never felt so relaxed in my life. The aromatherapy massage was worth every penny.',name:'Hannah K.',role:'Spa Customer',img:IMG.woman},
+  {q:'My go-to for over two years. The color work is unmatched and the hospitality is genuinely warm. I always leave glowing.',name:'Priya S.',role:'Regular Client',img:IMG.facial}
+];
+const tTrack=$('#testiTrack'), tDots=$('#testiDots');
+tTrack.innerHTML=TESTI.map((t,i)=>`
+  <div class="testi-slide ${i===0?'active':''}">
+    <div class="testi-stars">★★★★★</div>
+    <p class="testi-quote">“${t.q}”</p>
+    <div class="testi-author"><img src="${t.img}" alt="${t.name}" onerror="this.style.opacity=.2"><div class="who"><b>${t.name}</b><span>${t.role}</span></div></div>
+  </div>`).join('');
+tDots.innerHTML=TESTI.map((_,i)=>`<button class="${i===0?'on':''}" aria-label="Testimonial ${i+1}"></button>`).join('');
+let tI=0; const tSlides=$$('.testi-slide',tTrack), tBtns=$$('button',tDots);
+function goTesti(i){tI=(i+TESTI.length)%TESTI.length;tSlides.forEach((s,k)=>s.classList.toggle('active',k===tI));tBtns.forEach((b,k)=>b.classList.toggle('on',k===tI));}
+tBtns.forEach((b,i)=>b.addEventListener('click',()=>goTesti(i)));
+let tTimer=setInterval(()=>goTesti(tI+1),5500);
+tTrack.addEventListener('mouseenter',()=>clearInterval(tTimer));
+tTrack.addEventListener('mouseleave',()=>tTimer=setInterval(()=>goTesti(tI+1),5500));
+
+/* ============================================================
+   17. FAQ ACCORDION
+   ============================================================ */
+const FAQ=[
+  {q:'How do I book an appointment?',a:'Simply use our booking form, call us, or tap the WhatsApp button. Our concierge confirms within the hour during business hours.'},
+  {q:'What is your cancellation policy?',a:'Reschedule or cancel free of charge up to 24 hours before your appointment. Late cancellations incur a 50% fee to respect our artists\' time.'},
+  {q:'How long do treatments take?',a:'Most services run 40–90 minutes. Packages and bridal sessions can be a half or full day. Each service lists an estimated duration.'},
+  {q:'Which product brands do you use?',a:'We work exclusively with premium, cruelty-free lines including Kérastase, Dermalogica, OPI and organic aromatherapy blends.'},
+  {q:'What are the membership benefits?',a:'Members enjoy two monthly services, 20% off add-ons, a free birthday treatment, priority booking and access to exclusive events.'}
+];
+$('#faqList').innerHTML=FAQ.map(f=>`
+  <div class="faq-item reveal">
+    <button class="faq-q" data-cursor>${f.q}<span class="ic"><i class="fa-solid fa-plus"></i></span></button>
+    <div class="faq-a"><p>${f.a}</p></div>
+  </div>`).join('');
+$$('.faq-item').forEach(item=>{
+  $('.faq-q',item).addEventListener('click',()=>{
+    const open=item.classList.contains('open');
+    $$('.faq-item').forEach(i=>{i.classList.remove('open');$('.faq-a',i).style.maxHeight=null;});
+    if(!open){item.classList.add('open');const a=$('.faq-a',item);a.style.maxHeight=a.scrollHeight+'px';}
+  });
+});
+
+/* ============================================================
+   18. BLOG
+   ============================================================ */
+const BLOG=[
+  {cat:'Hair Care',title:'5 Rituals For Salon-Fresh Hair At Home',excerpt:'Keep your color vibrant and strands silky between visits with these stylist secrets.',img:IMG.hair,read:'4 min'},
+  {cat:'Skincare',title:'Building The Perfect Glow-Up Routine',excerpt:'The exact morning & night layering order our facialists swear by.',img:IMG.facial,read:'6 min'},
+  {cat:'Bridal',title:'The Ultimate Bridal Beauty Countdown',excerpt:'Your month-by-month timeline to flawless wedding-day radiance.',img:IMG.makeup,read:'8 min'},
+  {cat:'Wellness',title:'How Spa Therapy Resets Your Mind',excerpt:'The science of relaxation and why monthly massage is self-care, not luxury.',img:IMG.spa,read:'5 min'}
+];
+$('#blogGrid').innerHTML=BLOG.map(p=>`
+  <article class="post reveal">
+    <div class="post-img"><img src="${p.img}" alt="${p.title}" loading="lazy" onerror="this.style.opacity=.2"></div>
+    <div class="post-body">
+      <span class="post-cat">${p.cat}</span>
+      <h3>${p.title}</h3>
+      <p>${p.excerpt}</p>
+      <div class="post-meta"><span><i class="fa-regular fa-clock"></i> ${p.read} read</span><a href="#" class="read" data-cursor>Read More <i class="fa-solid fa-arrow-right"></i></a></div>
+    </div>
+  </article>`).join('');
+
+/* ============================================================
+   19. INSTAGRAM
+   ============================================================ */
+const INSTA=[IMG.makeup,IMG.nailart,IMG.spa,IMG.hair,IMG.facial,IMG.glow,IMG.mani,IMG.color,IMG.woman,IMG.aroma,IMG.massage,IMG.interior];
+$('#instaGrid').innerHTML=INSTA.map(src=>`<a href="#" data-cursor><img src="${src}" alt="Instagram post" loading="lazy" onerror="this.style.opacity=.2"></a>`).join('');
+
+/* ============================================================
+   20. BOOKING FORM + NEWSLETTER + TOAST
+   ============================================================ */
+const toast=$('#toast');
+function showToast(title,msg){
+  $('#toastTitle').textContent=title; $('#toastMsg').textContent=msg;
+  toast.classList.add('show'); clearTimeout(showToast._t);
+  showToast._t=setTimeout(()=>toast.classList.remove('show'),4200);
+}
+const bDate=$('#bDate'); bDate.min=new Date().toISOString().split('T')[0];
+$('#bookingForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const name=$('#bName').value.trim(), svc=$('#bService').value, date=$('#bDate').value, time=$('#bTime').value, phone=$('#bPhone').value.trim();
+  if(!name||!svc||!date||!time||!phone){ showToast('Almost there!','Please fill in all fields to confirm.'); return; }
+  showToast('Booking Confirmed! ✦',`Thank you ${name.split(' ')[0]}, we'll confirm your ${svc} shortly.`);
+  e.target.reset(); bDate.min=new Date().toISOString().split('T')[0];
+});
+$('#newsForm').addEventListener('submit',e=>{e.preventDefault();showToast('Subscribed! ✦','Welcome to the LuxeGlow inner circle.');e.target.reset();});
+
+/* ============================================================
+   21. MAGNETIC BUTTONS
+   ============================================================ */
+if(!window.matchMedia('(pointer:coarse)').matches){
+  $$('.btn--solid').forEach(btn=>{
+    btn.addEventListener('mousemove',e=>{
+      const r=btn.getBoundingClientRect();
+      btn.style.transform=`translate(${(e.clientX-r.left-r.width/2)*.2}px,${(e.clientY-r.top-r.height/2)*.3-3}px)`;
+    });
+    btn.addEventListener('mouseleave',()=>btn.style.transform='');
+  });
+}
+
+/* ============================================================
+   22. MISC
+   ============================================================ */
+$('#year').textContent=new Date().getFullYear();
+observeReveals();
+
+})();
+</script>
+</body>
+</html>

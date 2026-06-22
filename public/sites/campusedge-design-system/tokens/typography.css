@@ -1,0 +1,52 @@
+/* ==========================================================================
+   CampusEdge Institute — Typography Scale
+   Spectral (display serif) · Plus Jakarta Sans (UI) · IBM Plex Mono (data)
+   ========================================================================== */
+
+:root {
+  /* ---- Families ------------------------------------------------------ */
+  --font-display: 'Spectral', 'Iowan Old Style', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* ---- Weights ------------------------------------------------------- */
+  --fw-light: 300;      /* @kind font */
+  --fw-regular: 400;    /* @kind font */
+  --fw-medium: 500;     /* @kind font */
+  --fw-semibold: 600;   /* @kind font */
+  --fw-bold: 700;       /* @kind font */
+  --fw-extrabold: 800;  /* @kind font */
+
+  /* ---- Type scale (rem, 1rem = 16px) --------------------------------- */
+  --text-xs:   0.75rem;   /* 12 */
+  --text-sm:   0.875rem;  /* 14 */
+  --text-base: 1rem;      /* 16 */
+  --text-md:   1.125rem;  /* 18 */
+  --text-lg:   1.375rem;  /* 22 */
+  --text-xl:   1.75rem;   /* 28 */
+  --text-2xl:  2.25rem;   /* 36 */
+  --text-3xl:  3rem;      /* 48 */
+  --text-4xl:  3.75rem;   /* 60 */
+  --text-5xl:  4.75rem;   /* 76 */
+
+  /* ---- Line heights -------------------------------------------------- */
+  --leading-tight: 1.05;
+  --leading-snug: 1.2;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.7;
+
+  /* ---- Letter spacing ------------------------------------------------ */
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.04em;
+  --tracking-eyebrow: 0.16em;  /* uppercase eyebrows / labels */
+
+  /* ---- Semantic roles ------------------------------------------------ */
+  --role-eyebrow-font: var(--font-mono);
+  --role-eyebrow-size: var(--text-sm);
+  --role-eyebrow-tracking: var(--tracking-eyebrow);
+
+  --role-display-font: var(--font-display);
+  --role-heading-font: var(--font-display);
+  --role-body-font: var(--font-sans);
+}

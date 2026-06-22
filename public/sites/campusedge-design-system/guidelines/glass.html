@@ -1,0 +1,21 @@
+<!-- @dsCard group="Spacing" viewport="700x230" name="Glassmorphism" subtitle="Frosted surfaces over imagery — nav, badges, CTAs" -->
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin:0; font-family:var(--font-sans); padding:0; }
+  .stage { height:230px; display:flex; align-items:center; justify-content:center; gap:18px;
+    background:url('https://images.unsplash.com/photo-1607237138185-eedd9c632b0b?w=1000&q=80') center/cover; }
+  .glass { background:var(--glass-light); backdrop-filter:blur(var(--blur-md)); -webkit-backdrop-filter:blur(var(--blur-md));
+    border:1px solid var(--glass-light-border); border-radius:var(--radius-lg); padding:18px 22px; box-shadow:var(--shadow-md); }
+  .glass h4 { margin:0 0 4px; font-family:var(--font-display); font-size:18px; color:var(--navy-900); }
+  .glass p { margin:0; font-size:13px; color:var(--slate-700); }
+  .pill { background:var(--glass-light); backdrop-filter:blur(var(--blur-md)); -webkit-backdrop-filter:blur(var(--blur-md));
+    border:1px solid var(--glass-light-border); border-radius:var(--radius-pill); padding:10px 18px; font-size:13px; font-weight:600; color:var(--navy-900); }
+</style></head>
+<body>
+  <div class="stage">
+    <div class="glass"><h4>Glass Surface</h4><p>--glass-light · blur 16px</p></div>
+    <div class="pill">Apply Now →</div>
+  </div>
+</body></html>

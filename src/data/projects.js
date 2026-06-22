@@ -212,6 +212,27 @@ export const projects = [
   },
 ];
 
+/* Embedded project sites — served from THIS domain (public/sites/<id>/) instead
+   of the original GitHub Pages URLs, so previews load fast on the custom domain
+   and look first-party. Add an id here once its files are in public/sites/<id>/. */
+const EMBEDDED = {
+  // static sites
+  "property-rental": "/sites/property-rental/",
+  "solar-panel": "/sites/solar-panel/",
+  "campusedge-design-system": "/sites/campusedge-design-system/",
+  "interior-design": "/sites/interior-design/",
+  "urban-bistro": "/sites/urban-bistro/",
+  "luxeglow-spa": "/sites/luxeglow-spa/",
+  "eduprime-academy": "/sites/eduprime-academy/",
+  // built Vite apps
+  "nestspace": "/sites/nestspace/",
+  "autohub-premium": "/sites/autohub-premium/",
+  "autohub-marketplace": "/sites/autohub-marketplace/",
+};
+projects.forEach((p) => {
+  if (EMBEDDED[p.id]) p.url = EMBEDDED[p.id];
+});
+
 /* Screenshot posters (public/projects/shots/<id>.jpg) shown by default on each
    live plate; the interactive iframe fades in on hover. Add an id here when a
    new live site gets a captured screenshot. */

@@ -1,0 +1,34 @@
+/* ==========================================================================
+   CampusEdge Institute — Radii, Shadows, Blur, Motion
+   ========================================================================== */
+
+:root {
+  /* ---- Corner radii -------------------------------------------------- */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 32px;
+  --radius-pill: 999px;
+
+  /* ---- Shadows (soft, cool-tinted — never pure black) ---------------- */
+  --shadow-xs: 0 1px 2px rgba(10, 26, 63, 0.06);
+  --shadow-sm: 0 2px 8px rgba(10, 26, 63, 0.07);
+  --shadow-md: 0 10px 24px -8px rgba(10, 26, 63, 0.16);
+  --shadow-lg: 0 24px 50px -16px rgba(10, 26, 63, 0.22);
+  --shadow-xl: 0 40px 80px -24px rgba(10, 26, 63, 0.30);
+  --shadow-gold: 0 16px 40px -12px rgba(199, 154, 46, 0.45);
+  --shadow-focus: 0 0 0 3px rgba(59, 120, 240, 0.35);
+
+  /* ---- Glass / blur -------------------------------------------------- */
+  --blur-sm: 8px;   /* @kind other */
+  --blur-md: 16px;  /* @kind other */
+  --blur-lg: 26px;  /* @kind other */
+
+  /* ---- Motion (calm, confident — no bounces) ------------------------- */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);     /* @kind other */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);  /* @kind other */
+  --dur-fast: 160ms;  /* @kind other */
+  --dur-base: 280ms;  /* @kind other */
+  --dur-slow: 520ms;  /* @kind other */
+}

@@ -17,15 +17,7 @@ export default function Booking({ profile }) {
     // No key configured → compose an email with the details.
     if (!WEB3FORMS_KEY) {
       const subject = `Project booking — ${d.name || "New enquiry"}`;
-      const body = [
-        `Name: ${d.name}`,
-        `Email: ${d.email}`,
-        `Project: ${d.project}`,
-        `Budget: ${d.budget}`,
-        `Timeline: ${d.timeline}`,
-        "",
-        d.message,
-      ].join("\n");
+      const body = [`Name: ${d.name}`, `Email: ${d.email}`, "", d.message].join("\n");
       window.location.href = `mailto:${profile.email}?subject=${encodeURIComponent(
         subject
       )}&body=${encodeURIComponent(body)}`;
@@ -85,43 +77,9 @@ export default function Booking({ profile }) {
             </div>
           </div>
 
-          <div className="booking-row">
-            <div className="field">
-              <label htmlFor="bk-project">Project type</label>
-              <select id="bk-project" name="project" defaultValue="Landing page">
-                <option>Landing page</option>
-                <option>Web app</option>
-                <option>Dashboard</option>
-                <option>E-commerce</option>
-                <option>Accessibility</option>
-                <option>Other</option>
-              </select>
-            </div>
-            <div className="field">
-              <label htmlFor="bk-budget">Budget</label>
-              <select id="bk-budget" name="budget" defaultValue="Not sure yet">
-                <option>Under $500</option>
-                <option>$500 – $1k</option>
-                <option>$1k – $5k</option>
-                <option>$5k+</option>
-                <option>Not sure yet</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="field">
-            <label htmlFor="bk-timeline">Timeline</label>
-            <select id="bk-timeline" name="timeline" defaultValue="Flexible">
-              <option>ASAP</option>
-              <option>2 – 4 weeks</option>
-              <option>1 – 2 months</option>
-              <option>Flexible</option>
-            </select>
-          </div>
-
           <div className="field">
             <label htmlFor="bk-message">What are you building?</label>
-            <textarea id="bk-message" name="message" rows="4" required></textarea>
+            <textarea id="bk-message" name="message" rows="5" required></textarea>
           </div>
 
           <div className="booking-actions">

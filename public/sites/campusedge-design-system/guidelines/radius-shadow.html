@@ -1,0 +1,25 @@
+<!-- @dsCard group="Spacing" viewport="700x200" name="Radius & Shadow" subtitle="Corner radii and soft cool-tinted elevation" -->
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin:0; font-family:var(--font-sans); background:var(--surface-subtle); padding:26px; display:flex; gap:34px; flex-wrap:wrap; align-items:center; }
+  .grp { display:flex; gap:16px; align-items:center; }
+  .tile { width:74px; height:74px; background:var(--surface-card); display:grid; place-items:center; font-family:var(--font-mono); font-size:10px; color:var(--text-muted); }
+  .r-sm{border-radius:var(--radius-sm)} .r-md{border-radius:var(--radius-md)} .r-lg{border-radius:var(--radius-lg)} .r-xl{border-radius:var(--radius-xl)}
+  .s-sm{box-shadow:var(--shadow-sm)} .s-md{box-shadow:var(--shadow-md)} .s-lg{box-shadow:var(--shadow-lg)} .s-gold{box-shadow:var(--shadow-gold)}
+</style></head>
+<body>
+  <div class="grp">
+    <div class="tile r-sm" style="box-shadow:var(--shadow-xs)">sm</div>
+    <div class="tile r-md" style="box-shadow:var(--shadow-xs)">md</div>
+    <div class="tile r-lg" style="box-shadow:var(--shadow-xs)">lg</div>
+    <div class="tile r-xl" style="box-shadow:var(--shadow-xs)">xl</div>
+  </div>
+  <div class="grp">
+    <div class="tile r-lg s-sm">sm</div>
+    <div class="tile r-lg s-md">md</div>
+    <div class="tile r-lg s-lg">lg</div>
+    <div class="tile r-lg s-gold">gold</div>
+  </div>
+</body></html>

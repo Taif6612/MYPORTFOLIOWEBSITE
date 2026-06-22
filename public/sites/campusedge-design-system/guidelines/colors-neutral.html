@@ -1,0 +1,26 @@
+<!-- @dsCard group="Colors" viewport="700x190" name="Neutral Slate Ramp" subtitle="Warm-cool slate from page tints to deep text" -->
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin:0; font-family:var(--font-sans); background:var(--surface-page); padding:22px; }
+  .ramp { display:flex; border-radius:var(--radius-md); overflow:hidden; box-shadow: inset 0 0 0 1px rgba(10,26,63,.08); }
+  .cell { flex:1; height:72px; display:flex; align-items:flex-end; justify-content:center; padding-bottom:7px; font-family:var(--font-mono); font-size:10px; }
+  .row2 { display:flex; gap:10px; margin-top:14px; font-family:var(--font-mono); font-size:11px; color:var(--text-muted); }
+  .row2 span { flex:1; text-align:center; }
+</style></head>
+<body>
+  <div class="ramp">
+    <div class="cell" style="background:var(--slate-50);color:#6b7a93">50</div>
+    <div class="cell" style="background:var(--slate-100);color:#6b7a93">100</div>
+    <div class="cell" style="background:var(--slate-200);color:#4b5a72">200</div>
+    <div class="cell" style="background:var(--slate-300);color:#34425a">300</div>
+    <div class="cell" style="background:var(--slate-400);color:#fff">400</div>
+    <div class="cell" style="background:var(--slate-500);color:#fff">500</div>
+    <div class="cell" style="background:var(--slate-600);color:#fff">600</div>
+    <div class="cell" style="background:var(--slate-700);color:#fff">700</div>
+    <div class="cell" style="background:var(--slate-800);color:#fff">800</div>
+    <div class="cell" style="background:var(--slate-900);color:#fff">900</div>
+  </div>
+  <div class="row2"><span>surfaces</span><span>borders</span><span>muted text</span><span>body text</span><span>strong text</span></div>
+</body></html>
