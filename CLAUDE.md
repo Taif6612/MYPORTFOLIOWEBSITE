@@ -18,7 +18,9 @@ Context for Claude Code working in this repo. (Auto-loaded each session.)
 - Page order (in `App.jsx`): Hero → WorkIndex → Recognition (`#praise`) → About (`#about`) → Footer.
 - **Reveal engine** (`src/lib/useReveals.js`): IntersectionObserver, not ScrollTrigger — immune to layout shift from late-loading iframes/images. Hidden initial state is gated behind `html.reveals-on` (added pre-paint only when motion allowed) so a JS/animation failure can never leave text invisible; a hero watchdog force-reveals as a last resort. **Don't reintroduce the ScrollTrigger reveal** — it caused cross-machine "missing text".
 - `src/styles/global.css` (tokens, resets) + `src/styles/components.css` (component styles).
-- Design language: warm museum-plaster canvas, warm-black ink, one ultramarine accent (`--signal`). Fonts: Fraunces / Hanken Grotesk / Space Mono. Portrait at `public/taif-portrait.jpeg`; resume at `public/Taif-Ur-Rahman-CV.pdf`.
+- Design language: warm museum-plaster canvas, warm-black ink, one ultramarine accent (`--signal`). Fonts: **Newsreader** (display, was Fraunces) / Hanken Grotesk / Space Mono. Portrait at `public/taif-portrait.jpeg`; resume at `public/Taif-Ur-Rahman-CV.pdf`.
+- **Booking** section (`#booking`, `Booking.jsx`): Name/Email/message form. Submits via `mailto:` out of the box; set `WEB3FORMS_KEY` in the file for inline submission. Hero "Book a project" CTA + nav point here.
+- **Location-neutral** for Upwork — no Dhaka/Bangladesh anywhere. The clock (`Clock.jsx`) shows the **viewer's** local time + their timezone city, not a fixed zone.
 
 ## Project preview rules (important — easy to break)
 Each plate's preview is driven by fields on the project object:
@@ -27,8 +29,12 @@ Each plate's preview is driven by fields on the project object:
 - **no `url` but `logo` set** → branded **logo card** (`logoTone: "light" | "dark"`) instead of an empty placeholder. Used for Chrome extensions (can't be iframed). Images live in `public/projects/`.
 - **no `url` and no `logo`** → styled "live URL coming soon" placeholder.
 
+## Self-hosted previews (important)
+- Plates 04–13 are **self-hosted**, not iframed from GitHub Pages. Each site's files live in **`public/sites/<id>/`** and the `EMBEDDED` map in `projects.js` points each `url` to the clean dir path **`/sites/<id>/`** (served first-party from taif.codes → fast, professional, no external dep). `ProjectPlate` computes the iframe src as `/sites/<id>/index.html` while the shareable "Open live" link stays the clean dir url.
+- The 7 static sites were copied as-is; the 3 Vite apps (autohub-marketplace, autohub-premium, nestspace) were **built with `vite build --base=/sites/<id>/`** (use `MSYS_NO_PATHCONV=1` in Git Bash or the base gets mangled) and their `dist/` copied into `public/sites/<id>/`. Source projects live in `D:\Github\WebsitePortfolio`. To refresh one: rebuild with that base and re-copy.
+
 ## Content status
-- All 13 plates have real content. Plates 04–13 are live GitHub Pages sites. **ProctorLess (01)** previews its live site `https://proctorless-app.netlify.app/` (marketing landing; dashboards are behind login with no demo account). **Extensions 02 (ProctorLess Integrity) & 03 (Senior Mode)** show logo cards.
+- All 13 plates have real content. Plates 04–13 are self-hosted (above). **ProctorLess (01)** previews its live site `https://proctorless-app.netlify.app/` (still external; marketing landing). **Extensions 02 (ProctorLess Integrity) & 03 (Senior Mode)** show logo cards.
 - **Recognition (`#praise`)** has: an availability card with a Resume download, a live Dhaka analog clock, a "Real artists ship." quote, two testimonial marquees (**placeholder quotes — swap for real ones**), and a Stack grid (18 devicon icons from jsDelivr CDN).
 - About has the portrait photo + "Selected research" listing 2 IEEE publications, both linking to IEEE Xplore.
 - Hero thesis is "Interfaces that watch, adapt, and include." (an earlier Claude-design pass used "read the room, and let everyone in" — repo keeps the former).
