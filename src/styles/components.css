@@ -279,16 +279,11 @@ html.is-locked {
   color: var(--signal);
 }
 .hero-title {
-  font-size: clamp(2.9rem, 1rem + 7.6vw, 7.5rem);
-  max-width: 15ch;
+  font-size: clamp(2.5rem, 1rem + 6.2vw, 6.2rem);
+  max-width: 22ch;
 }
 .hero-title .line-mask > span {
   font-weight: 360;
-}
-.hero-title .line-mask:nth-child(2) > span {
-  font-style: italic;
-  font-weight: 320;
-  color: var(--signal-deep);
 }
 .hero-meta {
   display: flex;
@@ -423,6 +418,108 @@ html.is-locked {
 }
 .btn--ghost:hover {
   border-color: var(--ink);
+}
+
+/* Interactive headline words ------------------------------------------- */
+.fx-pixel,
+.fx-magic {
+  position: relative;
+  cursor: default;
+  white-space: nowrap;
+}
+/* "pixel" → pixelate on hover */
+.fx-pixel {
+  font-style: normal;
+  color: var(--ink);
+  transition: color 0.2s var(--ease-out);
+}
+.fx-pixel:hover {
+  filter: url(#px-filter);
+  color: var(--signal-deep);
+}
+/* "perfect realities" → magical shimmer + sparkles on hover */
+.fx-magic {
+  font-style: italic;
+  font-weight: 320;
+  color: var(--signal-deep);
+  transition: filter 0.3s var(--ease-out);
+}
+.fx-magic:hover {
+  background: linear-gradient(100deg, #2438ff 0%, #8b5cf6 30%, #e0b341 55%, #2438ff 80%);
+  background-size: 260% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: magicShimmer 1.8s linear infinite;
+  filter: drop-shadow(0 2px 16px rgba(139, 92, 246, 0.45));
+}
+@keyframes magicShimmer {
+  to {
+    background-position: 260% 0;
+  }
+}
+.fx-magic::before,
+.fx-magic::after {
+  content: "✦";
+  position: absolute;
+  font-size: 0.42em;
+  font-style: normal;
+  color: #e0b341;
+  opacity: 0;
+  pointer-events: none;
+}
+.fx-magic::before {
+  top: -0.1em;
+  left: -0.35em;
+}
+.fx-magic::after {
+  bottom: 0.05em;
+  right: -0.3em;
+  color: #8b5cf6;
+}
+.fx-magic:hover::before {
+  animation: sparkle 1.2s var(--ease-out) infinite;
+}
+.fx-magic:hover::after {
+  animation: sparkle 1.2s var(--ease-out) 0.5s infinite;
+}
+@keyframes sparkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.4) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1) rotate(90deg);
+  }
+}
+
+/* Rotating word (animated-hero signature) */
+.rotw {
+  position: relative;
+  display: inline-block;
+  vertical-align: baseline;
+  color: var(--signal-deep);
+  font-weight: 600;
+}
+.rotw-ghost {
+  visibility: hidden;
+  white-space: nowrap;
+}
+.rotw-item {
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(45%);
+  transition: opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out);
+}
+.rotw-item.is-active {
+  opacity: 1;
+  transform: none;
 }
 
 .hero-scroll {

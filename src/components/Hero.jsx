@@ -1,6 +1,7 @@
 import { Suspense, lazy, useMemo } from "react";
 import { scrollToTarget } from "../lib/useSmoothScroll.js";
 import CanvasErrorBoundary from "./CanvasErrorBoundary.jsx";
+import RotatingWord from "./RotatingWord.jsx";
 
 // Defer the shader bundle so first paint stays instant.
 const HeroShader = lazy(() => import("./HeroShader.jsx"));
@@ -18,8 +19,9 @@ function webglSupported() {
   }
 }
 
+const CRAFTS = ["landing pages", "dashboards", "web apps", "design systems"];
+
 export default function Hero({ profile, ready, reduced }) {
-  // Render the mesh whenever WebGL exists; freeze it under reduced motion.
   const canRenderField = useMemo(() => webglSupported(), []);
 
   return (
@@ -35,7 +37,6 @@ export default function Hero({ profile, ready, reduced }) {
           </CanvasErrorBoundary>
         )}
       </div>
-      {/* Readability scrim: paper backdrop under the text, fading into the mesh. */}
       <div className="hero-scrim" aria-hidden="true" />
 
       <div className="shell hero-inner">
@@ -43,20 +44,26 @@ export default function Hero({ profile, ready, reduced }) {
           <span className="hero-eyebrow-pip" aria-hidden="true" />
           <span>{profile.role}</span>
           <span className="hero-eyebrow-dot">/</span>
-          <span>Available · Portfolio ’26</span>
+          <span>Available for freelance</span>
         </p>
 
         <h1 className="display hero-title" data-lines>
-          {profile.thesis.map((line, i) => (
-            <span className="line-mask" key={i}>
-              <span>{line}</span>
+          <span className="line-mask">
+            <span>Turning your ideas into</span>
+          </span>
+          <span className="line-mask">
+            <span>
+              <span className="fx-pixel">pixel</span>{" "}
+              <span className="fx-magic">perfect realities</span>.
             </span>
-          ))}
+          </span>
         </h1>
 
-        {profile.tagline && (
-          <p className={`hero-sub ${ready ? "is-in" : ""}`}>{profile.tagline}</p>
-        )}
+        <p className={`hero-sub ${ready ? "is-in" : ""}`}>
+          Front-end engineer crafting{" "}
+          <RotatingWord words={CRAFTS} reduced={reduced} /> that load fast, work for
+          everyone, and convert.
+        </p>
 
         <div className={`hero-cta ${ready ? "is-in" : ""}`}>
           <button type="button" className="btn btn--primary" onClick={() => scrollToTarget("#work")}>
