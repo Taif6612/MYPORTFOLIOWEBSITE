@@ -16,14 +16,16 @@ export default function ProjectPlate({ project }) {
   const hasLogo = !hasLive && Boolean(logo); // logo card stands in for non-embeddable work
   const frameHref = url || repo; // no live preview → let the frame open the source
   const cornerLabel = hasLive ? "Open live ↗" : repo ? "View source ↗" : null;
-  // Host label for the faux browser bar — works for absolute and relative
-  // (embedded /sites/…) urls alike.
+  // Label for the faux browser bar. Never derived from window.location (which
+  // would read "localhost" in dev) — embedded sites show the custom domain,
+  // external ones show their real host.
   const liveHost = (() => {
     if (!url) return "";
+    if (url.startsWith("/")) return "taif.codes";
     try {
-      return new URL(url, window.location.origin).host;
+      return new URL(url).host;
     } catch {
-      return "preview";
+      return "taif.codes";
     }
   })();
   // Embedded sites use a clean directory url (/sites/<id>/) for the shareable
