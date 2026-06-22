@@ -2,8 +2,8 @@ import { Suspense, lazy, useMemo } from "react";
 import { scrollToTarget } from "../lib/useSmoothScroll.js";
 import CanvasErrorBoundary from "./CanvasErrorBoundary.jsx";
 
-// Defer the WebGL bundle so first paint stays instant.
-const HeroCanvas = lazy(() => import("./HeroCanvas.jsx"));
+// Defer the shader bundle so first paint stays instant.
+const HeroShader = lazy(() => import("./HeroShader.jsx"));
 
 // One-time check: does this browser/GPU actually have WebGL?
 function webglSupported() {
@@ -19,29 +19,31 @@ function webglSupported() {
 }
 
 export default function Hero({ profile, ready, reduced }) {
-  // Render the field whenever WebGL exists; animate only when motion is allowed
-  // (reduced-motion still gets a frozen field, so it's visible — just still).
+  // Render the mesh whenever WebGL exists; freeze it under reduced motion.
   const canRenderField = useMemo(() => webglSupported(), []);
 
   return (
     <section className="hero" aria-label="Introduction">
-      {/* Field: animated detection shader (or frozen), over a CSS gradient. */}
+      {/* Soft animated mesh, over a CSS gradient fallback. */}
       <div className="hero-field" aria-hidden="true">
         <div className="hero-field-fallback" />
         {canRenderField && (
           <CanvasErrorBoundary>
             <Suspense fallback={null}>
-              <HeroCanvas animate={!reduced} />
+              <HeroShader animate={!reduced} />
             </Suspense>
           </CanvasErrorBoundary>
         )}
       </div>
+      {/* Readability scrim: paper backdrop under the text, fading into the mesh. */}
+      <div className="hero-scrim" aria-hidden="true" />
 
       <div className="shell hero-inner">
         <p className={`eyebrow hero-eyebrow ${ready ? "is-in" : ""}`}>
+          <span className="hero-eyebrow-pip" aria-hidden="true" />
           <span>{profile.role}</span>
           <span className="hero-eyebrow-dot">/</span>
-          <span>Portfolio ’26</span>
+          <span>Dhaka · Portfolio ’26</span>
         </p>
 
         <h1 className="display hero-title" data-lines>
@@ -51,6 +53,19 @@ export default function Hero({ profile, ready, reduced }) {
             </span>
           ))}
         </h1>
+
+        {profile.tagline && (
+          <p className={`hero-sub ${ready ? "is-in" : ""}`}>{profile.tagline}</p>
+        )}
+
+        <div className={`hero-cta ${ready ? "is-in" : ""}`}>
+          <button type="button" className="btn btn--primary" onClick={() => scrollToTarget("#work")}>
+            View work <span aria-hidden="true">→</span>
+          </button>
+          <a className="btn btn--ghost" href={`mailto:${profile.email}`}>
+            Get in touch
+          </a>
+        </div>
 
         <div className={`hero-meta ${ready ? "is-in" : ""}`}>
           <span className="hero-status mono">
@@ -67,7 +82,7 @@ export default function Hero({ profile, ready, reduced }) {
         onClick={() => scrollToTarget("#work")}
         aria-label="Scroll to selected work"
       >
-        <span>Selected work</span>
+        <span>Scroll</span>
         <span className="hero-scroll-line" aria-hidden="true" />
       </button>
     </section>

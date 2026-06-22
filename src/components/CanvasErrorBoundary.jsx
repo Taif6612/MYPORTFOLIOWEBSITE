@@ -16,7 +16,7 @@ export default class CanvasErrorBoundary extends Component {
 
   componentDidCatch(error) {
     // Non-fatal: keep it out of the user's face, but leave a breadcrumb.
-    if (import.meta.env.DEV) console.warn("HeroCanvas disabled:", error);
+    if (import.meta.env.DEV) console.warn("Hero shader disabled:", error);
   }
 
   render() {

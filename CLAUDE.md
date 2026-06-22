@@ -7,13 +7,13 @@ Context for Claude Code working in this repo. (Auto-loaded each session.)
 **Live: https://taif.codes**. Repo: https://github.com/Taif6612/MYPORTFOLIOWEBSITE (public, `main`).
 
 ## Stack & commands
-- React + Vite (plain JS/JSX), GSAP + ScrollTrigger, Lenis smooth scroll, three / react-three-fiber (WebGL "detection-field" hero).
+- React + Vite (plain JS/JSX), GSAP + ScrollTrigger, Lenis smooth scroll, `@paper-design/shaders-react` (`MeshGradient`) for the soft animated hero background. (The old three.js "detection-field" hero was removed — don't re-add three unless needed.)
 - `npm run dev` — local dev · `npm run build` — production build → `dist/` · `npm run preview` — serve the build.
 
 ## Architecture
 - **`src/data/projects.js`** — single source of truth for the Work section + `profile` (name, contact, socials, about, `publications`). Edit data here, not in components.
 - **`src/components/ProjectPlate.jsx`** — renders each project "plate" and its preview (see rules below).
-- `src/components/` — Hero, HeroCanvas (WebGL), Header, About, Footer, WorkIndex, SignalRail, Cursor, Preloader, **Recognition** (clock band + testimonials + Stack), **Clock** (live Dhaka analog clock), **CanvasErrorBoundary**.
+- `src/components/` — Hero (paper-shader bg + headline/subtitle/CTAs), **HeroShader** (`MeshGradient`), Header (floating **glass nav** — `.site-head-bar`), About, Footer, WorkIndex, SignalRail, Cursor, Preloader, **Recognition** (clock band + testimonials + Stack), **Clock** (live Dhaka analog clock), **CanvasErrorBoundary**.
 - **`src/data/recognition.js`** — testimonials + tech-stack icon list for the Recognition section. The testimonials are **design-tool placeholders** (illustrative, not real endorsements) — replace or remove before relying on them.
 - Page order (in `App.jsx`): Hero → WorkIndex → Recognition (`#praise`) → About (`#about`) → Footer.
 - **Reveal engine** (`src/lib/useReveals.js`): IntersectionObserver, not ScrollTrigger — immune to layout shift from late-loading iframes/images. Hidden initial state is gated behind `html.reveals-on` (added pre-paint only when motion allowed) so a JS/animation failure can never leave text invisible; a hero watchdog force-reveals as a last resort. **Don't reintroduce the ScrollTrigger reveal** — it caused cross-machine "missing text".

@@ -243,6 +243,9 @@ export const profile = {
   role: "Front-End Engineer",
   // The one-line thesis for the hero. Edit freely.
   thesis: ["Interfaces that", "watch, adapt,", "and include."],
+  // Subtitle under the hero headline — keep it plain and readable.
+  tagline:
+    "Front-end engineer in Dhaka. I design and build interfaces with a bias toward clarity and access — from exam-integrity tools to accessibility layers that open the web to everyone.",
   location: "Dhaka, Bangladesh · Open to remote",
   status: "Open to work",
   email: "taifurrahman66123@gmail.com",

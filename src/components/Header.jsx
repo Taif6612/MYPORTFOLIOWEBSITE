@@ -23,23 +23,25 @@ export default function Header({ profile, ready }) {
 
   return (
     <header className={`site-head ${ready ? "is-ready" : ""} ${hidden ? "is-hidden" : ""}`}>
-      <div className="shell site-head-inner">
-        <a href="#top" onClick={go("#top")} className="site-mark mono">
-          {profile.name}
-          <span className="site-mark-sub">— Front-End</span>
-        </a>
+      <div className="shell">
+        <div className="site-head-bar">
+          <a href="#top" onClick={go("#top")} className="site-mark mono">
+            {profile.name}
+            <span className="site-mark-sub">— Front-End</span>
+          </a>
 
-        <nav className="site-nav mono" aria-label="Primary">
-          <a href="#work" onClick={go("#work")} className="link">
-            Work
-          </a>
-          <a href="#about" onClick={go("#about")} className="link">
-            About
-          </a>
-          <a href="#contact" onClick={go("#contact")} className="link">
-            Contact
-          </a>
-        </nav>
+          <nav className="site-nav mono" aria-label="Primary">
+            <a href="#work" onClick={go("#work")} className="site-nav-link">
+              Work
+            </a>
+            <a href="#about" onClick={go("#about")} className="site-nav-link">
+              About
+            </a>
+            <a href="#contact" onClick={go("#contact")} className="site-nav-link">
+              Contact
+            </a>
+          </nav>
+        </div>
       </div>
     </header>
   );
