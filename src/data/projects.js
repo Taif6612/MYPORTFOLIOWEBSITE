@@ -106,7 +106,7 @@ export const projects = [
     year: "2025",
     role: "Front-end UI",
     summary:
-      "A rental-property portfolio with searchable listings, photo galleries, and enquiry-ready detail pages.",
+      "A rental-property site with searchable listings, a roommate finder, and individual property detail pages with galleries and booking.",
     stack: ["HTML", "CSS", "JavaScript"],
     url: "https://taif6612.github.io/PropertyRentalPortfolio/",
     repo: "https://github.com/Taif6612/PropertyRentalPortfolio",
@@ -134,7 +134,7 @@ export const projects = [
     year: "2025",
     role: "Front-end UI",
     summary:
-      "A clean-energy landing page for residential solar, covering the benefits, the savings, and a clear path to a quote.",
+      "A clean-energy site for residential & commercial solar with a savings calculator, individual product pages, and a clear path to a quote.",
     stack: ["HTML", "CSS", "JavaScript"],
     url: "https://taif6612.github.io/solar-panel/",
     repo: "https://github.com/Taif6612/solar-panel",
@@ -162,7 +162,7 @@ export const projects = [
     year: "2025",
     role: "Front-end UI",
     summary:
-      "An interior-design studio site with a calm, editorial gallery of room transformations and a clear enquiry flow.",
+      "An interior-design studio site with a filterable portfolio, individual project case-study pages, and a calm, editorial enquiry flow.",
     stack: ["HTML", "CSS", "JavaScript"],
     url: "https://taif6612.github.io/interior-design/",
     repo: "https://github.com/Taif6612/interior-design",
@@ -176,7 +176,7 @@ export const projects = [
     year: "2025",
     role: "Front-end UI",
     summary:
-      "A neighbourhood café site with the menu, story, and reservations in a single warm, photography-led page.",
+      "A neighbourhood café site with a filterable menu, individual dish pages, story, and reservations in a warm, photography-led design.",
     stack: ["HTML", "CSS", "JavaScript"],
     url: "https://taif6612.github.io/urban-bistro-cafe/",
     repo: "https://github.com/Taif6612/urban-bistro-cafe",
@@ -190,7 +190,7 @@ export const projects = [
     year: "2025",
     role: "Front-end UI",
     summary:
-      "A beauty-spa site with services, pricing, and booking wrapped in a soft, luxurious visual language.",
+      "A beauty-spa site with a filterable treatment menu, individual service pages, pricing, and booking — wrapped in a soft, luxurious visual language.",
     stack: ["HTML", "CSS", "JavaScript"],
     url: "https://taif6612.github.io/luxeglow-beauty-spa/",
     repo: "https://github.com/Taif6612/luxeglow-beauty-spa",
@@ -204,7 +204,7 @@ export const projects = [
     year: "2025",
     role: "Front-end UI",
     summary:
-      "A coaching-centre site covering courses, faculty, and admissions, built to convert enquiring students and parents.",
+      "A coaching-centre site with searchable courses, dedicated course pages, faculty, and admissions — built to convert enquiring students and parents.",
     stack: ["HTML", "CSS", "JavaScript"],
     url: "https://taif6612.github.io/eduprime-coaching-center/",
     repo: "https://github.com/Taif6612/eduprime-coaching-center",

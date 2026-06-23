@@ -413,23 +413,52 @@ body.dark .about-img .about-badge{background:rgba(0,0,0,.7)}
   body.loaded .hero h1 .line span{transform:none}
   .marquee-inner{animation:none}
 }
+/* ════════ PRODUCT DETAIL PAGE ════════ */
+#productDetail{position:fixed;inset:0;z-index:9990;background:var(--c-bg);overflow-y:auto;opacity:0;visibility:hidden;transition:opacity .4s var(--ease)}
+#productDetail.open{opacity:1;visibility:visible}
+.pr-bar{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px clamp(18px,5vw,56px);background:color-mix(in srgb,var(--c-bg) 84%,transparent);backdrop-filter:blur(16px);border-bottom:1px solid var(--c-border)}
+.pr-back{display:inline-flex;align-items:center;gap:9px;font-size:.85rem;font-weight:600;color:var(--c-text);border:1px solid var(--c-border);padding:11px 18px;border-radius:99px;transition:.3s;background:var(--c-surface)}
+.pr-back:hover{border-color:var(--c-emerald);color:var(--c-emerald);transform:translateX(-3px)}
+.pr-brand{font-family:var(--font-h);font-weight:800;font-size:1.15rem;display:flex;align-items:center;gap:.4rem;color:var(--c-text)}
+.pr-wrap{max-width:1100px;margin:0 auto;padding:clamp(24px,4vw,52px)}
+.pr-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,56px);align-items:start}
+.pr-media{border-radius:var(--r-xl);overflow:hidden;aspect-ratio:4/3;border:1px solid var(--c-border)}
+.pr-media img{width:100%;height:100%;object-fit:cover}
+.pr-thumbs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.pr-thumbs img{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:var(--r-lg)}
+.pr-eyebrow{font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;color:var(--c-emerald);font-weight:700}
+.pr-title{font-family:var(--font-h);font-size:clamp(2rem,4.4vw,3rem);font-weight:800;line-height:1.06;margin:8px 0 6px;color:var(--c-text)}
+.pr-desc{color:var(--c-text2);line-height:1.85;font-size:1.02rem;margin-top:10px}
+.pr-eff{margin:24px 0;background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r-lg);padding:18px}
+.pr-eff .row{display:flex;justify-content:space-between;font-size:.85rem;font-weight:600;color:var(--c-text2);margin-bottom:8px}
+.pr-eff .bar{height:8px;border-radius:99px;background:var(--c-bg2);overflow:hidden}
+.pr-eff .fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--c-emerald),var(--c-lime,#84cc16))}
+.pr-h{font-family:var(--font-h);font-size:1.2rem;font-weight:700;margin:24px 0 12px;color:var(--c-text)}
+.pr-feat{display:grid;gap:10px}
+.pr-feat li{display:flex;gap:11px;align-items:center;color:var(--c-text);font-weight:500}
+.pr-feat i{color:var(--c-emerald)}
+.pr-cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:28px}
+@media(max-width:880px){.pr-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
+
+<!-- ════════ PRODUCT DETAIL PAGE ════════ -->
+<div id="productDetail" aria-hidden="true"></div>
 
 <!-- CUSTOM CURSOR -->
 <div class="cursor" id="cursor"></div>
 
 <!-- LOADER -->
 <div class="loader" id="loader">
-  <div class="loader-logo"><i class="fas fa-solar-panel"></i> SolarTech BD</div>
+  <div class="loader-logo"><svg class="logo-mark" viewBox="0 0 32 32" width="22" height="22" fill="none" aria-hidden="true" style="color:var(--c-emerald);vertical-align:-4px;margin-right:.45rem"><circle cx="16" cy="12.5" r="4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M16 4v2.4"/><path d="M6.6 12.5H4.4"/><path d="M27.6 12.5H25.4"/><path d="M9 6l1.6 1.6"/><path d="M23 6l-1.6 1.6"/></g><path d="M6 22l3-3.2h14l3 3.2-2 4H8L6 22Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M11.7 18.8 10.6 26M20.3 18.8 21.4 26M7 22.3h18" stroke="currentColor" stroke-width="1.2"/></svg> SolarTech BD</div>
   <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
 </div>
 
 <!-- NAV -->
 <nav class="nav" id="nav">
   <div class="nav-inner">
-    <a href="#" class="logo"><i class="fas fa-solar-panel"></i> SolarTech BD</a>
+    <a href="#" class="logo"><svg class="logo-mark" viewBox="0 0 32 32" width="22" height="22" fill="none" aria-hidden="true" style="color:var(--c-emerald);vertical-align:-4px;margin-right:.45rem"><circle cx="16" cy="12.5" r="4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M16 4v2.4"/><path d="M6.6 12.5H4.4"/><path d="M27.6 12.5H25.4"/><path d="M9 6l1.6 1.6"/><path d="M23 6l-1.6 1.6"/></g><path d="M6 22l3-3.2h14l3 3.2-2 4H8L6 22Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M11.7 18.8 10.6 26M20.3 18.8 21.4 26M7 22.3h18" stroke="currentColor" stroke-width="1.2"/></svg> SolarTech BD</a>
     <ul class="nav-links">
       <li><a href="#home">Home</a></li>
       <li><a href="#services">Services</a></li>
@@ -818,7 +847,7 @@ body.dark .about-img .about-badge{background:rgba(0,0,0,.7)}
 <footer class="footer">
   <div class="footer-grid">
     <div>
-      <h3><i class="fas fa-solar-panel" style="color:var(--c-emerald);margin-right:.4rem"></i> SolarTech BD</h3>
+      <h3><svg viewBox="0 0 32 32" width="22" height="22" fill="none" aria-hidden="true" style="color:var(--c-emerald);vertical-align:-4px;margin-right:.4rem"><circle cx="16" cy="12.5" r="4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M16 4v2.4"/><path d="M6.6 12.5H4.4"/><path d="M27.6 12.5H25.4"/><path d="M9 6l1.6 1.6"/><path d="M23 6l-1.6 1.6"/></g><path d="M6 22l3-3.2h14l3 3.2-2 4H8L6 22Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M11.7 18.8 10.6 26M20.3 18.8 21.4 26M7 22.3h18" stroke="currentColor" stroke-width="1.2"/></svg> SolarTech BD</h3>
       <p class="footer-about">Leading provider of solar energy solutions in Bangladesh. Making clean, affordable energy accessible for homes, businesses, and industries since 2018.</p>
       <div class="footer-social">
         <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
@@ -890,6 +919,68 @@ document.querySelectorAll('a[href^="#"]').forEach(a=>{
     if(t)t.scrollIntoView({behavior:'smooth',block:'start'});
   });
 });
+
+/* ════════ PRODUCT DETAIL PAGE (separate hash-routed page) ════════ */
+const PRODUCTS=[
+  {name:'Solar Panels',img:'photo-1509391366360-2e959784a276',effLabel:'Module Efficiency',eff:'22.5%',bar:92,
+   features:['Monocrystalline PERC cells','25-year performance warranty','Anti-reflective tempered glass','Salt-mist & ammonia resistant','High output in low light']},
+  {name:'Inverters',img:'photo-1558449028-b53a39d100fc',effLabel:'Conversion Efficiency',eff:'98.2%',bar:98,
+   features:['Hybrid / On-grid / Off-grid','Dual MPPT solar tracking','Built-in WiFi monitoring','Smart grid & battery ready','Silent, fan-cooled operation']},
+  {name:'Batteries',img:'photo-1620714223084-8fcacc6dfd8d',effLabel:'Round-trip Efficiency',eff:'95%',bar:95,
+   features:['Lithium Iron Phosphate (LiFePO4)','6000+ charge cycles','10-year warranty','Integrated BMS protection','Modular & scalable capacity']},
+  {name:'Charge Controllers',img:'photo-1497440001374-f26997328c1b',effLabel:'Tracking Efficiency',eff:'99%',bar:88,
+   features:['Advanced MPPT technology','Backlit LCD display','Overcharge & deep-discharge protection','Temperature compensation','Multi-battery compatibility']},
+  {name:'Solar Water Pumps',img:'photo-1595437193398-f24279553f4f',effLabel:'Reliability',eff:'85%',bar:85,
+   features:['DC submersible motor','Zero fuel & grid costs','5-year warranty','Dry-run protection','Ideal for farms & remote sites']}
+];
+const PR_GALLERY=['photo-1509391366360-2e959784a276','photo-1605980776566-0486c3ac7617','photo-1559302504-64aae6ca6b6d','photo-1466611653911-95081537e5b7'];
+PRODUCTS.forEach((p,i)=>{
+  p.id=i;
+  p.desc=`Our ${p.name.toLowerCase()} are Tier-1 certified, sourced from globally recognised manufacturers and engineered for Bangladesh's climate. Every unit is performance-tested and backed by professional installation, monitoring and after-sales support — so your system delivers clean, reliable power for decades.`;
+  p.gallery=[p.img, PR_GALLERY[(i+1)%PR_GALLERY.length], PR_GALLERY[(i+2)%PR_GALLERY.length]];
+});
+const PRU=(id,w)=>`https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`;
+function productDetailHTML(p){
+  return `
+  <div class="pr-bar">
+    <button class="pr-back" onclick="closeProduct()"><i class="fas fa-arrow-left"></i> All Products</button>
+    <span class="pr-brand"><svg viewBox="0 0 32 32" width="22" height="22" fill="none" aria-hidden="true" style="color:var(--c-emerald);vertical-align:-4px"><circle cx="16" cy="12.5" r="4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M16 4v2.4"/><path d="M6.6 12.5H4.4"/><path d="M27.6 12.5H25.4"/><path d="M9 6l1.6 1.6"/><path d="M23 6l-1.6 1.6"/></g><path d="M6 22l3-3.2h14l3 3.2-2 4H8L6 22Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M11.7 18.8 10.6 26M20.3 18.8 21.4 26M7 22.3h18" stroke="currentColor" stroke-width="1.2"/></svg> SolarTech BD</span>
+  </div>
+  <div class="pr-wrap">
+    <div class="pr-grid">
+      <div>
+        <div class="pr-media"><img src="${PRU(p.gallery[0],1000)}" alt="${p.name}"></div>
+        <div class="pr-thumbs">
+          <img src="${PRU(p.gallery[1],600)}" alt="${p.name} installation">
+          <img src="${PRU(p.gallery[2],600)}" alt="SolarTech BD system">
+        </div>
+      </div>
+      <div>
+        <span class="pr-eyebrow">Equipment</span>
+        <h1 class="pr-title">${p.name}</h1>
+        <p class="pr-desc">${p.desc}</p>
+        <div class="pr-eff">
+          <div class="row"><span>${p.effLabel}</span><span>${p.eff}</span></div>
+          <div class="bar"><div class="fill" style="width:${p.bar}%"></div></div>
+        </div>
+        <h2 class="pr-h">Key features</h2>
+        <ul class="pr-feat">${p.features.map(f=>`<li><i class="fas fa-circle-check"></i> ${f}</li>`).join('')}</ul>
+        <div class="pr-cta">
+          <a href="#contact" class="btn btn-primary"><i class="fas fa-file-invoice-dollar"></i> Request a Quote</a>
+          <a href="#calculator" class="btn btn-dark"><i class="fas fa-calculator"></i> Estimate Savings</a>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+function renderProduct(id){const p=PRODUCTS[id];if(!p)return;const el=document.getElementById('productDetail');el.innerHTML=productDetailHTML(p);el.classList.add('open');el.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';window.scrollTo(0,0);}
+function hideProduct(){const el=document.getElementById('productDetail');el.classList.remove('open');el.setAttribute('aria-hidden','true');document.body.style.overflow='';}
+function handleProductRoute(){const m=location.hash.match(/^#\/product\/(\d+)$/);if(m)renderProduct(+m[1]);else hideProduct();}
+window.openProduct=(id)=>{if(location.hash!=='#/product/'+id)location.hash='#/product/'+id;};
+window.closeProduct=()=>{if(location.hash.startsWith('#/product/'))history.back();else hideProduct();};
+window.addEventListener('hashchange',handleProductRoute);
+document.querySelectorAll('#productsGrid .product-card').forEach((el,i)=>{ el.style.cursor='pointer'; el.addEventListener('click',()=>window.openProduct(i)); });
+handleProductRoute(); // open a product page directly if URL already has a #/product/ hash
 
 /* ═══════ MOBILE ═══════ */
 document.getElementById('hamburger').addEventListener('click',()=>document.getElementById('mobileMenu').classList.add('open'));

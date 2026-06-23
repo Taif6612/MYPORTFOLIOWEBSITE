@@ -592,10 +592,39 @@ footer{background:var(--green-deep);padding-top:80px;position:relative;overflow:
   *{animation-duration:.001ms!important;transition-duration:.001ms!important}
   html{scroll-behavior:auto}
 }
+/* ============ DISH DETAIL PAGE ============ */
+#dishDetail{position:fixed;inset:0;z-index:1500;background:var(--bg);overflow-y:auto;opacity:0;visibility:hidden;transition:opacity .4s var(--ease)}
+#dishDetail.open{opacity:1;visibility:visible}
+.dd-bar{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px clamp(18px,5vw,60px);background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.dd-back{display:inline-flex;align-items:center;gap:9px;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;color:var(--text);border:1px solid var(--line);padding:11px 18px;border-radius:40px;transition:.3s}
+.dd-back:hover{background:var(--gold);border-color:var(--gold);color:#0a0b0a}
+.dd-brand{font-family:var(--serif);font-size:1.3rem;letter-spacing:.02em}
+.dd-brand span{color:var(--gold)}
+.dd-wrap{max-width:1160px;margin:0 auto;padding:clamp(24px,5vw,60px)}
+.dd-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(28px,5vw,64px);align-items:start}
+.dd-media{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);aspect-ratio:4/3}
+.dd-media img{width:100%;height:100%;object-fit:cover}
+.dd-thumbs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.dd-thumbs img{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:14px;border:1px solid var(--line)}
+.dd-cat{font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+.dd-title{font-family:var(--serif);font-size:clamp(2.1rem,4.5vw,3.4rem);font-weight:600;line-height:1.05;margin:8px 0}
+.dd-price{font-family:var(--serif);font-size:1.9rem;color:var(--gold);margin-bottom:6px}
+.dd-rate{color:var(--gold);letter-spacing:2px;margin-bottom:18px}
+.dd-rate small{color:var(--muted);letter-spacing:0;margin-left:8px}
+.dd-desc{color:var(--muted);font-weight:300;line-height:1.85;font-size:1.02rem}
+.dd-h{font-family:var(--serif);font-size:1.25rem;margin:26px 0 12px}
+.dd-ing{display:flex;flex-wrap:wrap;gap:10px}
+.dd-ing span{border:1px solid var(--line);border-radius:30px;padding:9px 16px;font-size:.82rem;color:var(--text);background:var(--bg-2)}
+.dd-note{margin-top:22px;border-left:3px solid var(--gold);padding:14px 18px;background:var(--bg-2);border-radius:0 12px 12px 0;color:var(--muted);font-style:italic}
+.dd-cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px}
+@media (max-width:880px){.dd-grid{grid-template-columns:1fr}}
 </style>
 </head>
 
 <body>
+
+  <!-- ============ DISH DETAIL PAGE ============ -->
+  <div id="dishDetail" aria-hidden="true"></div>
 
 <!-- ================= LOADER ================= -->
 <div id="loader">
@@ -610,7 +639,7 @@ footer{background:var(--green-deep);padding-top:80px;position:relative;overflow:
 
 <!-- ================= NAV ================= -->
 <header class="nav" id="nav">
-  <a href="#home" class="logo" data-cursor><i class="fa-solid fa-utensils"></i>URBAN<span>.</span>BISTRO</a>
+  <a href="#home" class="logo" data-cursor><svg class="logo-mark" viewBox="0 0 32 32" width="22" height="22" fill="none" aria-hidden="true" style="vertical-align:-4px;margin-right:10px;color:var(--gold)"><path d="M4.5 23.5h23" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/><path d="M7 23.5a9 9 0 0 1 18 0" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 9.2v3.4" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/><circle cx="16" cy="7.3" r="1.7" fill="currentColor"/></svg>URBAN<span>.</span>BISTRO</a>
   <nav class="nav-links">
     <a href="#home">Home</a>
     <a href="#menu">Menu</a>
@@ -929,7 +958,7 @@ footer{background:var(--green-deep);padding-top:80px;position:relative;overflow:
   <div class="wrap">
     <div class="foot-grid">
       <div class="foot-brand">
-        <div class="logo"><i class="fa-solid fa-utensils"></i>URBAN<span>.</span>BISTRO</div>
+        <div class="logo"><svg class="logo-mark" viewBox="0 0 32 32" width="22" height="22" fill="none" aria-hidden="true" style="vertical-align:-4px;margin-right:10px;color:var(--gold)"><path d="M4.5 23.5h23" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/><path d="M7 23.5a9 9 0 0 1 18 0" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 9.2v3.4" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/><circle cx="16" cy="7.3" r="1.7" fill="currentColor"/></svg>URBAN<span>.</span>BISTRO</div>
         <p>Exceptional food, memorable experiences. A modern bistro where every plate is a small ceremony and every guest, family.</p>
         <div class="foot-social">
           <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
@@ -1077,13 +1106,69 @@ footer{background:var(--green-deep);padding-top:80px;position:relative;overflow:
   const stars = '★★★★★';
   let io = null; // shared IntersectionObserver (declared early — observeReveals runs before its section)
 
+  /* ---------- DISH DETAIL PAGE (separate hash-routed page) ---------- */
+  const sigByName = Object.fromEntries(signature.map(s=>[s.name, s]));
+  menu.forEach((m,i)=>{
+    m.id = i;
+    const s = sigByName[m.name];
+    m.ingredients = s ? s.ing : ['Seasonal produce','House preparation','Fresh herbs',"Chef's finishing"];
+    m.long = (s ? s.desc : m.desc) + ' Plated to order by our kitchen brigade using produce sourced daily from local farms and markets — every dish, a small ceremony.';
+    m.rec  = s ? s.rec : 'A guest favourite — ask your server for the perfect pairing.';
+    m.gallery = [m.img, gallery[i % gallery.length].img, gallery[(i+3) % gallery.length].img];
+  });
+
+  function dishDetailHTML(m){
+    return `
+    <div class="dd-bar">
+      <button class="dd-back" onclick="closeDish()"><i class="fa-solid fa-arrow-left"></i> Back to menu</button>
+      <a href="#home" class="dd-brand">URBAN<span>.</span>BISTRO</a>
+    </div>
+    <div class="dd-wrap">
+      <div class="dd-grid">
+        <div>
+          <div class="dd-media"><img src="${IMG(m.gallery[0],1000)}" alt="${m.name}" /></div>
+          <div class="dd-thumbs">
+            <img src="${IMG(m.gallery[1],600)}" alt="${m.name} plating" />
+            <img src="${IMG(m.gallery[2],600)}" alt="Urban Bistro ambience" />
+          </div>
+        </div>
+        <div>
+          <span class="dd-cat">${m.tag}</span>
+          <h1 class="dd-title">${m.name}</h1>
+          <div class="dd-price">${m.price}</div>
+          <div class="dd-rate">★★★★★ <small>4.9 · 8,400+ reviews</small></div>
+          <p class="dd-desc">${m.long}</p>
+          <h2 class="dd-h">Ingredients</h2>
+          <div class="dd-ing">${m.ingredients.map(x=>`<span>${x}</span>`).join('')}</div>
+          <div class="dd-note"><i class="fa-solid fa-utensils" style="color:var(--gold);margin-right:8px"></i>${m.rec}</div>
+          <div class="dd-cta">
+            <a href="#reserve" class="btn btn--solid"><i class="fa-solid fa-calendar-check"></i> Reserve a Table</a>
+            <button class="btn btn--ghost" onclick="showToast('Added ${m.name.replace(/'/g,'')} to your order!')"><i class="fa-solid fa-plus"></i> Add to Order</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+  function renderDish(id){
+    const m = menu[id]; if(!m) return;
+    const el = $('#dishDetail');
+    el.innerHTML = dishDetailHTML(m);
+    el.classList.add('open'); el.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden'; window.scrollTo(0,0);
+  }
+  function hideDish(){ const el=$('#dishDetail'); el.classList.remove('open'); el.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
+  function handleDishRoute(){ const m=location.hash.match(/^#\/dish\/(\d+)$/); if(m) renderDish(+m[1]); else hideDish(); }
+  window.openDish  = (id)=>{ if(location.hash!=='#/dish/'+id) location.hash='#/dish/'+id; };
+  window.closeDish = ()=>{ if(location.hash.startsWith('#/dish/')) history.back(); else hideDish(); };
+  window.addEventListener('hashchange', handleDishRoute);
+
   /* Menu */
   const menuGrid = $('#menuGrid');
   function renderMenu(filter='all'){
     menuGrid.innerHTML = menu
       .filter(m=>filter==='all'||m.cat===filter)
       .map(m=>`
-        <article class="dish reveal" data-cat="${m.cat}" data-tilt>
+        <article class="dish reveal" data-cat="${m.cat}" data-tilt onclick="openDish(${m.id})" style="cursor:pointer">
           <div class="dish-img">${m.pop?'<span class="pop">Popular</span>':''}
             <img loading="lazy" src="${IMG(m.img,700)}" alt="${m.name}" />
           </div>
@@ -1314,6 +1399,8 @@ footer{background:var(--green-deep);padding-top:80px;position:relative;overflow:
   /* ---------- FORMS / TOAST ---------- */
   const toast=$('#toast'), toastMsg=$('#toastMsg');
   function showToast(msg){ toastMsg.textContent=msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),3200); }
+  window.showToast = showToast;
+  handleDishRoute(); // open a dish page directly if URL already has a #/dish/ hash
   $('#reserveForm').addEventListener('submit',e=>{ e.preventDefault(); const n=$('#rName').value||'Guest'; showToast(`Thank you, ${n.split(' ')[0]} — your table request is in!`); e.target.reset(); });
   $('#newsForm').addEventListener('submit',e=>{ e.preventDefault(); showToast('Welcome to the table — you are subscribed!'); e.target.reset(); });
 

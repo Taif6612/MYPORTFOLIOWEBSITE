@@ -455,9 +455,47 @@ body.loaded .hero-scroll{opacity:1}
   .reveal,.reveal-r,.reveal-l,.stagger>*{opacity:1!important;transform:none!important}
   body.loaded .hero h1 .ln>span{transform:none}
 }
+/* ════════ PROJECT DETAIL PAGE ════════ */
+#projectDetail{position:fixed;inset:0;z-index:9990;background:var(--bg);overflow-y:auto;opacity:0;visibility:hidden;transition:opacity .5s var(--ease)}
+#projectDetail.open{opacity:1;visibility:visible}
+.pj-bar{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px clamp(20px,5vw,60px);background:color-mix(in srgb,var(--bg) 84%,transparent);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.pj-back{display:inline-flex;align-items:center;gap:10px;font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ink);border:1px solid var(--line);padding:12px 20px;border-radius:0;transition:.4s var(--ease);background:transparent}
+.pj-back:hover{background:var(--gold);border-color:var(--gold);color:#fff}
+.pj-brand{display:flex;align-items:center;gap:10px;color:var(--ink)}
+.pj-brand svg{width:30px;height:30px;color:var(--gold)}
+.pj-brand span{font-family:var(--f-display);letter-spacing:.04em;font-size:1.2rem}
+.pj-hero{position:relative;height:clamp(280px,46vw,520px);overflow:hidden}
+.pj-hero img{width:100%;height:100%;object-fit:cover}
+.pj-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(10,8,5,.85),rgba(10,8,5,.05))}
+.pj-hero-in{position:absolute;left:0;right:0;bottom:0;padding:clamp(24px,5vw,56px);max-width:1160px;margin:0 auto;width:100%;color:#f1ebdf}
+.pj-cat{font-family:var(--f-body);font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-soft)}
+.pj-hero-in h1{font-family:var(--f-display);font-size:clamp(2rem,5vw,4rem);font-weight:400;line-height:1.05;color:#fff;margin:.3rem 0}
+.pj-wrap{max-width:1160px;margin:0 auto;padding:clamp(28px,5vw,64px)}
+.pj-facts{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:26px 0;margin-bottom:40px}
+.pj-fact .l{font-size:.66rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-3)}
+.pj-fact .v{font-family:var(--f-display);font-size:1.35rem;color:var(--ink);margin-top:6px}
+.pj-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:48px;align-items:start}
+.pj-lead{font-family:var(--f-display);font-size:clamp(1.3rem,2.4vw,1.8rem);line-height:1.5;color:var(--ink);font-weight:400;font-style:italic;margin-bottom:22px}
+.pj-desc{color:var(--ink-2);line-height:1.9}
+.pj-h{font-family:var(--f-display);font-size:1.4rem;color:var(--ink);margin:30px 0 14px;font-weight:400}
+.pj-scope{display:grid;gap:12px}
+.pj-scope li{display:flex;gap:12px;align-items:flex-start;color:var(--ink-2)}
+.pj-scope i{color:var(--gold);margin-top:5px;font-size:.8rem}
+.pj-mat{display:flex;flex-wrap:wrap;gap:10px}
+.pj-mat span{border:1px solid var(--line);padding:9px 16px;font-size:.8rem;color:var(--ink);letter-spacing:.04em}
+.pj-side .pj-thumb{width:100%;aspect-ratio:4/5;object-fit:cover;margin-bottom:14px}
+.pj-cta{margin-top:30px;border:1px solid var(--line);padding:26px;background:var(--bg-2)}
+.pj-cta h4{font-family:var(--f-display);font-size:1.3rem;color:var(--ink);font-weight:400;margin-bottom:8px}
+.pj-cta p{font-size:.92rem;color:var(--ink-2);margin-bottom:16px}
+.pj-gallery{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:44px}
+.pj-gallery img{width:100%;aspect-ratio:16/11;object-fit:cover}
+@media(max-width:880px){.pj-grid{grid-template-columns:1fr}.pj-facts{grid-template-columns:1fr 1fr}.pj-gallery{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
+
+<!-- ═══════ PROJECT DETAIL PAGE ═══════ -->
+<div id="projectDetail" aria-hidden="true"></div>
 
 <!-- Texture + cursor -->
 <div class="grain"></div>
@@ -913,6 +951,81 @@ document.querySelectorAll('.filter-btn').forEach(btn=>{
     });
   });
 });
+
+/* ═══════════ PROJECT DETAIL PAGE (separate hash-routed page) ═══════════ */
+const PROJECTS=[
+  {name:'Serene Heights Penthouse',cat:'Luxury Villa',loc:'Gulshan, Dhaka',area:'6,200 sqft',img:'photo-1600585154340-be6161a56a0c',year:'2025'},
+  {name:'The Glass Pavilion',cat:'Luxury Villa',loc:'Baridhara',area:'8,500 sqft',img:'photo-1600607687939-ce8a6c25118c',year:'2025'},
+  {name:'Aria Residences',cat:'Modern Apartment',loc:'Banani',area:'2,400 sqft',img:'photo-1493809842364-78817add7ffb',year:'2024'},
+  {name:'Meridian Headquarters',cat:'Corporate Office',loc:'Gulshan',area:'12,000 sqft',img:'photo-1497366754035-f200968a6e72',year:'2024'},
+  {name:'Saffron & Smoke',cat:'Restaurant',loc:'Banani',area:'3,500 sqft',img:'photo-1567538096630-e0c55bd6374c',year:'2025'},
+  {name:'The Velvet House',cat:'Boutique Hotel',loc:"Cox's Bazar",area:'22 Suites',img:'photo-1582719478250-c89cae4dc85b',year:'2023'},
+  {name:'Lumen Loft',cat:'Modern Apartment',loc:'Dhanmondi',area:'1,800 sqft',img:'photo-1522708323590-d24dbb6b0267',year:'2024'},
+  {name:'Atelier Noir',cat:'Retail Showroom',loc:'Bashundhara City',area:'2,100 sqft',img:'photo-1604014238170-4def1e4e6fcf',year:'2025'},
+  {name:'Vantage Workspace',cat:'Corporate Office',loc:'Motijheel',area:'9,000 sqft',img:'photo-1577412647305-991150c7d163',year:'2023'},
+  {name:'Olive Courtyard',cat:'Restaurant',loc:'Gulshan',area:'2,800 sqft',img:'photo-1559339352-11d035aa65de',year:'2024'},
+  {name:'Lúm Boutique Hotel',cat:'Boutique Hotel',loc:'Sylhet',area:'18 Suites',img:'photo-1611892440504-42a792e24d32',year:'2023'},
+  {name:'Maison Lúme Flagship',cat:'Retail Showroom',loc:'Gulshan Avenue',area:'3,000 sqft',img:'photo-1567016376408-0226e4d0c1ea',year:'2025'}
+];
+const PJ_GALLERY=['photo-1616486338812-3dadae4b4ace','photo-1618221195710-dd6b41faaea6','photo-1600210492493-0946911123ea','photo-1505693416388-ac5ce068fe85','photo-1583847268964-b28dc8f51f92'];
+const PJ_SCOPE=['Spatial planning & layout','Bespoke joinery & millwork','Lighting design & specification','Furniture, fixtures & equipment','Material & finish selection','On-site styling & handover'];
+const PJ_MATERIALS=['Italian marble','Smoked oak','Brushed brass','Natural linen','Travertine','Hand-tufted wool'];
+PROJECTS.forEach((p,i)=>{
+  p.id=i;
+  p.lead=`A ${p.cat.toLowerCase()} in ${p.loc}, conceived as a calm, considered space where light, material and proportion work in quiet harmony.`;
+  p.desc=`For ${p.name}, our studio reimagined ${p.area} of interior across concept, detailing and delivery. We balanced warm natural materials with restrained, architectural lines — layering texture, custom joinery and a tailored lighting scheme to create a space that feels both luxurious and effortlessly liveable. Every element, from the floor plan to the final styling, was drawn and specified in-house.`;
+  p.gallery=[PJ_GALLERY[i%PJ_GALLERY.length], PJ_GALLERY[(i+2)%PJ_GALLERY.length], PJ_GALLERY[(i+3)%PJ_GALLERY.length]];
+});
+const IMGU=(id,w)=>`https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`;
+function projectDetailHTML(p){
+  return `
+  <div class="pj-bar">
+    <button class="pj-back" onclick="closeProject()"><i class="fas fa-arrow-left"></i> All Projects</button>
+    <span class="pj-brand"><svg viewBox="0 0 48 48" fill="none"><rect x="7" y="7" width="34" height="34" stroke="currentColor" stroke-width="1.4"/><path d="M7 32 L24 7 L41 32" stroke="currentColor" stroke-width="1.4"/><path d="M16 41 V24 H32 V41" stroke="currentColor" stroke-width="1.4"/></svg><span>LuxeSpace</span></span>
+  </div>
+  <div class="pj-hero">
+    <img src="${IMGU(p.img,1500)}" alt="${p.name}">
+    <div class="pj-hero-in"><span class="pj-cat">${p.cat}</span><h1>${p.name}</h1></div>
+  </div>
+  <div class="pj-wrap">
+    <div class="pj-facts">
+      <div class="pj-fact"><div class="l">Location</div><div class="v">${p.loc}</div></div>
+      <div class="pj-fact"><div class="l">Scale</div><div class="v">${p.area}</div></div>
+      <div class="pj-fact"><div class="l">Discipline</div><div class="v">${p.cat}</div></div>
+      <div class="pj-fact"><div class="l">Year</div><div class="v">${p.year}</div></div>
+    </div>
+    <div class="pj-grid">
+      <div>
+        <p class="pj-lead">${p.lead}</p>
+        <p class="pj-desc">${p.desc}</p>
+        <h3 class="pj-h">Scope of work</h3>
+        <ul class="pj-scope">${PJ_SCOPE.map(s=>`<li><i class="fas fa-diamond"></i> ${s}</li>`).join('')}</ul>
+      </div>
+      <div class="pj-side">
+        <img class="pj-thumb" src="${IMGU(p.gallery[0],700)}" alt="${p.name} detail">
+        <h3 class="pj-h" style="margin-top:10px">Materials & finishes</h3>
+        <div class="pj-mat">${PJ_MATERIALS.map(m=>`<span>${m}</span>`).join('')}</div>
+        <div class="pj-cta">
+          <h4>Begin a similar project</h4>
+          <p>Tell us about your space and we'll shape a considered proposal.</p>
+          <a href="#contact" class="btn btn-gold"><span>Start a Consultation</span></a>
+        </div>
+      </div>
+    </div>
+    <div class="pj-gallery">
+      <img src="${IMGU(p.gallery[1],900)}" alt="${p.name} interior">
+      <img src="${IMGU(p.gallery[2],900)}" alt="${p.name} interior">
+    </div>
+  </div>`;
+}
+function renderProject(id){const p=PROJECTS[id];if(!p)return;const el=document.getElementById('projectDetail');el.innerHTML=projectDetailHTML(p);el.classList.add('open');el.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';window.scrollTo(0,0);}
+function hideProject(){const el=document.getElementById('projectDetail');el.classList.remove('open');el.setAttribute('aria-hidden','true');document.body.style.overflow='';}
+function handleProjectRoute(){const m=location.hash.match(/^#\/project\/(\d+)$/);if(m)renderProject(+m[1]);else hideProject();}
+window.openProject=(id)=>{if(location.hash!=='#/project/'+id)location.hash='#/project/'+id;};
+window.closeProject=()=>{if(location.hash.startsWith('#/project/'))history.back();else hideProject();};
+window.addEventListener('hashchange',handleProjectRoute);
+document.querySelectorAll('#portGrid .port').forEach((el,i)=>{ el.style.cursor='pointer'; el.addEventListener('click',()=>window.openProject(i)); });
+handleProjectRoute(); // open a project page directly if URL already has a #/project/ hash
 
 /* ═══════════ BEFORE / AFTER SLIDER ═══════════ */
 (()=>{

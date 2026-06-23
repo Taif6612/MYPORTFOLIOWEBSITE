@@ -630,6 +630,59 @@
       .hero-ctas .btn { flex: 1; }
       .section-head h2 { font-size: 1.7rem; }
     }
+
+    /* ==================== PROPERTY DETAIL PAGE ==================== */
+    #propertyDetail {
+      position: fixed; inset: 0; z-index: 1200; background: var(--bg);
+      overflow-y: auto; opacity: 0; visibility: hidden; transition: opacity .35s var(--ease);
+    }
+    #propertyDetail.open { opacity: 1; visibility: visible; }
+    .pd-bar {
+      position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; padding: 16px clamp(16px, 4vw, 48px); background: var(--glass); backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .pd-back {
+      display: inline-flex; align-items: center; gap: 9px; font-weight: 700; font-size: .95rem;
+      color: var(--text); padding: 10px 16px; border-radius: 99px; border: 1px solid var(--border);
+      background: var(--surface); transition: all .25s var(--ease-out);
+    }
+    .pd-back:hover { transform: translateX(-3px); border-color: var(--brand-400); color: var(--brand-600); }
+    .pd-wrap { max-width: 1160px; margin: 0 auto; padding: clamp(20px, 4vw, 44px); }
+    .pd-gallery { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 30px; }
+    .pd-gallery img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius); }
+    .pd-gallery .pd-main { grid-row: span 2; aspect-ratio: 16/11; }
+    .pd-gallery .pd-side { aspect-ratio: 16/10; }
+    .pd-grid { display: grid; grid-template-columns: 1.7fr 1fr; gap: 36px; align-items: start; }
+    .pd-type { color: var(--brand-600); font-weight: 700; font-size: .82rem; text-transform: uppercase; letter-spacing: .08em; }
+    .pd-title { font-size: clamp(1.8rem, 3.4vw, 2.6rem); font-weight: 800; margin: 6px 0 8px; }
+    .pd-loc { color: var(--text-soft); font-weight: 500; display: flex; align-items: center; gap: 8px; }
+    .pd-loc i { color: var(--accent); }
+    .pd-facts { display: flex; flex-wrap: wrap; gap: 14px; margin: 24px 0; }
+    .pd-fact { flex: 1; min-width: 120px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; }
+    .pd-fact i { color: var(--brand-600); font-size: 1.1rem; }
+    .pd-fact .v { font-weight: 800; font-size: 1.15rem; margin-top: 6px; }
+    .pd-fact .l { font-size: .78rem; color: var(--text-soft); text-transform: uppercase; letter-spacing: .05em; }
+    .pd-sec-title { font-size: 1.3rem; font-weight: 800; margin: 30px 0 12px; }
+    .pd-desc { color: var(--text-soft); line-height: 1.8; }
+    .pd-amenities { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+    .pd-amenities li { display: flex; align-items: center; gap: 10px; color: var(--text); font-weight: 500; list-style: none; }
+    .pd-amenities i { color: var(--brand-600); }
+    .pd-aside { position: sticky; top: 96px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 26px; box-shadow: var(--shadow-soft); }
+    .pd-price { font-size: 2rem; font-weight: 800; color: var(--text); }
+    .pd-price small { font-size: .95rem; color: var(--text-soft); font-weight: 600; }
+    .pd-aside .btn { width: 100%; justify-content: center; margin-top: 8px; }
+    .pd-aside .field { margin-top: 12px; }
+    .pd-aside label { font-size: .8rem; font-weight: 600; color: var(--text-soft); display: block; margin-bottom: 5px; }
+    .pd-aside input, .pd-aside select { width: 100%; padding: 12px 14px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--bg); color: var(--text); font: inherit; }
+    .pd-rating-row { display: flex; align-items: center; gap: 10px; margin-top: 14px; color: var(--text-soft); font-weight: 600; }
+    .pd-rating-row .star { color: #f59e0b; }
+    @media (max-width: 900px) {
+      .pd-grid { grid-template-columns: 1fr; }
+      .pd-gallery { grid-template-columns: 1fr 1fr; }
+      .pd-gallery .pd-main { grid-row: auto; grid-column: span 2; }
+      .pd-aside { position: static; }
+    }
   </style>
 </head>
 
@@ -637,15 +690,18 @@
 
   <!-- ====================== LOADING SCREEN ====================== -->
   <div id="loader" aria-hidden="true">
-    <div class="loader-logo"><span class="mark"><i class="fa-solid fa-house-chimney"></i></span> Nest<b style="color:var(--brand-600)">Space</b></div>
+    <div class="loader-logo"><span class="mark"><svg viewBox="0 0 32 32" width="20" height="20" fill="none" aria-hidden="true"><path d="M5 15 16 6 27 15" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 14v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="18.5" r="2.6" fill="currentColor"/></svg></span> Nest<b style="color:var(--brand-600)">Space</b></div>
     <div class="loader-bar"><span></span></div>
   </div>
+
+  <!-- ====================== PROPERTY DETAIL PAGE ====================== -->
+  <div id="propertyDetail" aria-hidden="true"></div>
 
   <!-- ========================= NAVBAR ========================= -->
   <header class="nav" id="navbar">
     <nav class="nav-inner container" aria-label="Primary">
       <a href="#home" class="logo" aria-label="NestSpace home">
-        <span class="mark"><i class="fa-solid fa-house-chimney"></i></span>
+        <span class="mark"><svg viewBox="0 0 32 32" width="20" height="20" fill="none" aria-hidden="true"><path d="M5 15 16 6 27 15" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 14v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="18.5" r="2.6" fill="currentColor"/></svg></span>
         Nest<span><b>Space</b></span>
       </a>
 
@@ -1087,7 +1143,7 @@
     <div class="container">
       <div class="footer-top">
         <div class="footer-brand">
-          <a href="#home" class="logo"><span class="mark"><i class="fa-solid fa-house-chimney"></i></span> Nest<b style="color:var(--brand-300)">Space</b></a>
+          <a href="#home" class="logo"><span class="mark"><svg viewBox="0 0 32 32" width="20" height="20" fill="none" aria-hidden="true"><path d="M5 15 16 6 27 15" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 14v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="18.5" r="2.6" fill="currentColor"/></svg></span> Nest<b style="color:var(--brand-300)">Space</b></a>
           <p>The smart, student-first way to find verified rentals and trusted roommates near your university.</p>
           <div class="footer-socials">
             <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
@@ -1240,7 +1296,7 @@
           </div>
           <div class="prop-footer">
             <span class="prop-rating"><i class="fa-solid fa-star"></i> ${p.rating.toFixed(1)}</span>
-            <button class="btn btn-primary view-btn" onclick="viewDetails('${p.title.replace(/'/g,'')}')">View Details</button>
+            <button class="btn btn-primary view-btn" onclick="openProperty(${p.id})">View Details</button>
           </div>
         </div>
       </article>`;
@@ -1325,7 +1381,104 @@
       }));
     }
 
-    function viewDetails(name) { toast('Opening details for ' + name + '…'); }
+    /* ---------------------------------------------------------------
+       PROPERTY DETAIL PAGE (separate hash-routed page)
+       --------------------------------------------------------------- */
+    // Give every property a stable id + gallery + amenities/description.
+    const GALLERY_POOL = ['photo-1586023492125-27b2c045efd7','photo-1567767292278-a4f21aa2d36e','photo-1502672260266-1c1ef2d93688','photo-1484154218962-a197022b5858','photo-1505691938895-1758d7feb511'];
+    const AMENITY_SETS = {
+      Apartment: ['High-speed Wi-Fi','Air conditioning','Modular kitchen','24/7 security','Lift access','Backup generator'],
+      Studio:    ['High-speed Wi-Fi','Air conditioning','Kitchenette','24/7 security','Furnished','Rooftop access'],
+      'Shared Room': ['High-speed Wi-Fi','Shared kitchen','Study desk','24/7 security','Common lounge','Laundry'],
+      Family:    ['High-speed Wi-Fi','Air conditioning','Spacious kitchen','24/7 security','Lift access','Kids play area'],
+      Sublet:    ['High-speed Wi-Fi','Air conditioning','Furnished','Flexible lease','Near campus','Laundry']
+    };
+    properties.forEach((p, i) => {
+      p.id = i;
+      p.desc = `This ${p.type.toLowerCase()} in ${p.loc} offers ${p.area} ft² of bright, well-planned living space with ${p.beds} bedroom${p.beds>1?'s':''} and ${p.baths} bathroom${p.baths>1?'s':''}. Verified by our local field team, it sits within easy reach of major universities, transport links and everyday essentials — ideal for students and young professionals who want comfort without the broker hassle.`;
+      p.amenities = AMENITY_SETS[p.type] || AMENITY_SETS.Apartment;
+      p.gallery = [p.img, GALLERY_POOL[i % GALLERY_POOL.length], GALLERY_POOL[(i+2) % GALLERY_POOL.length]];
+    });
+
+    function propertyDetailHTML(p) {
+      const tagLabel = { featured:'Featured', new:'New', verified:'Verified' }[p.tag];
+      return `
+      <div class="pd-bar">
+        <button class="pd-back" onclick="closeProperty()"><i class="fa-solid fa-arrow-left"></i> Back to listings</button>
+        <a href="#home" class="logo" aria-label="NestSpace home">
+          <span class="mark"><svg viewBox="0 0 32 32" width="20" height="20" fill="none" aria-hidden="true"><path d="M5 15 16 6 27 15" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 14v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="18.5" r="2.6" fill="currentColor"/></svg></span>
+          Nest<span><b>Space</b></span>
+        </a>
+      </div>
+      <div class="pd-wrap">
+        <div class="pd-gallery">
+          <img class="pd-main" src="${UNSPLASH(p.gallery[0], 1100)}" alt="${p.title}" />
+          <img class="pd-side" src="${UNSPLASH(p.gallery[1], 600)}" alt="${p.title} interior" />
+          <img class="pd-side" src="${UNSPLASH(p.gallery[2], 600)}" alt="${p.title} interior" />
+        </div>
+        <div class="pd-grid">
+          <div>
+            <span class="pd-type">${p.type} · ${tagLabel}</span>
+            <h1 class="pd-title">${p.title}</h1>
+            <div class="pd-loc"><i class="fa-solid fa-location-dot"></i> ${p.loc}, Dhaka</div>
+            <div class="pd-rating-row"><span class="star"><i class="fa-solid fa-star"></i></span> ${p.rating.toFixed(1)} · Verified listing</div>
+
+            <div class="pd-facts">
+              <div class="pd-fact"><i class="fa-solid fa-bed"></i><div class="v">${p.beds}</div><div class="l">Bedroom${p.beds>1?'s':''}</div></div>
+              <div class="pd-fact"><i class="fa-solid fa-bath"></i><div class="v">${p.baths}</div><div class="l">Bathroom${p.baths>1?'s':''}</div></div>
+              <div class="pd-fact"><i class="fa-solid fa-ruler-combined"></i><div class="v">${p.area}</div><div class="l">Sq. ft</div></div>
+            </div>
+
+            <h2 class="pd-sec-title">About this home</h2>
+            <p class="pd-desc">${p.desc}</p>
+
+            <h2 class="pd-sec-title">Amenities</h2>
+            <ul class="pd-amenities">
+              ${p.amenities.map(a => `<li><i class="fa-solid fa-circle-check"></i> ${a}</li>`).join('')}
+            </ul>
+          </div>
+
+          <aside class="pd-aside">
+            <div class="pd-price">৳ ${p.price} <small>/ month</small></div>
+            <div class="pd-rating-row" style="margin-bottom:6px"><i class="fa-solid fa-shield-halved" style="color:var(--brand-600)"></i> No broker fees</div>
+            <div class="field"><label>Move-in date</label><input type="date" /></div>
+            <div class="field"><label>Tour type</label><select><option>In-person visit</option><option>Virtual tour</option></select></div>
+            <button class="btn btn-primary" onclick="toast('Visit request sent for ${p.title.replace(/'/g,'')}!')"><i class="fa-solid fa-calendar-check"></i> Schedule a Visit</button>
+            <button class="btn btn-ghost" onclick="toast('Owner will contact you shortly!')"><i class="fa-solid fa-message"></i> Contact Owner</button>
+          </aside>
+        </div>
+      </div>`;
+    }
+
+    function openProperty(id) {
+      if (location.hash !== '#/property/' + id) location.hash = '#/property/' + id;
+    }
+    function renderProperty(id) {
+      const p = properties[id];
+      if (!p) return;
+      const el = $('#propertyDetail');
+      el.innerHTML = propertyDetailHTML(p);
+      el.classList.add('open');
+      el.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      window.scrollTo(0, 0);
+    }
+    function closeProperty() {
+      if (location.hash.startsWith('#/property/')) { history.back(); }
+      else hideProperty();
+    }
+    function hideProperty() {
+      const el = $('#propertyDetail');
+      el.classList.remove('open');
+      el.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+    function handleRoute() {
+      const m = location.hash.match(/^#\/property\/(\d+)$/);
+      if (m) renderProperty(+m[1]);
+      else hideProperty();
+    }
+    window.addEventListener('hashchange', handleRoute);
 
     /* ---------------------------------------------------------------
        4) ANIMATED COUNTERS (run once when hero stats enter view)
@@ -1524,6 +1677,8 @@
         entries.forEach(en => { if (en.isIntersecting) { animateCounters(); obs.disconnect(); } });
       }, { threshold: 0.4 });
       statObs.observe($('#stats'));
+
+      handleRoute(); // open a property page directly if the URL has a #/property/ hash
     }
 
     document.addEventListener('DOMContentLoaded', init);

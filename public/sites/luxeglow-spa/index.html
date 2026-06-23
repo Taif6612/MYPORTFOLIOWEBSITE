@@ -732,14 +732,42 @@ footer.foot{background:var(--bg-2);border-top:1px solid var(--border);padding-to
   *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.2s!important}
   .hero__bg img{animation:none}
 }
+/* ============ SERVICE DETAIL PAGE ============ */
+#serviceDetail{position:fixed;inset:0;z-index:9996;background:var(--bg,#fff);overflow-y:auto;opacity:0;visibility:hidden;transition:opacity .4s var(--ease)}
+#serviceDetail.open{opacity:1;visibility:visible}
+.sd-bar{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px clamp(18px,5vw,60px);background:color-mix(in srgb,var(--bg,#fff) 88%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid color-mix(in srgb,var(--rose) 22%,transparent)}
+.sd-back{display:inline-flex;align-items:center;gap:9px;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text,#2a2024);border:1px solid color-mix(in srgb,var(--rose) 35%,transparent);padding:11px 18px;border-radius:40px;transition:.3s;background:transparent}
+.sd-back:hover{background:var(--grad-rose,var(--rose));color:#fff;border-color:transparent}
+.sd-brand{font-family:var(--serif,serif);font-size:1.4rem;font-weight:600}
+.sd-brand b{font-weight:700}.sd-brand span{color:var(--rose-soft);font-style:italic}
+.sd-wrap{max-width:1140px;margin:0 auto;padding:clamp(26px,5vw,60px)}
+.sd-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,60px);align-items:start}
+.sd-media{border-radius:24px;overflow:hidden;aspect-ratio:4/5;box-shadow:var(--shadow,0 20px 50px rgba(0,0,0,.15))}
+.sd-media img{width:100%;height:100%;object-fit:cover}
+.sd-thumbs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.sd-thumbs img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:16px}
+.sd-cat{font-family:var(--sans);font-size:.74rem;letter-spacing:.2em;text-transform:uppercase;color:var(--rose-soft);font-weight:600}
+.sd-title{font-family:var(--serif,serif);font-size:clamp(2rem,4.4vw,3.2rem);font-weight:600;line-height:1.06;margin:8px 0 6px}
+.sd-meta{display:flex;gap:22px;align-items:center;margin:12px 0 6px;color:var(--muted,#7a6a6f);font-size:.92rem}
+.sd-meta .price{font-family:var(--serif,serif);font-size:1.7rem;color:var(--gold);font-weight:600}
+.sd-desc{color:var(--muted,#7a6a6f);line-height:1.85;font-size:1.02rem;margin-top:14px}
+.sd-h{font-family:var(--serif,serif);font-size:1.25rem;margin:26px 0 12px}
+.sd-list{display:grid;gap:10px}
+.sd-list li{display:flex;align-items:center;gap:12px;color:var(--text,#2a2024)}
+.sd-list i{color:var(--rose)}
+.sd-cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px}
+@media(max-width:880px){.sd-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
+<!-- ===================== SERVICE DETAIL PAGE ===================== -->
+<div id="serviceDetail" aria-hidden="true"></div>
+
 <!-- ===================== LOADING SCREEN ===================== -->
 <div id="loader">
   <div class="loader-inner">
-    <div class="loader-mark"><span class="star">✦</span> LuxeGlow</div>
+    <div class="loader-mark"><svg class="logo-mark" viewBox="0 0 32 32" width="22" height="22" fill="none" aria-hidden="true" style="vertical-align:-4px;margin-right:8px;color:var(--gold)"><path d="M16 5.5c2 2.9 3 6 3 9.3 0 1.8-1 3.4-3 4.5-2-1.1-3-2.7-3-4.5 0-3.3 1-6.4 3-9.3Z" fill="currentColor"/><path d="M15.4 19.2c-1.9-1.5-4-2.2-6.4-2.1-1.2.1-2.3.5-3.3 1.2 1.4 2.6 3.7 4 6.8 4.2 1.3.1 2.3-.3 2.9-1.1.5-.7.5-1.5 0-2.2Z" fill="currentColor" opacity=".7"/><path d="M16.6 19.2c1.9-1.5 4-2.2 6.4-2.1 1.2.1 2.3.5 3.3 1.2-1.4 2.6-3.7 4-6.8 4.2-1.3.1-2.3-.3-2.9-1.1-.5-.7-.5-1.5 0-2.2Z" fill="currentColor" opacity=".7"/></svg> LuxeGlow</div>
     <div class="loader-sub">Salon &amp; Spa</div>
     <div class="loader-bar"><i></i></div>
   </div>
@@ -753,7 +781,7 @@ footer.foot{background:var(--bg-2);border-top:1px solid var(--border);padding-to
 <!-- ===================== NAVIGATION ===================== -->
 <header class="nav">
   <div class="nav-inner">
-    <a href="#home" class="logo" data-cursor><span class="star">✦</span><b>Luxe</b><span>Glow</span></a>
+    <a href="#home" class="logo" data-cursor><svg class="logo-mark" viewBox="0 0 32 32" width="22" height="22" fill="none" aria-hidden="true" style="vertical-align:-4px;margin-right:8px;color:var(--gold)"><path d="M16 5.5c2 2.9 3 6 3 9.3 0 1.8-1 3.4-3 4.5-2-1.1-3-2.7-3-4.5 0-3.3 1-6.4 3-9.3Z" fill="currentColor"/><path d="M15.4 19.2c-1.9-1.5-4-2.2-6.4-2.1-1.2.1-2.3.5-3.3 1.2 1.4 2.6 3.7 4 6.8 4.2 1.3.1 2.3-.3 2.9-1.1.5-.7.5-1.5 0-2.2Z" fill="currentColor" opacity=".7"/><path d="M16.6 19.2c1.9-1.5 4-2.2 6.4-2.1 1.2.1 2.3.5 3.3 1.2-1.4 2.6-3.7 4-6.8 4.2-1.3.1-2.3-.3-2.9-1.1-.5-.7-.5-1.5 0-2.2Z" fill="currentColor" opacity=".7"/></svg><b>Luxe</b><span>Glow</span></a>
     <nav class="nav-links">
       <a href="#home">Home</a>
       <a href="#services">Services</a>
@@ -1159,7 +1187,7 @@ footer.foot{background:var(--bg-2);border-top:1px solid var(--border);padding-to
   <div class="wrap">
     <div class="foot-grid">
       <div class="foot-brand">
-        <a href="#home" class="logo"><span class="star">✦</span><b>Luxe</b><span>Glow</span></a>
+        <a href="#home" class="logo"><svg class="logo-mark" viewBox="0 0 32 32" width="22" height="22" fill="none" aria-hidden="true" style="vertical-align:-4px;margin-right:8px;color:var(--gold)"><path d="M16 5.5c2 2.9 3 6 3 9.3 0 1.8-1 3.4-3 4.5-2-1.1-3-2.7-3-4.5 0-3.3 1-6.4 3-9.3Z" fill="currentColor"/><path d="M15.4 19.2c-1.9-1.5-4-2.2-6.4-2.1-1.2.1-2.3.5-3.3 1.2 1.4 2.6 3.7 4 6.8 4.2 1.3.1 2.3-.3 2.9-1.1.5-.7.5-1.5 0-2.2Z" fill="currentColor" opacity=".7"/><path d="M16.6 19.2c1.9-1.5 4-2.2 6.4-2.1 1.2.1 2.3.5 3.3 1.2-1.4 2.6-3.7 4-6.8 4.2-1.3.1-2.3-.3-2.9-1.1-.5-.7-.5-1.5 0-2.2Z" fill="currentColor" opacity=".7"/></svg><b>Luxe</b><span>Glow</span></a>
         <p>Beauty, wellness &amp; confidence in every visit. Your sanctuary for luxury salon and spa experiences.</p>
         <div class="foot-soc">
           <a href="#" aria-label="Instagram" data-cursor><i class="fa-brands fa-instagram"></i></a>
@@ -1546,17 +1574,63 @@ const SERVICES=[
   {cat:'nails',name:'Pedicure',desc:'Spa pedicures with massage & callus care.',dur:'60 min',price:'$60',img:IMG.pedi},
   {cat:'nails',name:'Nail Art',desc:'Custom couture designs & crystal detailing.',dur:'60 min',price:'$70',img:IMG.nailart}
 ];
+/* ---------- SERVICE DETAIL PAGE (separate hash-routed page) ---------- */
+const SVC_GALLERY=[IMG.spa,IMG.facial,IMG.massage,IMG.makeup,IMG.aroma,IMG.mani];
+SERVICES.forEach((s,i)=>{
+  s.id=i;
+  s.long=s.desc+' Performed by our internationally trained specialists using luxury, cruelty-free, organic-grade products in a serene, design-led sanctuary — every treatment shaped around a personal consultation and tailored uniquely to you.';
+  s.includes=['Personal consultation','Premium organic products','Relaxation lounge access','Complimentary herbal tea'];
+  s.gallery=[s.img, SVC_GALLERY[i%SVC_GALLERY.length], SVC_GALLERY[(i+2)%SVC_GALLERY.length]];
+});
+function serviceDetailHTML(s){
+  const catLabel={hair:'Hair',beauty:'Beauty',spa:'Spa',nails:'Nails'}[s.cat]||'Treatment';
+  return `
+  <div class="sd-bar">
+    <button class="sd-back" onclick="closeService()"><i class="fa-solid fa-arrow-left"></i> Back to services</button>
+    <a href="#home" class="sd-brand"><b>Luxe</b><span>Glow</span></a>
+  </div>
+  <div class="sd-wrap">
+    <div class="sd-grid">
+      <div>
+        <div class="sd-media"><img src="${s.gallery[0]}" alt="${s.name}"></div>
+        <div class="sd-thumbs">
+          <img src="${s.gallery[1]}" alt="${s.name} ritual">
+          <img src="${s.gallery[2]}" alt="LuxeGlow sanctuary">
+        </div>
+      </div>
+      <div>
+        <span class="sd-cat">${catLabel}</span>
+        <h1 class="sd-title">${s.name}</h1>
+        <div class="sd-meta"><span class="price">${s.price}</span><span><i class="fa-regular fa-clock" style="color:var(--rose);margin-right:6px"></i>${s.dur}</span><span><i class="fa-solid fa-star" style="color:var(--gold);margin-right:6px"></i>4.9</span></div>
+        <p class="sd-desc">${s.long}</p>
+        <h2 class="sd-h">What's included</h2>
+        <ul class="sd-list">${s.includes.map(x=>`<li><i class="fa-solid fa-check"></i> ${x}</li>`).join('')}</ul>
+        <div class="sd-cta">
+          <a href="#booking" class="btn btn--solid" data-cursor><span>Book This Treatment</span><i class="fa-solid fa-calendar-check"></i></a>
+          <button class="btn btn--ghost" data-cursor onclick="window.showToast&&window.showToast('Added to your visit ✦','${s.name.replace(/'/g,'')} saved — choose a time at booking.')"><span>Add to Visit</span><i class="fa-solid fa-plus"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+function renderService(id){const s=SERVICES[id];if(!s)return;const el=$('#serviceDetail');el.innerHTML=serviceDetailHTML(s);el.classList.add('open');el.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';window.scrollTo(0,0);}
+function hideService(){const el=$('#serviceDetail');el.classList.remove('open');el.setAttribute('aria-hidden','true');document.body.style.overflow='';}
+function handleServiceRoute(){const m=location.hash.match(/^#\/service\/(\d+)$/);if(m)renderService(+m[1]);else hideService();}
+window.openService=(id)=>{if(location.hash!=='#/service/'+id)location.hash='#/service/'+id;};
+window.closeService=()=>{if(location.hash.startsWith('#/service/'))history.back();else hideService();};
+window.addEventListener('hashchange',handleServiceRoute);
+
 const grid=$('#servicesGrid');
 function renderServices(cat='all'){
   grid.innerHTML=SERVICES.filter(s=>cat==='all'||s.cat===cat).map(s=>`
-    <article class="svc-card reveal">
+    <article class="svc-card reveal" onclick="openService(${s.id})" style="cursor:pointer">
       <div class="svc-img"><img src="${s.img}" alt="${s.name}" loading="lazy" onerror="this.style.opacity=.2"><span class="dur"><i class="fa-regular fa-clock"></i> ${s.dur}</span></div>
       <div class="svc-body">
         <h3>${s.name}</h3>
         <p>${s.desc}</p>
         <div class="svc-foot">
           <div class="svc-price">${s.price}<small>Starting</small></div>
-          <a href="#booking" class="svc-book" data-cursor>Book Now <i class="fa-solid fa-arrow-right"></i></a>
+          <a href="#booking" class="svc-book" data-cursor onclick="event.stopPropagation()">Book Now <i class="fa-solid fa-arrow-right"></i></a>
         </div>
       </div>
     </article>`).join('');
@@ -1707,11 +1781,13 @@ $('#instaGrid').innerHTML=INSTA.map(src=>`<a href="#" data-cursor><img src="${sr
    20. BOOKING FORM + NEWSLETTER + TOAST
    ============================================================ */
 const toast=$('#toast');
+handleServiceRoute(); // open a service page directly if URL already has a #/service/ hash
 function showToast(title,msg){
   $('#toastTitle').textContent=title; $('#toastMsg').textContent=msg;
   toast.classList.add('show'); clearTimeout(showToast._t);
   showToast._t=setTimeout(()=>toast.classList.remove('show'),4200);
 }
+window.showToast=showToast;
 const bDate=$('#bDate'); bDate.min=new Date().toISOString().split('T')[0];
 $('#bookingForm').addEventListener('submit',e=>{
   e.preventDefault();
