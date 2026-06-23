@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 
 const DESIGN_W = 1440; // we render the live site at desktop width, then scale down
+const HOVER_INTENT_MS = 160; // ignore quick fly-overs before mounting a live preview
+const PREVIEW_HOLD_MS = 4000; // play the site's startup animation, then drop back to the static shot
 
-export default function ProjectPlate({ project }) {
+export default function ProjectPlate({ project, isTouch }) {
   const { id, index, title, category, year, role, summary, stack, url, repo, poster, logo, logoTone, featured } =
     project;
 
   const frameRef = useRef(null);
+  const hoverTimer = useRef(0); // hover-intent delay before mounting the iframe
+  const revertTimer = useRef(0); // post-load delay before dropping back to the poster
   // Measure the actual screen box so the scaled site fills it exactly.
   const [box, setBox] = useState({ w: 0, h: 0 });
   const [load, setLoad] = useState(false); // live iframe mounted (after hover)
@@ -45,9 +49,43 @@ export default function ProjectPlate({ project }) {
     return () => ro.disconnect();
   }, []);
 
-  // Poster shows by default; the live preview wakes on hover/focus (desktop).
+  // The live preview is non-interactive eye-candy. On hover (desktop only) it
+  // mounts, plays the embedded site's startup animation, then drops back to the
+  // static screenshot — and it unmounts the moment the pointer leaves. So at
+  // most one iframe runs at a time, briefly, instead of every hovered plate
+  // keeping a live document alive forever (which is what made the page laggy).
   // Touch users get the poster and tap the frame to open the real site.
-  const wake = () => hasLive && setLoad(true);
+  const clearTimers = () => {
+    clearTimeout(hoverTimer.current);
+    clearTimeout(revertTimer.current);
+    hoverTimer.current = 0;
+    revertTimer.current = 0;
+  };
+  const wake = () => {
+    if (!hasLive || isTouch) return;
+    clearTimeout(hoverTimer.current);
+    hoverTimer.current = setTimeout(() => setLoad(true), HOVER_INTENT_MS);
+  };
+  const rest = () => {
+    clearTimers();
+    setShown(false);
+    setLoad(false); // unmount the iframe → instantly reveals the poster underneath
+  };
+  // Once the iframe has loaded and its intro has had a moment to play, fall back
+  // to the static poster so nothing keeps animating under the cursor.
+  const onPreviewLoad = () => {
+    setShown(true);
+    clearTimeout(revertTimer.current);
+    revertTimer.current = setTimeout(rest, PREVIEW_HOLD_MS);
+  };
+
+  // Drop any pending timers if the plate unmounts.
+  useEffect(() => {
+    return () => {
+      clearTimeout(hoverTimer.current);
+      clearTimeout(revertTimer.current);
+    };
+  }, []);
 
   // Render the site at desktop width, then scale so it fills the box on both axes.
   const scale = box.w ? box.w / DESIGN_W : 0.4;
@@ -61,7 +99,9 @@ export default function ProjectPlate({ project }) {
         target={frameHref ? "_blank" : undefined}
         rel="noreferrer"
         onPointerEnter={wake}
+        onPointerLeave={rest}
         onFocus={wake}
+        onBlur={rest}
         aria-label={
           hasLive
             ? `Open ${title} live in a new tab`
@@ -97,7 +137,7 @@ export default function ProjectPlate({ project }) {
                   loading="lazy"
                   tabIndex={-1}
                   scrolling="no"
-                  onLoad={() => setShown(true)}
+                  onLoad={onPreviewLoad}
                   style={{
                     width: `${DESIGN_W}px`,
                     height: `${frameH}px`,
