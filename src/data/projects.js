@@ -277,7 +277,7 @@ export const profile = {
     { label: "Email", url: "mailto:taifurrahman66123@gmail.com" },
   ],
   about:
-    "I'm a final-year Computer Science student building front-end interfaces with a bias toward clarity and access. My work runs from ProctorLess, a privacy-first exam platform that protects integrity without surveillance, to Senior Mode, an extension that re-renders the web for the people it usually leaves behind. I care about the moment an interface goes from confusing to obvious.",
+    "I'm a final-year Computer Science student building front-end interfaces with a bias toward clarity and access. My work runs from ProctorLess, a privacy-first exam platform that protects integrity without surveillance, to Senior Mode, an extension that re-renders the web for the people it usually leaves behind. Across both, I focus on the small details that make software feel effortless to use.",
   publications: [
     {
       title:

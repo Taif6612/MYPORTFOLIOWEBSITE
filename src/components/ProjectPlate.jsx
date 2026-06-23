@@ -105,6 +105,11 @@ export default function ProjectPlate({ project }) {
                   }}
                 />
               )}
+              {load && !shown && (
+                <span className="plate-loading" aria-hidden="true">
+                  <span className="plate-loading-ring" />
+                </span>
+              )}
               {hasPoster && (
                 <span className="plate-live-hint mono" aria-hidden="true">
                   ▶ Live preview

@@ -652,13 +652,48 @@ html.is-locked {
   border: 1px solid var(--line);
   background: var(--paper-3);
   border-radius: 3px;
-  overflow: hidden;
+  /* overflow visible so the hover glow can spill past the edge; the inner bar +
+     screen do their own clipping, so the preview content is still contained. */
+  overflow: visible;
+  isolation: isolate;
   transition: border-color 0.4s var(--ease-out),
     box-shadow 0.5s var(--ease-out), transform 0.5s var(--ease-out);
 }
-.plate-frame:hover {
+/* Apple-esque iridescent back-glow: a soft rainbow halo that hugs the card edge
+   on hover/focus so it reads as clearly active. The gradient + blur are
+   rasterized once and only opacity animates, so it stays GPU-cheap. It sits one
+   layer behind the frame's content (z-index:-1 inside the isolated context),
+   which covers all but the outward spill — leaving just the edge halo. */
+.plate-frame::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 5px;
+  background: conic-gradient(
+    from 90deg,
+    #ff6b8b,
+    #ffd16b,
+    #4cd6a1,
+    #4cc9f0,
+    #7b6cff,
+    #ff6bd6,
+    #ff6b8b
+  );
+  filter: blur(9px);
+  opacity: 0;
+  z-index: -1;
+  pointer-events: none;
+  transition: opacity 0.45s var(--ease-out);
+}
+.plate-frame:hover,
+.plate-frame:focus-visible {
   border-color: var(--signal);
-  box-shadow: 0 18px 50px -28px rgba(36, 56, 255, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 46px -30px rgba(36, 56, 255, 0.4);
+}
+.plate-frame:hover::before,
+.plate-frame:focus-visible::before {
+  opacity: 0.55;
 }
 .plate-frame-bar {
   position: absolute;
@@ -672,6 +707,7 @@ html.is-locked {
   padding: 0 12px;
   border-bottom: 1px solid var(--line);
   background: var(--paper-2);
+  border-radius: 2px 2px 0 0;
   z-index: 2;
 }
 .plate-frame-bar span {
@@ -696,6 +732,7 @@ html.is-locked {
   inset: 34px 0 0 0;
   overflow: hidden;
   background: var(--paper-2);
+  border-radius: 0 0 2px 2px;
 }
 .plate-screen iframe {
   border: 0;
@@ -725,6 +762,30 @@ html.is-locked {
 }
 .plate-live.is-shown {
   opacity: 1;
+}
+/* Subtle loading ring while a live preview is fetching — after hover wakes the
+   iframe, before it has rendered. Spins via transform only (GPU-cheap); under
+   reduced motion the global rule freezes it to a static ring. */
+.plate-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-content: center;
+  pointer-events: none;
+}
+.plate-loading-ring {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid rgba(36, 56, 255, 0.2);
+  border-top-color: var(--signal);
+  animation: plate-spin 0.7s linear infinite;
+}
+@keyframes plate-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 .plate-live-hint {
   position: absolute;
@@ -953,6 +1014,51 @@ html.is-locked {
 }
 .about-portrait-loc {
   color: var(--signal);
+}
+/* Glassmorphism social links under the portrait. Two small, in-flow buttons
+   (they scroll with the page, so the backdrop behind them barely moves) — kept
+   light so the frosted look costs almost nothing while scrolling. */
+.about-social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+.about-social-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  padding: 0.65em 1.05em;
+  border-radius: 14px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.55),
+    rgba(255, 255, 255, 0.18)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 10px 26px -18px rgba(21, 20, 15, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition: transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out),
+    border-color 0.4s var(--ease-out);
+}
+.about-social-btn:hover,
+.about-social-btn:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(36, 56, 255, 0.45);
+  box-shadow: 0 16px 30px -18px rgba(36, 56, 255, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  outline: none;
+}
+.about-social-icon {
+  width: 17px;
+  height: 17px;
+  fill: currentColor;
+  flex-shrink: 0;
 }
 .about-statement {
   font-size: var(--step-3);
