@@ -67,7 +67,7 @@ export default function ProjectPlate({ project }) {
             ? `Open ${title} live in a new tab`
             : hasLogo
             ? `View ${title} source on GitHub`
-            : `${title} — preview coming soon`
+            : `${title} preview coming soon`
         }
       >
         <div className="plate-frame-bar" aria-hidden="true">
@@ -84,7 +84,7 @@ export default function ProjectPlate({ project }) {
                 <img
                   className="plate-poster"
                   src={poster}
-                  alt={`${title} — screenshot`}
+                  alt={`${title} screenshot`}
                   loading="lazy"
                   draggable="false"
                 />

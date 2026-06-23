@@ -58,7 +58,7 @@ export default function Booking({ profile }) {
           </h2>
           <p className="booking-lead reveal">
             Tell me what you're building and I'll reply within a day. Fixed scope or
-            ongoing — landing pages, web apps, dashboards, and accessibility work.
+            ongoing, across landing pages, web apps, dashboards, and accessibility work.
           </p>
           <a className="booking-mail mono link reveal" href={`mailto:${profile.email}`}>
             {profile.email}
@@ -91,11 +91,11 @@ export default function Booking({ profile }) {
                 : "Send request →"}
             </button>
             {status === "sent" && (
-              <span className="booking-note">Thanks — I'll be in touch shortly.</span>
+              <span className="booking-note">Thanks, I'll be in touch shortly.</span>
             )}
             {status === "error" && (
               <span className="booking-note booking-note--err">
-                Something went wrong — email me directly.
+                Something went wrong. Email me directly.
               </span>
             )}
           </div>

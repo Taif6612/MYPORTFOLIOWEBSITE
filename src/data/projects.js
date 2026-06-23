@@ -28,7 +28,7 @@ export const projects = [
     year: "2025",
     role: "Full-stack · Front-end UI",
     summary:
-      "A privacy-first online exam platform that keeps assessments secure without surveillance — role-based dashboards for students, professors, and admins, with seating-aware question distribution and AI-assisted grading.",
+      "A privacy-first online exam platform that keeps assessments secure without surveillance. Role-based dashboards for students, professors, and admins, with seating-aware question distribution and AI-assisted grading.",
     stack: ["Next.js", "TypeScript", "Supabase", "PostgreSQL", "Tailwind"],
     url: "https://proctorless-app.netlify.app/",
     repo: "https://github.com/Taif6612/proctorless-app",
@@ -37,12 +37,12 @@ export const projects = [
   {
     id: "proctorless-extension",
     index: "02",
-    title: "ProctorLess — Integrity Extension",
+    title: "ProctorLess Integrity Extension",
     category: "Browser Extension",
     year: "2025",
     role: "Front-end UI · Session integrity",
     summary:
-      "The companion Chrome extension for ProctorLess: it watches for session-integrity signals during an exam and streams events back to the platform — real-time monitoring without invasive proctoring.",
+      "The companion Chrome extension for ProctorLess. It watches for session-integrity signals during an exam and streams events back to the platform, giving real-time monitoring without invasive proctoring.",
     stack: ["Chrome Extension", "TypeScript", "Manifest V3"],
     url: "",
     // Chrome extensions can't be embedded live — show the product logo instead.
@@ -59,7 +59,7 @@ export const projects = [
     year: "2025",
     role: "Front-end UI · Chrome extension",
     summary:
-      "A Chrome extension that makes everyday websites usable for elderly and visually-impaired people — high-contrast mode, text scaling, and link highlighting, applied by overriding each site's styles on the fly.",
+      "A Chrome extension that makes everyday websites usable for elderly and visually-impaired people. It adds a high-contrast mode, text scaling, and link highlighting by overriding each site's styles on the fly.",
     stack: ["TypeScript", "React", "WXT", "Vite"],
     url: "",
     // Chrome extension — show the icon on a dark card (its own high-contrast motif).
@@ -78,7 +78,7 @@ export const projects = [
     year: "2025",
     role: "Front-end UI",
     summary:
-      "A browse-and-list marketplace for buying and selling cars — filterable listings, rich detail pages, and a clean buyer journey.",
+      "A browse-and-list marketplace for buying and selling cars, with filterable listings, rich detail pages, and a clean buyer journey.",
     stack: ["HTML", "CSS", "JavaScript"],
     url: "https://taif6612.github.io/autohub-car-marketplace/",
     repo: "https://github.com/Taif6612/autohub-car-marketplace",
@@ -92,7 +92,7 @@ export const projects = [
     year: "2025",
     role: "Front-end UI",
     summary:
-      "A premium automotive showcase — a cinematic hero, spec highlights, and a gallery that lets the cars carry the page.",
+      "A premium automotive showcase with a cinematic hero, spec highlights, and a gallery that lets the cars carry the page.",
     stack: ["HTML", "CSS", "JavaScript"],
     url: "https://taif6612.github.io/autohub-premium-showcase/",
     repo: "https://github.com/Taif6612/autohub-premium-showcase",
@@ -120,7 +120,7 @@ export const projects = [
     year: "2025",
     role: "Front-end · React",
     summary:
-      "A React app for discovering and booking living spaces — interactive search, saved listings, and a componentised UI.",
+      "A React app for discovering and booking living spaces, with interactive search, saved listings, and a componentised UI.",
     stack: ["React", "Vite"],
     url: "https://taif6612.github.io/nestspace/",
     repo: "https://github.com/Taif6612/nestspace",
@@ -134,7 +134,7 @@ export const projects = [
     year: "2025",
     role: "Front-end UI",
     summary:
-      "A clean-energy landing page for residential solar — benefits, savings framing, and a clear path to a quote.",
+      "A clean-energy landing page for residential solar, covering the benefits, the savings, and a clear path to a quote.",
     stack: ["HTML", "CSS", "JavaScript"],
     url: "https://taif6612.github.io/solar-panel/",
     repo: "https://github.com/Taif6612/solar-panel",
@@ -148,7 +148,7 @@ export const projects = [
     year: "2025",
     role: "Design system · UI",
     summary:
-      "A documented component library — tokens, type scale, buttons, and reusable UI patterns for a campus product.",
+      "A documented component library of tokens, type scale, buttons, and reusable UI patterns for a campus product.",
     stack: ["Design System", "CSS"],
     url: "https://taif6612.github.io/campusedge-design-system/",
     repo: "https://github.com/Taif6612/campusedge-design-system",
@@ -162,7 +162,7 @@ export const projects = [
     year: "2025",
     role: "Front-end UI",
     summary:
-      "An interior-design studio site — a calm, editorial gallery of room transformations with a clear enquiry flow.",
+      "An interior-design studio site with a calm, editorial gallery of room transformations and a clear enquiry flow.",
     stack: ["HTML", "CSS", "JavaScript"],
     url: "https://taif6612.github.io/interior-design/",
     repo: "https://github.com/Taif6612/interior-design",
@@ -176,7 +176,7 @@ export const projects = [
     year: "2025",
     role: "Front-end UI",
     summary:
-      "A neighbourhood café site — menu, story, and reservations in a single warm, photography-led page.",
+      "A neighbourhood café site with the menu, story, and reservations in a single warm, photography-led page.",
     stack: ["HTML", "CSS", "JavaScript"],
     url: "https://taif6612.github.io/urban-bistro-cafe/",
     repo: "https://github.com/Taif6612/urban-bistro-cafe",
@@ -190,7 +190,7 @@ export const projects = [
     year: "2025",
     role: "Front-end UI",
     summary:
-      "A beauty-spa site — services, pricing, and booking wrapped in a soft, luxurious visual language.",
+      "A beauty-spa site with services, pricing, and booking wrapped in a soft, luxurious visual language.",
     stack: ["HTML", "CSS", "JavaScript"],
     url: "https://taif6612.github.io/luxeglow-beauty-spa/",
     repo: "https://github.com/Taif6612/luxeglow-beauty-spa",
@@ -204,7 +204,7 @@ export const projects = [
     year: "2025",
     role: "Front-end UI",
     summary:
-      "A coaching-centre site — courses, faculty, and admissions, structured to convert enquiring students and parents.",
+      "A coaching-centre site covering courses, faculty, and admissions, built to convert enquiring students and parents.",
     stack: ["HTML", "CSS", "JavaScript"],
     url: "https://taif6612.github.io/eduprime-coaching-center/",
     repo: "https://github.com/Taif6612/eduprime-coaching-center",
@@ -266,7 +266,7 @@ export const profile = {
   thesis: ["Interfaces that", "watch, adapt,", "and include."],
   // Subtitle under the hero headline — keep it plain and readable.
   tagline:
-    "Front-end engineer. I design and build interfaces with a bias toward clarity and access — from exam-integrity tools to accessibility layers that open the web to everyone.",
+    "Front-end engineer. I design and build interfaces with a bias toward clarity and access, from exam-integrity tools to accessibility layers that open the web to everyone.",
   location: "Available worldwide · Remote",
   status: "Open to work",
   email: "taifurrahman66123@gmail.com",
@@ -277,7 +277,7 @@ export const profile = {
     { label: "Email", url: "mailto:taifurrahman66123@gmail.com" },
   ],
   about:
-    "I'm a final-year Computer Science student building front-end interfaces with a bias toward clarity and access. My work runs from ProctorLess — a privacy-first exam platform that protects integrity without surveillance — to Senior Mode, an extension that re-renders the web for the people it usually leaves behind. I care about the moment an interface goes from confusing to obvious.",
+    "I'm a final-year Computer Science student building front-end interfaces with a bias toward clarity and access. My work runs from ProctorLess, a privacy-first exam platform that protects integrity without surveillance, to Senior Mode, an extension that re-renders the web for the people it usually leaves behind. I care about the moment an interface goes from confusing to obvious.",
   publications: [
     {
       title:

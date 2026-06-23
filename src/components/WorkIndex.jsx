@@ -22,8 +22,8 @@ export default function WorkIndex({ projects, isTouch }) {
           </h2>
           <p className="work-intro reveal">
             Each plate is the real site, running. Hover to wake it, click to open it
-            full-screen. Built front-to-back across categories — monitoring tools,
-            accessibility layers, and everyday web work.
+            full-screen. Built front-to-back across categories, from monitoring tools
+            to accessibility layers and everyday web work.
           </p>
         </div>
 

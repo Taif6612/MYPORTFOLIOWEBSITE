@@ -8,14 +8,14 @@
    ========================================================================= */
 
 const rv = [
-  { q: "ProctorLess let us run finals without a single webcam — students stopped dreading exams.", n: "Dr. Anika Rahman", r: "Asst. Professor · ProctorLess pilot", v: false, c: "#2438ff" },
+  { q: "ProctorLess let us run finals without a single webcam, and students stopped dreading exams.", n: "Dr. Anika Rahman", r: "Asst. Professor · ProctorLess pilot", v: false, c: "#2438ff" },
   { q: "Senior Mode is the first thing I install on my parents' laptop. The web finally fits their eyes.", n: "Imran Hossain", r: "Caregiver · Senior Mode", v: false, c: "#3a7d5c" },
   { q: "Shipped our admin dashboard with a clean CMS and zero hand-holding. Exceptional problem-solving.", n: "RallyTyper Team", r: "Free Online Typing Game", v: true, c: "#c2913a" },
   { q: "Turned a messy marketing site into something fast and genuinely maintainable.", n: "LoopIQ Team", r: "Healthcare Management", v: true, c: "#a8556a" },
-  { q: "Rebuilt our listings module — clean, scalable components on production deployments.", n: "Precision Platform", r: "Real Estate Due Diligence", v: true, c: "#4a8fb0" },
+  { q: "Rebuilt our listings module with clean, scalable components on production deployments.", n: "Precision Platform", r: "Real Estate Due Diligence", v: true, c: "#4a8fb0" },
   { q: "AutoHub feels like a real marketplace, not a student project. The detail pages sell the cars.", n: "Farhan Kabir", r: "Dealer · AutoHub", v: false, c: "#b06a3a" },
   { q: "The integrity extension caught tab-switching without ever feeling like spyware.", n: "Examy Ops", r: "Assessment Platform", v: true, c: "#8a6dc4" },
-  { q: "NestSpace's search just works — booking a place took three taps.", n: "Mehjabin Chowdhury", r: "Early user · NestSpace", v: false, c: "#2438ff" },
+  { q: "NestSpace's search just works. Booking a place took three taps.", n: "Mehjabin Chowdhury", r: "Early user · NestSpace", v: false, c: "#2438ff" },
   { q: "Documentation and tokens in CampusEdge saved our team weeks of guesswork.", n: "CampusEdge", r: "Design System", v: true, c: "#3a7d5c" },
   { q: "Fast, accessible, and pixel-tight. Exactly the front-end we needed.", n: "Nabila Islam", r: "PM · Solar Panel", v: false, c: "#c2913a" },
 ];

@@ -27,7 +27,7 @@ export default function Header({ profile, ready }) {
         <div className="site-head-bar">
           <a href="#top" onClick={go("#top")} className="site-mark mono">
             {profile.name}
-            <span className="site-mark-sub">— Front-End</span>
+            <span className="site-mark-sub">· Front-End</span>
           </a>
 
           <nav className="site-nav mono" aria-label="Primary">
