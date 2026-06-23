@@ -19,13 +19,23 @@
       content="Interfaces that watch, adapt, and include. Selected front-end work."
     />
 
-    <!-- Fonts: Newsreader (display serif), Hanken Grotesk (body), Space Mono (technical captions) -->
+    <!-- Fonts: Newsreader (display serif), Hanken Grotesk (body), Space Mono (technical captions).
+         Loaded non-render-blocking (media=print → all onload) so the font CSS never
+         sits on the critical path; display=swap shows fallback text immediately. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..600&family=Hanken+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
       rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..600&family=Hanken+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+      media="print"
+      onload="this.media='all'"
     />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..600&family=Hanken+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+      />
+    </noscript>
   </head>
   <body>
     <!-- Pixelation filter for the hero's "pixel" hover effect -->

@@ -6,13 +6,23 @@ import RotatingWord from "./RotatingWord.jsx";
 // Defer the shader bundle so first paint stays instant.
 const HeroShader = lazy(() => import("./HeroShader.jsx"));
 
-// One-time check: does this browser/GPU actually have WebGL?
-function webglSupported() {
+// One-time check: WebGL present AND hardware-accelerated. Under software
+// rasterizers (SwiftShader / llvmpipe — what headless Chromium and blocklisted
+// GPUs fall back to) animating a full-screen mesh gradient runs frame-by-frame
+// on the CPU and is brutally expensive — this is what tanked Lighthouse's TBT.
+// Those environments get the static CSS gradient instead (and skip downloading
+// the shader bundle entirely). Real GPUs keep the full animation.
+function webglIsHardware() {
   try {
     const c = document.createElement("canvas");
-    return !!(
-      window.WebGLRenderingContext &&
-      (c.getContext("webgl") || c.getContext("experimental-webgl"))
+    const gl = c.getContext("webgl") || c.getContext("experimental-webgl");
+    if (!gl) return false;
+    const ext = gl.getExtension("WEBGL_debug_renderer_info");
+    const renderer = ext
+      ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL))
+      : "";
+    return !/swiftshader|software|llvmpipe|basic render|microsoft basic/i.test(
+      renderer
     );
   } catch {
     return false;
@@ -22,7 +32,7 @@ function webglSupported() {
 const CRAFTS = ["landing pages", "dashboards", "web apps", "design systems"];
 
 export default function Hero({ profile, ready, reduced }) {
-  const canRenderField = useMemo(() => webglSupported(), []);
+  const canRenderField = useMemo(() => webglIsHardware(), []);
   const heroRef = useRef(null);
   const [heroInView, setHeroInView] = useState(true);
 

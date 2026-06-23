@@ -1,12 +1,11 @@
 import { useEffect } from "react";
 import Lenis from "lenis";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
 
 /**
- * Lenis smooth scroll, synced to the GSAP ticker and ScrollTrigger.
+ * Lenis smooth scroll, driven by a plain requestAnimationFrame loop.
+ * (Previously synced to gsap.ticker + ScrollTrigger — but reveals moved to an
+ * IntersectionObserver, so no ScrollTriggers exist and GSAP was ~47 KB of
+ * unused JS. Native rAF does the same job for free.)
  * Disabled entirely when the user prefers reduced motion (native scroll wins).
  * Exposes window.__lenis so anchor links can scrollTo programmatically.
  */
@@ -28,14 +27,16 @@ export function useSmoothScroll(enabled = true) {
 
     window.__lenis = lenis;
 
-    lenis.on("scroll", ScrollTrigger.update);
-
-    const raf = (time) => lenis.raf(time * 1000);
-    gsap.ticker.add(raf);
-    gsap.ticker.lagSmoothing(0);
+    // rAF passes a millisecond timestamp, which is exactly what lenis.raf wants.
+    let rafId = 0;
+    const raf = (time) => {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    };
+    rafId = requestAnimationFrame(raf);
 
     return () => {
-      gsap.ticker.remove(raf);
+      cancelAnimationFrame(rafId);
       lenis.destroy();
       delete window.__lenis;
     };
