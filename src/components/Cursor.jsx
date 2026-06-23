@@ -1,19 +1,33 @@
 import { useEffect, useRef } from "react";
 
-/* A small ultramarine ring that trails the pointer and swells over anything
-   interactive. Pointer devices only (App gates this); native cursor hidden. */
+/* A small ultramarine ring that tracks the pointer 1:1 and swells over anything
+   interactive. Pointer devices only (App gates this); native cursor hidden.
+   No lerp/trail — the position is written straight from the pointer event so
+   the ring never lags behind the real cursor. The write is throttled to one
+   rAF per frame so a burst of pointermove events can't thrash style writes, and
+   no rAF runs while the pointer is idle. */
 
 export default function Cursor() {
   const ring = useRef(null);
-  const pos = useRef({ x: -100, y: -100 });
-  const target = useRef({ x: -100, y: -100 });
-  const raf = useRef(0);
 
   useEffect(() => {
     document.body.dataset.cursor = "on";
 
+    let frame = 0;
+    let x = -100;
+    let y = -100;
+
+    const render = () => {
+      frame = 0;
+      if (ring.current) {
+        ring.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      }
+    };
+
     const move = (e) => {
-      target.current = { x: e.clientX, y: e.clientY };
+      x = e.clientX;
+      y = e.clientY;
+      if (!frame) frame = requestAnimationFrame(render);
     };
     const over = (e) => {
       const el = e.target.closest("a, button, .is-interactive, iframe");
@@ -22,15 +36,7 @@ export default function Cursor() {
     const down = () => ring.current?.classList.add("is-down");
     const up = () => ring.current?.classList.remove("is-down");
 
-    const loop = () => {
-      pos.current.x += (target.current.x - pos.current.x) * 0.18;
-      pos.current.y += (target.current.y - pos.current.y) * 0.18;
-      if (ring.current) {
-        ring.current.style.transform = `translate(${pos.current.x}px, ${pos.current.y}px)`;
-      }
-      raf.current = requestAnimationFrame(loop);
-    };
-    raf.current = requestAnimationFrame(loop);
+    render(); // park it off-screen until the first pointer move
 
     window.addEventListener("pointermove", move, { passive: true });
     window.addEventListener("pointerover", over, { passive: true });
@@ -39,7 +45,7 @@ export default function Cursor() {
 
     return () => {
       delete document.body.dataset.cursor;
-      cancelAnimationFrame(raf.current);
+      if (frame) cancelAnimationFrame(frame);
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerover", over);
       window.removeEventListener("pointerdown", down);

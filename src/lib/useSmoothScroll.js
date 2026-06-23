@@ -14,9 +14,13 @@ export function useSmoothScroll(enabled = true) {
   useEffect(() => {
     if (!enabled) return;
 
+    // `lerp` (per-frame chase toward the latest target) instead of
+    // `duration`+easing: in duration mode every wheel tick restarts a ~1.1s
+    // ease, so during continuous scrolling the view is always lagging the
+    // input (the "laggy scroll" feel). lerp stays locked to the wheel while
+    // still smoothing. ~0.12 is snappy but not jittery.
     const lenis = new Lenis({
-      duration: 1.1,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      lerp: 0.12,
       smoothWheel: true,
       wheelMultiplier: 1,
       touchMultiplier: 1.6,

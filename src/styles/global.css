@@ -197,11 +197,14 @@ a {
    content simply stays visible instead of disappearing. */
 .reveal {
   transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
-  will-change: opacity, transform;
 }
-.reveals-on .reveal {
+/* will-change only while the element is still hidden/animating — not kept on
+   every revealed element forever. Dozens of permanent compositor layers (one
+   per plate/section) cost memory and GPU and hurt scroll smoothness. */
+.reveals-on .reveal:not(.is-in) {
   opacity: 0;
   transform: translateY(24px);
+  will-change: opacity, transform;
 }
 .reveal.is-in {
   opacity: 1;

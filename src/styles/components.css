@@ -108,11 +108,15 @@ html.is-locked {
   justify-content: space-between;
   gap: 1rem;
   padding: 0.55rem 0.6rem 0.55rem 1.2rem;
-  background: rgba(239, 236, 228, 0.55);
+  background: rgba(239, 236, 228, 0.72);
   border: 1px solid rgba(21, 20, 15, 0.08);
   border-radius: 999px;
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
-  backdrop-filter: blur(18px) saturate(160%);
+  /* Lighter blur + higher bg opacity keeps the frosted-glass read but is far
+     cheaper to repaint each scroll frame. A fixed backdrop-filter re-blurs the
+     whole page region behind it on every frame, so 18px+saturate was a real
+     scroll-jank source on weaker GPUs. */
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   box-shadow: 0 12px 36px -22px rgba(21, 20, 15, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.55);
 }
@@ -581,8 +585,12 @@ html.is-locked {
   color: var(--signal);
 }
 .work-title {
-  font-size: var(--step-4);
+  /* Keep "Selected work" on one line. Slightly tighter slope than --step-4 at
+     mid widths so it never wraps, while still capping at the same 6.5rem on
+     desktop. */
+  font-size: clamp(2.2rem, 1rem + 5.4vw, 6.5rem);
   margin: 0.5rem 0 1.6rem;
+  white-space: nowrap;
 }
 .work-intro {
   font-size: var(--step-1);

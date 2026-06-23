@@ -1,4 +1,4 @@
-import { Suspense, lazy, useMemo } from "react";
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
 import { scrollToTarget } from "../lib/useSmoothScroll.js";
 import CanvasErrorBoundary from "./CanvasErrorBoundary.jsx";
 import RotatingWord from "./RotatingWord.jsx";
@@ -23,16 +23,31 @@ const CRAFTS = ["landing pages", "dashboards", "web apps", "design systems"];
 
 export default function Hero({ profile, ready, reduced }) {
   const canRenderField = useMemo(() => webglSupported(), []);
+  const heroRef = useRef(null);
+  const [heroInView, setHeroInView] = useState(true);
+
+  // Freeze the GPU-bound mesh shader once the hero scrolls out of view, so it
+  // stops animating (and competing with scroll compositing) while the viewer is
+  // reading the rest of the page. Resumes seamlessly when scrolled back up.
+  useEffect(() => {
+    const el = heroRef.current;
+    if (!el || reduced) return;
+    const io = new IntersectionObserver(([entry]) =>
+      setHeroInView(entry.isIntersecting)
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [reduced]);
 
   return (
-    <section className="hero" aria-label="Introduction">
+    <section className="hero" aria-label="Introduction" ref={heroRef}>
       {/* Soft animated mesh, over a CSS gradient fallback. */}
       <div className="hero-field" aria-hidden="true">
         <div className="hero-field-fallback" />
         {canRenderField && (
           <CanvasErrorBoundary>
             <Suspense fallback={null}>
-              <HeroShader animate={!reduced} />
+              <HeroShader animate={!reduced && heroInView} />
             </Suspense>
           </CanvasErrorBoundary>
         )}
