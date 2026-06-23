@@ -126,10 +126,10 @@ a {
 
 .eyebrow {
   font-family: var(--font-mono);
-  font-size: var(--step--1);
-  letter-spacing: 0.22em;
+  font-size: clamp(0.82rem, 0.74rem + 0.3vw, 0.98rem);
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--stone);
+  color: var(--ink-2);
 }
 
 .mono {
@@ -208,7 +208,9 @@ a {
   transform: none;
 }
 
-/* Split-line text reveal (per-line clip) — same progressive-enhancement gate. */
+/* Split-line text reveal (per-line clip) — same progressive-enhancement gate.
+   Hidden behind `.reveals-on`; an IntersectionObserver adds `.is-in` to the
+   [data-lines] group, and CSS slides each line up. */
 .line-mask {
   display: block;
   overflow: hidden;
@@ -218,6 +220,17 @@ a {
 }
 .reveals-on .line-mask > span {
   transform: translateY(110%);
+  transition: transform 0.8s var(--ease-out);
+}
+.reveals-on [data-lines].is-in .line-mask > span {
+  transform: none;
+}
+/* gentle per-line stagger for multi-line headings */
+.reveals-on [data-lines].is-in .line-mask:nth-child(2) > span {
+  transition-delay: 0.08s;
+}
+.reveals-on [data-lines].is-in .line-mask:nth-child(3) > span {
+  transition-delay: 0.16s;
 }
 
 /* ---- Reduced motion: drop to a calm, static experience ---------------- */

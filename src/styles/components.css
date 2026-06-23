@@ -218,8 +218,7 @@ html.is-locked {
   transform: translateX(-6px);
   transition: opacity 0.3s, transform 0.3s;
 }
-.rail-node:hover .rail-node-label,
-.rail-node.is-active .rail-node-label {
+.rail-node:hover .rail-node-label {
   opacity: 1;
   transform: none;
 }
