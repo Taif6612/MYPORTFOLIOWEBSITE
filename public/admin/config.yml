@@ -1,0 +1,79 @@
+# =============================================================================
+# Decap CMS configuration — the /admin editor for Student Guides.
+# Fields here MUST stay in sync with src/cms/schema.ts (the build-time validator).
+#
+# Auth: GitHub backend via the serverless OAuth proxy in /api (auth + callback).
+# Set OAUTH_GITHUB_CLIENT_ID / OAUTH_GITHUB_CLIENT_SECRET in Vercel and create a
+# GitHub OAuth App with callback https://www.taif.codes/api/callback. See docs/CMS.md.
+# =============================================================================
+
+backend:
+  name: github
+  repo: Taif6612/MYPORTFOLIOWEBSITE
+  branch: main
+  base_url: https://www.taif.codes
+  auth_endpoint: api/auth
+  commit_messages:
+    create: "content: add guide “{{slug}}”"
+    update: "content: update guide “{{slug}}”"
+    delete: "content: remove guide “{{slug}}”"
+
+# Local editing: run `npx decap-server` then open /admin with this enabled.
+# local_backend: true
+
+media_folder: public/uploads/guides
+public_folder: /uploads/guides
+
+site_url: https://www.taif.codes
+display_url: https://www.taif.codes
+logo_url: https://www.taif.codes/taif-portrait.jpeg
+
+collections:
+  - name: guides
+    label: Student Guides
+    label_singular: Guide
+    description: Practical guides for CS and design students.
+    folder: content/guides
+    create: true
+    delete: true
+    slug: "{{fields.slug}}"
+    extension: md
+    format: frontmatter
+    summary: "{{title}}  —  {{date | date('YYYY-MM-DD')}}"
+    sortable_fields: [date, title]
+    fields:
+      - { name: title, label: Title, widget: string }
+      - {
+          name: slug,
+          label: Slug (URL),
+          widget: string,
+          hint: "Lowercase words with dashes, e.g. landing-your-first-internship. This is the page URL.",
+          pattern: ["^[a-z0-9]+(?:-[a-z0-9]+)*$", "Use lowercase letters, numbers and dashes only"],
+        }
+      - {
+          name: description,
+          label: Description (SEO),
+          widget: text,
+          hint: "Shown on cards + as the meta description. Aim for 120–160 characters.",
+        }
+      - { name: date, label: Publish date, widget: datetime }
+      - { name: updated, label: Last updated, widget: datetime, required: false }
+      - {
+          name: tags,
+          label: Tags,
+          widget: list,
+          default: [],
+          hint: "Topics, e.g. Career, Front-End, Git.",
+        }
+      - { name: cover, label: Cover image, widget: image, required: false, choose_url: true }
+      - { name: coverAlt, label: Cover alt text, widget: string, required: false }
+      - { name: author, label: Author, widget: string, default: "Taif Ur Rahman" }
+      - { name: featured, label: Featured?, widget: boolean, default: false }
+      - {
+          name: draft,
+          label: Draft?,
+          widget: boolean,
+          default: false,
+          hint: "Drafts are visible in local dev but excluded from the live build.",
+        }
+      - { name: body, label: Body, widget: markdown }

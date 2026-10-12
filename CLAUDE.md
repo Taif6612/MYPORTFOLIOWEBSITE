@@ -7,11 +7,14 @@ Context for Claude Code working in this repo. (Auto-loaded each session.)
 **Live: https://taif.codes**. Repo: https://github.com/Taif6612/MYPORTFOLIOWEBSITE (public, `main`).
 
 ## Stack & commands
-- React + Vite (plain JS/JSX), GSAP + ScrollTrigger, Lenis smooth scroll, `@paper-design/shaders-react` (`MeshGradient`) for the soft animated hero background. (The old three.js "detection-field" hero was removed — don't re-add three unless needed.)
-- `npm run dev` — local dev · `npm run build` — production build → `dist/` · `npm run preview` — serve the build.
+- React + Vite. Homepage is **plain JS/JSX**; the blog/CMS is **TypeScript** (the two coexist — Vite compiles both). GSAP + ScrollTrigger, Lenis smooth scroll, `@paper-design/shaders-react` (`MeshGradient`) for the soft animated hero background. (The old three.js "detection-field" hero was removed — don't re-add three unless needed.)
+- **Routing + SSG:** `vite-react-ssg` (+ `react-router-dom`) pre-renders every route to static HTML. The app entry is **`src/main.tsx`** (exports `createRoot`), routes in **`src/routes.tsx`**. `index.html` is the shared template — its per-page SEO `<head>` is set by React, **not** the template (don't re-add `<title>`/description there or you get duplicates on every page).
+- `npm run dev` — local dev (CSR, drafts visible) · `npm run build` — **`vite-react-ssg build` → `dist/`** (feeds are written by its `onFinished` hook) · `npm run preview` — `scripts/serve-dist.mjs` on :4173, mimics Vercel cleanUrls · `npm run typecheck` (must pass) · `npm run images` — regenerate WebP images (see below).
+- **Routes are lazy** (`src/routes.tsx`): each page module exports `Component`; keep every `lazy` a bare inline `import("./pages/…")` (the SSG build reads that text to emit the page's modulepreload). `vite.config.ts` `onPageRendered` strips the HeroShader preload — the shader must stay a GPU-only download.
 
 ## Architecture
-- **`src/data/projects.js`** — single source of truth for the Work section + `profile` (name, contact, socials, about, `publications`). Edit data here, not in components.
+- **`src/data/projects.js`** — single source of truth for the Work section. **`src/data/profile.js`** — `profile` (name, contact, socials, about, `publications`); separate so the blog chrome doesn't bundle the project list. Edit data there, not in components.
+- **Images:** originals live in **`assets-src/`** (not deployed); `npm run images` (Python + Pillow, `scripts/optimize-images.py`) writes the served WebP sizes into `public/` — posters `public/projects/shots/<id>-800|1440.webp`, logo cards `public/projects/<name>.webp`, portrait `public/taif-portrait-480|960.webp`. `public/taif-portrait.jpeg` stays: it's the og:image. Commit the generated WebP files (Vercel's build has no Python).
 - **`src/components/ProjectPlate.jsx`** — renders each project "plate" and its preview (see rules below).
 - `src/components/` — Hero (paper-shader bg + headline/subtitle/CTAs), **HeroShader** (`MeshGradient`), Header (floating **glass nav** — `.site-head-bar`), About, Footer, WorkIndex, SignalRail, Cursor, Preloader, **Recognition** (clock band + testimonials + Stack), **Clock** (live Dhaka analog clock), **CanvasErrorBoundary**.
 - **`src/data/recognition.js`** — testimonials + tech-stack icon list for the Recognition section. The testimonials are **design-tool placeholders** (illustrative, not real endorsements) — replace or remove before relying on them.
@@ -21,6 +24,15 @@ Context for Claude Code working in this repo. (Auto-loaded each session.)
 - Design language: warm museum-plaster canvas, warm-black ink, one ultramarine accent (`--signal`). Fonts: **Newsreader** (display, was Fraunces) / Hanken Grotesk / Space Mono. Portrait at `public/taif-portrait.jpeg`; resume at `public/Taif-Ur-Rahman-CV.pdf`.
 - **Booking** section (`#booking`, `Booking.jsx`): Name/Email/message form. Submits via `mailto:` out of the box; set `WEB3FORMS_KEY` in the file for inline submission. Hero "Book a project" CTA + nav point here.
 - **Location-neutral** for Upwork — no Dhaka/Bangladesh anywhere. The clock (`Clock.jsx`) shows the **viewer's** local time + their timezone city, not a fixed zone.
+
+## Student Guides CMS (`/guides`, `/admin`) — TypeScript, SEO-first
+File-based blog for student-guide content. Full docs: **`docs/CMS.md`**.
+- **Content:** `content/guides/*.md` — frontmatter (validated by `src/cms/schema.ts`, zod) + markdown body. Drafts (`draft: true`) show in dev, excluded from the build.
+- **Pipeline:** `src/cms/load.ts` (Node: gray-matter + remark/rehype → HTML, runs **only** at build/dev) → `src/cms/plugin.ts` exposes a `virtual:guides` module → `src/cms/content.ts` typed accessors. The browser bundle ships **no** markdown parser.
+- **Pages:** `src/pages/` = `HomeRoute` (the `/` portfolio, wrapped in `<ClientOnly>` so shaders/Lenis/reveal engine never run in SSR — **keep it ClientOnly**, that's the no-regression guarantee), `GuidesIndex`, `GuidePost`, `TagPage`, `NotFound`. Blog chrome + styles: `src/blog/`, `src/styles/blog.css` (scoped under `.blog`, reuses the global tokens).
+- **Dynamic routes** pre-render via per-route `getStaticPaths()` in `routes.tsx`, derived from `virtual:guides`. `dirStyle: "flat"` so `/404` → `dist/404.html` (Vercel's not-found) and posts → `foo.html`; `vercel.json` `cleanUrls` serves them extensionless. `ssgOptions.beastiesOptions: false` (don't let critical-CSS inlining rewrite the tuned font head).
+- **SEO:** `src/blog/Seo.tsx` (vite-react-ssg `<Head>`) emits title/desc/canonical/OG/Twitter + JSON-LD (`BlogPosting` + `BreadcrumbList`; hub = `Blog`). **JSON-LD must be a string child** of `<script>`, not `dangerouslySetInnerHTML` (helmet ignores the latter). `src/cms/feeds.ts` writes `sitemap.xml`/`rss.xml`/`robots.txt` to `dist/` from the same `loadGuides()` result (via `ssgOptions.onFinished`). All guide/tag URLs come from `src/cms/paths.ts` (`slugify`, `guidePath`, `tagPath`, `countTags`) — never build them inline. Canonical host is **`https://www.taif.codes`** (`SITE.url` in `src/blog/site.ts`).
+- **Editor `/admin`:** Decap CMS (`public/admin/`), GitHub backend, commits to `content/guides`. OAuth via serverless `api/auth.js` + `api/callback.js` — needs a GitHub OAuth App + `OAUTH_GITHUB_CLIENT_ID/SECRET` in Vercel (see `.env.example` / `docs/CMS.md`). Decap fields in `public/admin/config.yml` must stay in sync with `schema.ts`.
 
 ## Project preview rules (important — easy to break)
 Each plate's preview is driven by fields on the project object:
@@ -48,7 +60,7 @@ Each plate's preview is driven by fields on the project object:
 ## Pending / next steps
 - Add short **GIFs** demoing: ProctorLess **student** + **teacher** dashboards, and the two **extensions in action**. When supplied, add a media slot in `projects.js` / `ProjectPlate.jsx`.
 - Optionally connect GitHub ↔ Vercel for auto-deploy.
-- `public/projects/proctorless.png` is a 398 KB 2048px source — downscale when an image tool is available.
+- **Caching / headers** (`vercel.json`): hashed `/assets/*` and the 3 Vite sites' `/sites/<id>/assets/*` are `immutable`; other images/PDF get 1 day + SWR; HTML keeps Vercel's revalidate-always default. The cache rules are written to never overlap (don't rely on rule order). Global nosniff / Referrer-Policy / X-Frame-Options SAMEORIGIN; `/admin` also gets `frame-ancestors 'none'` and a script-src CSP meta. Decap is pinned with an SRI hash in `public/admin/index.html` — recompute when upgrading.
 
 ## Recent work (2026-06-21)
 Fixed preview box-fit (the `max-width` cap), switched previews to in-view loading, wired the ProctorLess live preview, added extension logo cards, linked the IEEE papers, removed the duplicated name in the hero. Connected and verified `taif.codes` (name.com DNS + Vercel), then deployed to production.

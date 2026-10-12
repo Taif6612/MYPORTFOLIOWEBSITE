@@ -5,7 +5,7 @@ const HOVER_INTENT_MS = 160; // ignore quick fly-overs before mounting a live pr
 const PREVIEW_HOLD_MS = 4000; // play the site's startup animation, then drop back to the static shot
 
 export default function ProjectPlate({ project, isTouch }) {
-  const { id, index, title, category, year, role, summary, stack, url, repo, poster, logo, logoTone, featured } =
+  const { id, index, title, category, year, role, summary, stack, url, repo, poster, posterSrcSet, logo, logoTone, featured } =
     project;
 
   const frameRef = useRef(null);
@@ -124,8 +124,19 @@ export default function ProjectPlate({ project, isTouch }) {
                 <img
                   className="plate-poster"
                   src={poster}
+                  srcSet={posterSrcSet}
+                  // Full width below 880px; half the grid (featured ~60%) above, and the
+                  // grid stops growing at the 1440px shell, so the width caps there too.
+                  sizes={
+                    featured
+                      ? "(max-width: 880px) 100vw, (max-width: 1440px) 60vw, 800px"
+                      : "(max-width: 880px) 100vw, (max-width: 1440px) 50vw, 700px"
+                  }
+                  width="1440"
+                  height="900"
                   alt={`${title} screenshot`}
                   loading="lazy"
+                  decoding="async"
                   draggable="false"
                 />
               )}

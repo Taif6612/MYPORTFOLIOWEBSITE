@@ -6,7 +6,16 @@ export default function About({ profile }) {
           <p className="eyebrow about-eyebrow">About</p>
           <figure className="about-portrait reveal">
             <div className="about-portrait-frame">
-              <img src="/taif-portrait.jpeg" alt="Taif Ur Rahman" loading="lazy" />
+              <img
+                src="/taif-portrait-480.webp"
+                srcSet="/taif-portrait-480.webp 480w, /taif-portrait-960.webp 960w"
+                sizes="(max-width: 880px) 360px, (max-width: 1440px) 34vw, 490px"
+                width="960"
+                height="960"
+                alt="Taif Ur Rahman"
+                loading="lazy"
+                decoding="async"
+              />
               <span className="about-portrait-corner about-portrait-corner--tl" aria-hidden="true" />
               <span className="about-portrait-corner about-portrait-corner--br" aria-hidden="true" />
             </div>

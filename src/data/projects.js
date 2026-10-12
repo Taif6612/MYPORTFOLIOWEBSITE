@@ -46,7 +46,7 @@ export const projects = [
     stack: ["Chrome Extension", "TypeScript", "Manifest V3"],
     url: "",
     // Chrome extensions can't be embedded live — show the product logo instead.
-    logo: "/projects/proctorless.png",
+    logo: "/projects/proctorless.webp",
     logoTone: "light",
     repo: "https://github.com/Taif6612/proctorless-app",
     featured: true,
@@ -63,7 +63,7 @@ export const projects = [
     stack: ["TypeScript", "React", "WXT", "Vite"],
     url: "",
     // Chrome extension — show the icon on a dark card (its own high-contrast motif).
-    logo: "/projects/senior-mode.png",
+    logo: "/projects/senior-mode.webp",
     logoTone: "dark",
     repo: "https://github.com/Taif6612/senior-mode-extension",
     featured: true,
@@ -233,9 +233,10 @@ projects.forEach((p) => {
   if (EMBEDDED[p.id]) p.url = EMBEDDED[p.id];
 });
 
-/* Screenshot posters (public/projects/shots/<id>.jpg) shown by default on each
-   live plate; the interactive iframe fades in on hover. Add an id here when a
-   new live site gets a captured screenshot. */
+/* Screenshot posters shown by default on each live plate; the interactive
+   iframe fades in on hover. Add an id here when a new live site gets a captured
+   screenshot: save it as assets-src/shots/<id>.jpg (1440x900), then run
+   `npm run images` to emit the WebP sizes served below. */
 const SHOTS = new Set([
   "proctorless",
   "autohub-marketplace",
@@ -250,7 +251,10 @@ const SHOTS = new Set([
   "eduprime-academy",
 ]);
 projects.forEach((p) => {
-  if (p.url && SHOTS.has(p.id)) p.poster = `/projects/shots/${p.id}.jpg`;
+  if (!p.url || !SHOTS.has(p.id)) return;
+  const base = `/projects/shots/${p.id}`;
+  p.poster = `${base}-800.webp`;
+  p.posterSrcSet = `${base}-800.webp 800w, ${base}-1440.webp 1440w`;
 });
 
 /* Distinct category list, in first-seen order — drives the filter bar. */
@@ -258,38 +262,3 @@ export const categories = [
   "All",
   ...Array.from(new Set(projects.map((p) => p.category))),
 ];
-
-export const profile = {
-  name: "Taif Ur Rahman",
-  role: "Front-End Engineer",
-  // The one-line thesis for the hero. Edit freely.
-  thesis: ["Interfaces that", "watch, adapt,", "and include."],
-  // Subtitle under the hero headline — keep it plain and readable.
-  tagline:
-    "Front-end engineer. I design and build interfaces with a bias toward clarity and access, from exam-integrity tools to accessibility layers that open the web to everyone.",
-  location: "Available worldwide · Remote",
-  status: "Open to work",
-  email: "taifurrahman66123@gmail.com",
-  phone: "+880 1703 306577",
-  socials: [
-    { label: "GitHub", url: "https://github.com/Taif6612" },
-    { label: "LinkedIn", url: "https://www.linkedin.com/in/taif-ur-r-1352451b7/" },
-    { label: "Email", url: "mailto:taifurrahman66123@gmail.com" },
-  ],
-  about:
-    "I'm a final-year Computer Science student building front-end interfaces with a bias toward clarity and access. My work runs from ProctorLess, a privacy-first exam platform that protects integrity without surveillance, to Senior Mode, an extension that re-renders the web for the people it usually leaves behind. Across both, I focus on the small details that make software feel effortless to use.",
-  publications: [
-    {
-      title:
-        "Drought-Sensitive Machine Learning for Robust Water-Level Forecasting in the Chitra and Nabaganga River Basins",
-      venue: "IEEE ICSADL 2026",
-      url: "https://ieeexplore.ieee.org/document/11452092",
-    },
-    {
-      title:
-        "Machine Learning Modeling for Predicting Water Level in the Nabaganga River",
-      venue: "IEEE ICOIICS 2025",
-      url: "https://ieeexplore.ieee.org/document/11390660",
-    },
-  ],
-};

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <!-- This page holds a repo-scope GitHub token once logged in: only this site
+         and the pinned Decap bundle may load script here, and no inline script
+         runs. 'unsafe-eval' is required by Decap itself (its config validator,
+         ajv, compiles schemas with new Function). frame-ancestors can't be set
+         from a meta tag — vercel.json sends it as a header. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="script-src 'self' https://unpkg.com 'unsafe-eval'; object-src 'none'; base-uri 'self'"
+    />
+    <title>Content Manager · Student Guides</title>
+  </head>
+  <body>
+    <!-- Decap CMS — the git-backed editor. Reads config.yml from this folder
+         and commits Markdown to content/guides via the GitHub backend.
+         Pinned to an exact version with Subresource Integrity: a changed or
+         compromised file is refused instead of run. To upgrade, bump the
+         version and recompute the hash:
+           curl -sL https://unpkg.com/decap-cms@<ver>/dist/decap-cms.js | openssl dgst -sha384 -binary | openssl base64 -A -->
+    <script
+      src="https://unpkg.com/decap-cms@3.16.3/dist/decap-cms.js"
+      integrity="sha384-A/Gdn928CNLufmnGWGs9RM4Q9o8bSNLeJERqBFrBjwzL7FRpoLT3MPF8Tl0+Wd2p"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

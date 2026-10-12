@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { projects, profile } from "./data/projects.js";
+import { projects } from "./data/projects.js";
+import { profile } from "./data/profile.js";
 import { useReducedMotion, useIsTouch } from "./lib/usePrefs.js";
 import { useSmoothScroll } from "./lib/useSmoothScroll.js";
 import { useReveals } from "./lib/useReveals.js";

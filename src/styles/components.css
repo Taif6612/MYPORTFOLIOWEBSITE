@@ -15,7 +15,7 @@ html.is-locked {
   background: var(--paper);
   display: grid;
   place-items: center;
-  transition: transform 0.9s var(--ease-in-out);
+  transition: transform 0.6s var(--ease-in-out);
 }
 .preloader.is-leaving {
   transform: translateY(-101%);
@@ -271,8 +271,8 @@ html.is-locked {
   margin-bottom: clamp(1.4rem, 4vh, 2.6rem);
   opacity: 0;
   transform: translateY(16px);
-  transition: opacity 0.8s var(--ease-out) 0.1s,
-    transform 0.8s var(--ease-out) 0.1s;
+  transition: opacity 0.8s var(--ease-out) 0.05s,
+    transform 0.8s var(--ease-out) 0.05s;
 }
 .hero-eyebrow.is-in {
   opacity: 1;
@@ -297,8 +297,8 @@ html.is-locked {
   color: var(--ink-2);
   opacity: 0;
   transform: translateY(16px);
-  transition: opacity 0.8s var(--ease-out) 0.35s,
-    transform 0.8s var(--ease-out) 0.35s;
+  transition: opacity 0.8s var(--ease-out) 0.15s,
+    transform 0.8s var(--ease-out) 0.15s;
 }
 .hero-meta.is-in {
   opacity: 1;
@@ -365,8 +365,8 @@ html.is-locked {
   color: var(--ink-2);
   opacity: 0;
   transform: translateY(16px);
-  transition: opacity 0.8s var(--ease-out) 0.45s,
-    transform 0.8s var(--ease-out) 0.45s;
+  transition: opacity 0.8s var(--ease-out) 0.2s,
+    transform 0.8s var(--ease-out) 0.2s;
 }
 .hero-sub.is-in {
   opacity: 1;
@@ -379,8 +379,8 @@ html.is-locked {
   margin-top: clamp(1.6rem, 3.5vh, 2.6rem);
   opacity: 0;
   transform: translateY(16px);
-  transition: opacity 0.8s var(--ease-out) 0.6s,
-    transform 0.8s var(--ease-out) 0.6s;
+  transition: opacity 0.8s var(--ease-out) 0.3s,
+    transform 0.8s var(--ease-out) 0.3s;
 }
 .hero-cta.is-in {
   opacity: 1;
