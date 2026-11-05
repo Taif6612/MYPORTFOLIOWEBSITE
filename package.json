@@ -12,8 +12,6 @@
     "images": "python scripts/optimize-images.py"
   },
   "dependencies": {
-    "@paper-design/shaders-react": "^0.0.76",
-    "lenis": "^1.1.18",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.30.4",

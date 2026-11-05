@@ -49,10 +49,9 @@ export default function Booking({ profile }) {
   };
 
   return (
-    <section className="section booking" id="booking" aria-label="Book a project">
+    <section className="booking lv-wrap" id="booking" aria-label="Book a project">
       <div className="shell booking-grid">
         <div className="booking-intro" data-lines>
-          <p className="eyebrow">Booking</p>
           <h2 className="display booking-title line-mask">
             <span>Start a project</span>
           </h2>
@@ -87,8 +86,8 @@ export default function Booking({ profile }) {
               {status === "sending"
                 ? "Sending…"
                 : status === "sent"
-                ? "Sent ✓"
-                : "Send request →"}
+                ? "Sent"
+                : "Send request"}
             </button>
             {status === "sent" && (
               <span className="booking-note">Thanks, I'll be in touch shortly.</span>

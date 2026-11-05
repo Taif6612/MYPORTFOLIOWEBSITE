@@ -6,21 +6,21 @@
 :root {
   /* ---- Palette --------------------------------------------------------- */
   /* Warm museum-plaster, deliberately cooler/greyer than the cream cliché  */
-  --paper: #e9e5db;
-  --paper-2: #e3ded2; /* alternating sections */
-  --paper-3: #efece4; /* lifted cards */
-  --ink: #15140f; /* warm near-black */
-  --ink-2: #3a3833; /* secondary text */
-  --stone: #7c7665; /* muted captions */
-  --line: #cbc4b2; /* hairline rules */
-  --signal: #2438ff; /* electric ultramarine — the one accent */
-  --signal-deep: #1626c4; /* AA-safe signal for small text */
-  --signal-wash: rgba(36, 56, 255, 0.08);
+  --paper: #f1ede4;
+  --paper-2: #e8e3d7; /* alternating sections */
+  --paper-3: #faf8f3; /* lifted cards */
+  --ink: #14171a; /* warm near-black */
+  --ink-2: #3b4046; /* secondary text */
+  --stone: #63666a; /* muted captions */
+  --line: #d6d0c3; /* hairline rules */
+  --signal: #e8501e; /* electric ultramarine — the one accent */
+  --signal-deep: #b33a0f; /* AA-safe signal for small text */
+  --signal-wash: rgba(232, 80, 30, 0.1);
 
   /* ---- Type ------------------------------------------------------------ */
-  --font-display: "Newsreader", "Times New Roman", serif;
-  --font-body: "Hanken Grotesk", system-ui, sans-serif;
-  --font-mono: "Space Mono", ui-monospace, "Courier New", monospace;
+  --font-display: "Bricolage Grotesque", system-ui, sans-serif;
+  --font-body: "Instrument Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   /* ---- Scale (fluid) --------------------------------------------------- */
   --step--1: clamp(0.78rem, 0.74rem + 0.2vw, 0.9rem);

@@ -1,0 +1,198 @@
+/* =========================================================================
+   LIVE DECK — homepage world.
+   Warm paper, deep ink, one signal orange. Bricolage Grotesque display,
+   Instrument Sans body, JetBrains Mono only for URLs and data.
+   Scenes read --p (0..1) set by useScenes in App.jsx.
+   ========================================================================= */
+
+.lv {
+  --wrap: min(1280px, 100% - 2 * var(--gutter));
+  --radius: 14px;
+  --shadow: 0 1px 2px rgb(20 23 26 / 0.06), 0 18px 40px -18px rgb(20 23 26 / 0.35);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.55;
+}
+.lv ::selection { background: var(--signal); color: #fff; }
+.lv :focus-visible { outline: 2px solid var(--signal-deep); outline-offset: 3px; border-radius: 4px; }
+.lv a { color: inherit; text-underline-offset: 0.2em; }
+html { scrollbar-color: var(--ink-2) var(--paper-2); }
+
+.lv-wrap { width: var(--wrap); margin-inline: auto; }
+.lv-muted { color: var(--stone); }
+.lv-display, .lv-h2, .lv-h3, .lv h3 { font-family: var(--font-display); letter-spacing: -0.03em; line-height: 1; text-wrap: balance; }
+.lv-h2 { font-size: var(--step-3); font-weight: 700; max-width: 18ch; }
+.lv-h3 { font-size: var(--step-1); font-weight: 700; margin: 4rem 0 1.5rem; }
+.lv-lead { font-size: var(--step-1); line-height: 1.4; color: var(--ink-2); max-width: 46ch; }
+
+.lv-skip { position: absolute; left: -999px; top: 1rem; z-index: 100; background: var(--ink); color: var(--paper); padding: 0.6rem 1rem; border-radius: 8px; }
+.lv-skip:focus { left: 1rem; }
+
+/* ---- Buttons ----------------------------------------------------------- */
+.lv-btn {
+  display: inline-flex; align-items: center; gap: 0.5em;
+  padding: 0.85em 1.4em; border-radius: 999px;
+  background: var(--ink); color: var(--paper) !important; text-decoration: none;
+  font-weight: 600; font-size: var(--step--1);
+  transition: background 0.25s var(--ease-out), transform 0.25s var(--ease-out);
+}
+.lv-btn:hover { background: var(--signal-deep); transform: translateY(-1px); }
+.lv-btn--ghost { background: transparent; color: var(--ink) !important; box-shadow: inset 0 0 0 1.5px var(--ink); }
+.lv-btn--ghost:hover { background: var(--ink); color: var(--paper) !important; }
+.lv-btn--small { padding: 0.5em 1em; }
+.lv-ctas { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
+.lv-arrow { width: 0.85em; height: 0.85em; flex: none; }
+
+/* ---- Header ------------------------------------------------------------ */
+.lv-head {
+  position: fixed; inset: 0 0 auto; z-index: 40;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem var(--gutter);
+  background: color-mix(in srgb, var(--paper) 82%, transparent);
+  backdrop-filter: saturate(1.4) blur(12px);
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
+}
+.lv-mark { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; letter-spacing: -0.02em; text-decoration: none; }
+.lv-head nav { display: flex; align-items: center; gap: clamp(0.8rem, 2vw, 1.8rem); font-size: var(--step--1); font-weight: 500; }
+.lv-head nav a:not(.lv-btn) { text-decoration: none; }
+.lv-head nav a:not(.lv-btn):hover { color: var(--signal-deep); }
+
+/* ---- HOOK: the deck ---------------------------------------------------- */
+.lv-hero { height: 240vh; position: relative; }
+.lv-hero-pin {
+  position: sticky; top: 0; height: 100vh; min-height: 640px; overflow: clip;
+  display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: center;
+  gap: 2rem; padding: 6rem var(--gutter) 2rem;
+}
+.lv-display { font-size: clamp(2.8rem, 1rem + 5.6vw, 6rem); font-weight: 800; }
+.lv-hero-sub { display: block; color: var(--signal-deep); }
+.lv-hero-copy .lv-lead { margin-top: 1.5rem; }
+.lv-deck { position: relative; aspect-ratio: 16 / 11; }
+.lv-card {
+  --t: clamp(0, (var(--p, 0) - 0.04) * 1.6, 1); /* eased spread 0..1 */
+  --o: calc(var(--i) - (var(--n) - 1) / 2);   /* -2..2 offset from centre */
+  position: absolute; inset: 8% 6%;
+  transform:
+    translate(calc(var(--o) * var(--t) * 22%), calc(var(--o) * var(--o) * var(--t) * 5% - var(--i) * (1 - var(--t)) * 2.5%))
+    rotate(calc(var(--o) * var(--t) * 6deg))
+    scale(calc(1 - (1 - var(--t)) * var(--i) * 0.035 - var(--t) * 0.3));
+  z-index: calc(10 - var(--i));
+  transition: transform 0.12s linear;
+  will-change: transform;
+}
+.lv-card:nth-child(1) { --o: 0; z-index: 20; transform: translateY(calc(var(--t) * -4%)) scale(calc(1 - var(--t) * 0.22)); }
+
+/* ---- Browser frame ----------------------------------------------------- */
+.lv-browser { background: var(--paper-3); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+.lv-chrome { display: flex; align-items: center; gap: 6px; padding: 9px 12px; background: var(--paper-2); }
+.lv-chrome i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); }
+.lv-url { margin-left: 8px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--stone); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lv-browser img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; }
+
+/* ---- PROOF ------------------------------------------------------------- */
+.lv-proof { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(2rem, 5vw, 5rem); align-items: center; padding-block: clamp(5rem, 12vw, 10rem); }
+.lv-case { display: grid; grid-template-columns: auto 1fr; gap: 0.9rem 1.5rem; margin-top: 2rem; }
+.lv-case dt { font-weight: 600; color: var(--signal-deep); }
+.lv-case dd { color: var(--ink-2); max-width: 52ch; }
+
+/* ---- RANGE: pinned horizontal rail ------------------------------------- */
+.lv-range { position: relative; height: calc(var(--count) * 45vh + 100vh); background: var(--ink); color: var(--paper); }
+.lv-range .lv-muted { color: #a9adb1; }
+.lv-range-pin { position: sticky; top: 0; height: 100vh; overflow: clip; display: flex; flex-direction: column; justify-content: center; gap: 2.5rem; padding-top: 4rem; }
+.lv-range-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem; }
+.lv-rail {
+  list-style: none; display: flex; gap: clamp(1.25rem, 3vw, 2.5rem);
+  padding-inline: var(--gutter); width: max-content;
+  transform: translateX(calc(var(--p, 0) * (-100% + 100vw)));
+  will-change: transform;
+}
+.lv-site { width: clamp(280px, 34vw, 520px); }
+.lv-site > a { display: block; border-radius: var(--radius); transition: transform 0.35s var(--ease-out); }
+.lv-site > a:hover { transform: translateY(-6px); }
+.lv-site .lv-browser { background: #22262a; box-shadow: 0 24px 50px -24px #000; }
+.lv-site .lv-chrome { background: #2c3136; }
+.lv-site .lv-chrome i { background: #4a5056; }
+.lv-site .lv-url { color: #a9adb1; }
+.lv-site-meta { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-top: 1.1rem; }
+.lv-site h3 { font-size: var(--step-1); font-weight: 700; }
+.lv-site-meta .lv-muted { font-size: var(--step--1); white-space: nowrap; }
+.lv-site-sum { margin-top: 0.5rem; color: #d3d5d7; font-size: var(--step--1); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.lv-tags { margin-top: 0.6rem; font-family: var(--font-mono); font-size: 0.72rem; color: #ff8a5c; }
+
+/* ---- DEPTH ------------------------------------------------------------- */
+.lv-depth { padding-block: clamp(5rem, 12vw, 10rem) 2rem; }
+.lv-timeline { list-style: none; margin-top: 3rem; }
+.lv-timeline li { display: grid; grid-template-columns: 12rem 1fr; gap: 2rem; padding-block: 2rem; border-top: 1px solid var(--line); }
+.lv-when { font-family: var(--font-mono); font-size: 0.8rem; color: var(--stone); padding-top: 0.4rem; }
+.lv-timeline h3 { font-size: var(--step-2); font-weight: 700; }
+.lv-role { color: var(--signal-deep); font-weight: 600; margin: 0.3rem 0 0.8rem; }
+.lv-timeline p:last-child { max-width: 65ch; color: var(--ink-2); }
+.lv-tools { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 3rem; }
+.lv-tools li { padding-block: 1.25rem; border-top: 1px solid var(--line); }
+.lv-tools a { display: inline-flex; align-items: center; gap: 0.4rem; text-decoration: none; }
+.lv-tools a:hover { color: var(--signal-deep); }
+.lv-tools p { margin-top: 0.35rem; color: var(--ink-2); font-size: var(--step--1); max-width: 55ch; }
+
+/* ---- CREDIBILITY ------------------------------------------------------- */
+.lv-cred { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem 4rem; padding-block: clamp(4rem, 10vw, 8rem); }
+.lv-cred .lv-lead { margin-top: 1.25rem; font-size: var(--step-0); }
+.lv-papers { list-style: none; }
+.lv-papers li { padding-block: 1.1rem; border-top: 1px solid var(--line); }
+.lv-papers a { display: flex; gap: 0.6rem; justify-content: space-between; font-weight: 600; text-decoration: none; }
+.lv-papers a:hover { color: var(--signal-deep); }
+.lv-papers span { font-size: var(--step--1); }
+.lv-stack { grid-column: 1 / -1; font-family: var(--font-display); font-size: var(--step-2); font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; color: var(--stone); }
+
+/* ---- ASK (Booking.jsx markup) ----------------------------------------- */
+.lv .booking { padding-block: clamp(4rem, 10vw, 8rem); border-top: 1px solid var(--line); }
+.lv .booking-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 3rem; width: auto; padding: 0; }
+.lv .booking-title { font-family: var(--font-display); font-size: var(--step-4); font-weight: 800; letter-spacing: -0.035em; line-height: 0.95; }
+.lv .booking-lead { margin-top: 1.25rem; color: var(--ink-2); max-width: 42ch; }
+.lv .booking-mail { display: inline-block; margin-top: 1.25rem; font-family: var(--font-mono); font-size: 0.9rem; color: var(--signal-deep); }
+.lv .booking-form { display: grid; gap: 1.25rem; }
+.lv .booking-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+.lv .field { display: grid; gap: 0.4rem; }
+.lv .field label { font-weight: 600; font-size: var(--step--1); }
+.lv .field input, .lv .field textarea {
+  font: inherit; color: var(--ink); background: var(--paper-3);
+  border: 1.5px solid var(--line); border-radius: 10px; padding: 0.8rem 1rem;
+  transition: border-color 0.2s;
+}
+.lv .field input:focus, .lv .field textarea:focus { outline: none; border-color: var(--signal-deep); }
+.lv .booking-actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.lv .booking .btn { font: inherit; font-weight: 600; border: 0; cursor: pointer; padding: 0.9em 1.6em; border-radius: 999px; background: var(--ink); color: var(--paper); }
+.lv .booking .btn:hover { background: var(--signal-deep); }
+.lv .booking .btn:disabled { opacity: 0.6; cursor: progress; }
+.lv .booking-note--err { color: #a3260b; }
+
+.lv-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; padding-block: 2rem 3rem; border-top: 1px solid var(--line); font-size: var(--step--1); color: var(--stone); }
+.lv-foot nav { display: flex; gap: 1.5rem; }
+.lv-foot a:hover { color: var(--signal-deep); }
+
+/* ---- Small screens: no pinning, native swipe rail ---------------------- */
+@media (max-width: 860px) {
+  .lv-head nav a:not(.lv-btn):not([href="#work"]) { display: none; }
+  .lv-hero { height: auto; }
+  .lv-hero-pin { position: relative; height: auto; min-height: 0; grid-template-columns: 1fr; padding-top: 7rem; }
+  .lv-deck { margin-top: 1rem; }
+  .lv-card { --t: 0.55; }
+  .lv-proof, .lv-cred, .lv .booking-grid { grid-template-columns: 1fr; }
+  .lv-range { height: auto; padding-block: 5rem; }
+  .lv-range-pin { position: relative; height: auto; padding-top: 0; }
+  .lv-rail { transform: none; width: auto; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 1rem; scrollbar-width: thin; }
+  .lv-site { flex: none; width: 82vw; scroll-snap-align: center; }
+  .lv-timeline li { grid-template-columns: 1fr; gap: 0.5rem; }
+  .lv-tools, .lv .booking-row { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lv-card, .lv-rail, .lv-btn, .lv-site > a { transition: none; }
+}
+
+/* Neutralise the old editorial styles Booking.jsx's class names still pick up. */
+.lv .booking { background: none; color: var(--ink); }
+.lv .booking::before, .lv .booking::after { content: none; }
+.lv .field label { font-family: var(--font-body); text-transform: none; letter-spacing: 0; color: var(--ink); }
+.lv .booking .btn { text-transform: none; letter-spacing: 0; box-shadow: none; font-family: var(--font-body); }

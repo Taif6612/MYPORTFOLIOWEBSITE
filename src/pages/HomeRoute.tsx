@@ -8,9 +8,9 @@ import { ClientOnly, Head } from "vite-react-ssg";
 import App from "../App.jsx";
 import { SITE, absUrl } from "../blog/site";
 
-const TITLE = "Taif Ur Rahman — Front-End Engineer";
+const TITLE = "Taif Ur Rahman — I ship complete websites";
 const DESCRIPTION =
-  "Taif Ur Rahman — front-end engineer building interfaces that watch, adapt, and include. ProctorLess, Senior Mode, and selected front-end work.";
+  "Full-stack engineer who ships complete websites. Ten live builds, ProctorLess, and client work for Australia and the UK. Book a project or download the CV.";
 
 export default function HomeRoute() {
   return (
