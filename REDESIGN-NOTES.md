@@ -23,6 +23,14 @@ All sites hotlink Unsplash (6–40 images each) → slow, can break anytime.
 
 Plan: fix overflow + dead links (point to real sections or remove), replace `alert()` with inline success message, fix broken images, add `loading="lazy"` + sized Unsplash URLs (`w=800&q=70&auto=format`), strip dev files from campusedge. Vite apps (autohub×2, nestspace) are pre-built bundles → fix via CSS overrides in their `index.html` unless source is rebuilt.
 
+### Phase 1 status — DONE 2026-11-05 (commit 1412d31 + each source repo)
+- Zero sideways scroll at 375px on all 10 sites (overflow clip + form min-width; CampusEdge also got its missing viewport meta, injected after its bundler unpacks).
+- Dead links: 77 → 0 on the static sites (socials → real platforms, legal → plain text, services → #services). AutoHub footer links are intentional demo toasts, so left as they are.
+- `alert()` popups → inline button confirmation / native field validation.
+- Lazy-loading on all below-the-fold images.
+- CampusEdge dev files removed from the portfolio copy.
+- **Still open:** CampusEdge `index.html` is a 6.4 MB self-unpacking bundle (needs unbundling, phase 3). SolarTech logo is tight on very small phones. 2 empty-src `<img>` placeholders (luxeglow, urban-bistro lightbox) are harmless.
+
 ## 2. Portfolio redesign — storyline
 Proposed narrative flow (one scroll = one story):
 1. **Hook** — who I am + what I make, one line.
