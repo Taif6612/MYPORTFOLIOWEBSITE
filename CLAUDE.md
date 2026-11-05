@@ -47,14 +47,14 @@ Each plate's preview is driven by fields on the project object:
 
 ## Content status
 - All 13 plates have real content. Plates 04–13 are self-hosted (above). **ProctorLess (01)** previews its live site `https://proctorless-app.netlify.app/` (still external; marketing landing). **Extensions 02 (ProctorLess Integrity) & 03 (Senior Mode)** show logo cards.
-- **Recognition (`#praise`)** has: an availability card with a Resume download, a live analog clock (viewer's local time), a "Real artists ship." quote, two testimonial marquees (**placeholder quotes — swap for real ones**), and a Stack grid (18 devicon icons from jsDelivr CDN).
+- **Recognition (`#praise`)** has: an availability card with a Resume download, a live analog clock (viewer's local time), a "Real artists ship." quote, (testimonials removed 2026-11-05 — placeholders; `reviews` data kept in recognition.js for when real ones exist), and a Stack grid (18 devicon icons from jsDelivr CDN).
 - About has the portrait photo + "Selected research" listing 2 IEEE publications, both linking to IEEE Xplore.
 - Hero headline is **"Turning your ideas into pixel perfect realities."** with two interactive hovers (hardcoded in `Hero.jsx`, not `profile.thesis`): `.fx-pixel` ("pixel") pixelates via the `#px-filter` SVG filter in `index.html`; `.fx-magic` ("perfect realities") does a gradient shimmer + ✦ sparkles. Subtitle has a rotating word (`RotatingWord.jsx`, animated-hero style). `profile.thesis` is now unused.
 
 ## Deploy & domain
 - Hosted on **Vercel**: project `taif-portfolio`, team `taifurrahman66123-7850s-projects`.
 - **Custom domain `taif.codes`** (registrar **name.com**, its own nameservers host DNS). `www.taif.codes` is primary; apex `taif.codes` 308-redirects to www. DNS records: apex `A → 216.198.79.1` + `64.29.17.1`; `www CNAME → 47e378f092038531.vercel-dns-017.com`. Vercel auto-SSL.
-- **NOT connected to GitHub auto-deploy** — a `git push` does **not** update the live site. Deploy manually: `vercel deploy --prod` (requires the owner's Vercel login/token + `--scope taifurrahman66123-7850s-projects`). To make pushes auto-deploy, connect the repo in Vercel → project → Settings → Git.
+- **GitHub auto-deploy is ON** (verified 2026-11-05): every push to `main` deploys to production.
 - **Secrets:** never commit tokens/keys. The owner provides credentials at runtime and rotates them afterward. Don't store them in this repo or in code.
 
 ## Pending / next steps

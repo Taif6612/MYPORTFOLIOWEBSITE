@@ -1,45 +1,7 @@
 import Clock from "./Clock.jsx";
-import { reviews, stack } from "../data/recognition.js";
-
-function ReviewCard({ r, ariaHidden }) {
-  return (
-    <article className="review-card" aria-hidden={ariaHidden || undefined}>
-      <p className="review-quote">{r.q}</p>
-      <div className="review-by">
-        <span className="review-avatar mono" style={{ background: r.c }}>
-          {r.initials}
-        </span>
-        <span className="review-meta">
-          <span className="review-name">
-            {r.n}
-            {r.v ? <span className="review-check" aria-label="verified">✓</span> : null}
-          </span>
-          <span className="review-role mono">{r.r}</span>
-        </span>
-      </div>
-    </article>
-  );
-}
-
-function Marquee({ list, dir }) {
-  // Rendered twice for a seamless loop; the duplicate is hidden from a11y.
-  return (
-    <div className="marquee-row">
-      <div className={`marquee marquee--${dir}`}>
-        {list.map((r, i) => (
-          <ReviewCard key={`a-${i}`} r={r} />
-        ))}
-        {list.map((r, i) => (
-          <ReviewCard key={`b-${i}`} r={r} ariaHidden />
-        ))}
-      </div>
-    </div>
-  );
-}
+import { stack } from "../data/recognition.js";
 
 export default function Recognition() {
-  const reviewsA = reviews.slice(0, 5);
-  const reviewsB = reviews.slice(5);
 
   return (
     <section className="section recognition" id="praise" aria-label="Availability, recognition and stack">
@@ -72,15 +34,6 @@ export default function Recognition() {
           <figcaption className="ship-quote-cite mono">Steve Jobs</figcaption>
         </figure>
       </div>
-
-      {/* Testimonials */}
-      <div className="shell recognition-head">
-        <p className="eyebrow">
-          <span className="recognition-head-em">Signal</span> from the field
-        </p>
-      </div>
-      <Marquee list={reviewsA} dir="left" />
-      <Marquee list={reviewsB} dir="right" />
 
       {/* Stack */}
       <div className="shell stack-wrap">

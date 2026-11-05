@@ -81,7 +81,7 @@ export const projects = [
       "A browse-and-list marketplace for buying and selling cars, with filterable listings, rich detail pages, and a clean buyer journey.",
     stack: ["HTML", "CSS", "JavaScript"],
     url: "https://taif6612.github.io/autohub-car-marketplace/",
-    repo: "https://github.com/Taif6612/autohub-car-marketplace",
+    repo: "" /* private repo */,
     featured: false,
   },
   {
@@ -95,7 +95,7 @@ export const projects = [
       "A premium automotive showcase with a cinematic hero, spec highlights, and a gallery that lets the cars carry the page.",
     stack: ["HTML", "CSS", "JavaScript"],
     url: "https://taif6612.github.io/autohub-premium-showcase/",
-    repo: "https://github.com/Taif6612/autohub-premium-showcase",
+    repo: "" /* private repo */,
     featured: false,
   },
   {
@@ -109,7 +109,7 @@ export const projects = [
       "A rental-property site with searchable listings, a roommate finder, and individual property detail pages with galleries and booking.",
     stack: ["HTML", "CSS", "JavaScript"],
     url: "https://taif6612.github.io/PropertyRentalPortfolio/",
-    repo: "https://github.com/Taif6612/PropertyRentalPortfolio",
+    repo: "" /* private repo */,
     featured: false,
   },
   {
@@ -123,7 +123,7 @@ export const projects = [
       "A React app for discovering and booking living spaces, with interactive search, saved listings, and a componentised UI.",
     stack: ["React", "Vite"],
     url: "https://taif6612.github.io/nestspace/",
-    repo: "https://github.com/Taif6612/nestspace",
+    repo: "" /* private repo */,
     featured: false,
   },
   {
@@ -137,7 +137,7 @@ export const projects = [
       "A clean-energy site for residential & commercial solar with a savings calculator, individual product pages, and a clear path to a quote.",
     stack: ["HTML", "CSS", "JavaScript"],
     url: "https://taif6612.github.io/solar-panel/",
-    repo: "https://github.com/Taif6612/solar-panel",
+    repo: "" /* private repo */,
     featured: false,
   },
   {
@@ -151,7 +151,7 @@ export const projects = [
       "A documented component library of tokens, type scale, buttons, and reusable UI patterns for a campus product.",
     stack: ["Design System", "CSS"],
     url: "https://taif6612.github.io/campusedge-design-system/",
-    repo: "https://github.com/Taif6612/campusedge-design-system",
+    repo: "" /* private repo */,
     featured: false,
   },
   {
@@ -165,7 +165,7 @@ export const projects = [
       "An interior-design studio site with a filterable portfolio, individual project case-study pages, and a calm, editorial enquiry flow.",
     stack: ["HTML", "CSS", "JavaScript"],
     url: "https://taif6612.github.io/interior-design/",
-    repo: "https://github.com/Taif6612/interior-design",
+    repo: "" /* private repo */,
     featured: false,
   },
   {
@@ -179,7 +179,7 @@ export const projects = [
       "A neighbourhood café site with a filterable menu, individual dish pages, story, and reservations in a warm, photography-led design.",
     stack: ["HTML", "CSS", "JavaScript"],
     url: "https://taif6612.github.io/urban-bistro-cafe/",
-    repo: "https://github.com/Taif6612/urban-bistro-cafe",
+    repo: "" /* private repo */,
     featured: false,
   },
   {
@@ -193,7 +193,7 @@ export const projects = [
       "A beauty-spa site with a filterable treatment menu, individual service pages, pricing, and booking — wrapped in a soft, luxurious visual language.",
     stack: ["HTML", "CSS", "JavaScript"],
     url: "https://taif6612.github.io/luxeglow-beauty-spa/",
-    repo: "https://github.com/Taif6612/luxeglow-beauty-spa",
+    repo: "" /* private repo */,
     featured: false,
   },
   {
@@ -207,7 +207,21 @@ export const projects = [
       "A coaching-centre site with searchable courses, dedicated course pages, faculty, and admissions — built to convert enquiring students and parents.",
     stack: ["HTML", "CSS", "JavaScript"],
     url: "https://taif6612.github.io/eduprime-coaching-center/",
-    repo: "https://github.com/Taif6612/eduprime-coaching-center",
+    repo: "" /* private repo */,
+    featured: false,
+  },
+  {
+    id: "sticker-visa-autofiller",
+    index: "14",
+    title: "Sticker Visa Autofiller",
+    category: "Browser Extension",
+    year: "2026",
+    role: "Front-end · Chrome extension",
+    summary:
+      "A Manifest V3 Chrome extension that autofills visa-applicant forms from saved profiles, turning a repetitive data-entry task into one click.",
+    stack: ["JavaScript", "Chrome Extension", "Manifest V3"],
+    url: "",
+    repo: "https://github.com/Taif6612/sticker-visa-autofiller",
     featured: false,
   },
 ];
