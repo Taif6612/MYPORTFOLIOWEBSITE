@@ -47,7 +47,7 @@ Each plate's preview is driven by fields on the project object:
 
 ## Content status
 - All 13 plates have real content. Plates 04–13 are self-hosted (above). **ProctorLess (01)** previews its live site `https://proctorless-app.netlify.app/` (still external; marketing landing). **Extensions 02 (ProctorLess Integrity) & 03 (Senior Mode)** show logo cards.
-- **Recognition (`#praise`)** has: an availability card with a Resume download, a live Dhaka analog clock, a "Real artists ship." quote, two testimonial marquees (**placeholder quotes — swap for real ones**), and a Stack grid (18 devicon icons from jsDelivr CDN).
+- **Recognition (`#praise`)** has: an availability card with a Resume download, a live analog clock (viewer's local time), a "Real artists ship." quote, two testimonial marquees (**placeholder quotes — swap for real ones**), and a Stack grid (18 devicon icons from jsDelivr CDN).
 - About has the portrait photo + "Selected research" listing 2 IEEE publications, both linking to IEEE Xplore.
 - Hero headline is **"Turning your ideas into pixel perfect realities."** with two interactive hovers (hardcoded in `Hero.jsx`, not `profile.thesis`): `.fx-pixel` ("pixel") pixelates via the `#px-filter` SVG filter in `index.html`; `.fx-magic` ("perfect realities") does a gradient shimmer + ✦ sparkles. Subtitle has a rotating word (`RotatingWord.jsx`, animated-hero style). `profile.thesis` is now unused.
 
