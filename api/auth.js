@@ -14,19 +14,17 @@ import crypto from "node:crypto";
 export default function handler(req, res) {
   const clientId = process.env.OAUTH_GITHUB_CLIENT_ID;
   if (!clientId) {
-    res.status(500).send("Missing OAUTH_GITHUB_CLIENT_ID environment variable.");
+    res.status(503).send("Sign-in is not available.");
     return;
   }
 
-  const proto = req.headers["x-forwarded-proto"] || "https";
-  const host = req.headers["x-forwarded-host"] || req.headers.host;
-  const redirectUri = `${proto}://${host}/api/callback`;
+  const redirectUri = `${process.env.SITE_URL || "https://www.taif.codes"}/api/callback`;
   const state = crypto.randomBytes(16).toString("hex");
 
   const authorize = new URL("https://github.com/login/oauth/authorize");
   authorize.searchParams.set("client_id", clientId);
   authorize.searchParams.set("redirect_uri", redirectUri);
-  authorize.searchParams.set("scope", "repo,user"); // repo => commit content
+  authorize.searchParams.set("scope", "public_repo"); // least privilege: the content repo is public
   authorize.searchParams.set("state", state);
 
   // Short-lived cookie to verify the state on the way back (CSRF guard).

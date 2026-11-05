@@ -46,9 +46,9 @@ export default async function handler(req, res) {
 
   // /admin is served from the same host as this function (Vercel routes the
   // apex to www before either runs), so our own origin is the CMS origin.
-  const proto = req.headers["x-forwarded-proto"] || "https";
-  const host = req.headers["x-forwarded-host"] || req.headers.host;
-  const origin = `${proto}://${host}`;
+  // Pinned, never derived from request headers (a spoofed Host must not
+  // decide where the token is posted).
+  const origin = process.env.SITE_URL || "https://www.taif.codes";
   const reply = (status, httpStatus, content) =>
     res.status(httpStatus).send(renderHandshake(origin, status, content));
 
@@ -57,7 +57,7 @@ export default async function handler(req, res) {
   res.setHeader("Set-Cookie", "oauth_state=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0");
 
   if (!clientId || !clientSecret) {
-    reply("error", 500, { message: "Missing OAuth env vars on the server." });
+    reply("error", 503, { message: "Sign-in is not available." });
     return;
   }
   if (!code) {
@@ -85,10 +85,11 @@ export default async function handler(req, res) {
       reply("success", 200, { token: data.access_token, provider: "github" });
     } else {
       reply("error", 401, {
-        message: data.error_description || "GitHub did not return an access token.",
+        message: "GitHub did not return an access token.",
       });
     }
   } catch (err) {
-    reply("error", 500, { message: String(err) });
+    console.error(err);
+    reply("error", 502, { message: "Sign-in failed. Please try again." });
   }
 }
