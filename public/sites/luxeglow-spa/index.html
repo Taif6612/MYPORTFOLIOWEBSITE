@@ -758,6 +758,7 @@ footer.foot{background:var(--bg-2);border-top:1px solid var(--border);padding-to
 .sd-cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px}
 @media(max-width:880px){.sd-grid{grid-template-columns:1fr}}
 </style>
+<style id="qa-fixes">html,body{overflow-x:clip;max-width:100%}form,input,select,textarea{min-width:0;max-width:100%}</style>
 </head>
 <body>
 
@@ -1190,10 +1191,10 @@ footer.foot{background:var(--bg-2);border-top:1px solid var(--border);padding-to
         <a href="#home" class="logo"><svg class="logo-mark" viewBox="0 0 32 32" width="22" height="22" fill="none" aria-hidden="true" style="vertical-align:-4px;margin-right:8px;color:var(--gold)"><path d="M16 5.5c2 2.9 3 6 3 9.3 0 1.8-1 3.4-3 4.5-2-1.1-3-2.7-3-4.5 0-3.3 1-6.4 3-9.3Z" fill="currentColor"/><path d="M15.4 19.2c-1.9-1.5-4-2.2-6.4-2.1-1.2.1-2.3.5-3.3 1.2 1.4 2.6 3.7 4 6.8 4.2 1.3.1 2.3-.3 2.9-1.1.5-.7.5-1.5 0-2.2Z" fill="currentColor" opacity=".7"/><path d="M16.6 19.2c1.9-1.5 4-2.2 6.4-2.1 1.2.1 2.3.5 3.3 1.2-1.4 2.6-3.7 4-6.8 4.2-1.3.1-2.3-.3-2.9-1.1-.5-.7-.5-1.5 0-2.2Z" fill="currentColor" opacity=".7"/></svg><b>Luxe</b><span>Glow</span></a>
         <p>Beauty, wellness &amp; confidence in every visit. Your sanctuary for luxury salon and spa experiences.</p>
         <div class="foot-soc">
-          <a href="#" aria-label="Instagram" data-cursor><i class="fa-brands fa-instagram"></i></a>
-          <a href="#" aria-label="Facebook" data-cursor><i class="fa-brands fa-facebook-f"></i></a>
-          <a href="#" aria-label="TikTok" data-cursor><i class="fa-brands fa-tiktok"></i></a>
-          <a href="#" aria-label="Pinterest" data-cursor><i class="fa-brands fa-pinterest-p"></i></a>
+          <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" data-cursor><i class="fa-brands fa-instagram"></i></a>
+          <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Facebook" data-cursor><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="https://www.tiktok.com/" target="_blank" rel="noopener noreferrer" aria-label="TikTok" data-cursor><i class="fa-brands fa-tiktok"></i></a>
+          <a href="https://www.pinterest.com/" target="_blank" rel="noopener noreferrer" aria-label="Pinterest" data-cursor><i class="fa-brands fa-pinterest-p"></i></a>
         </div>
       </div>
       <div class="foot-col">
@@ -1227,7 +1228,7 @@ footer.foot{background:var(--bg-2);border-top:1px solid var(--border);padding-to
     </div>
     <div class="foot-bottom">
       <p>© <span id="year"></span> LuxeGlow Salon &amp; Spa. All rights reserved.</p>
-      <p>Crafted with <i class="fa-solid fa-heart" style="color:var(--rose)"></i> · <a href="#">Privacy</a> · <a href="#">Terms</a></p>
+      <p>Crafted with <i class="fa-solid fa-heart" style="color:var(--rose)"></i> · <span>Privacy</span> · <span>Terms</span></p>
     </div>
   </div>
 </footer>
@@ -1237,7 +1238,7 @@ footer.foot{background:var(--bg-2);border-top:1px solid var(--border);padding-to
 <button class="to-top" id="toTop" aria-label="Back to top" data-cursor><i class="fa-solid fa-arrow-up"></i></button>
 
 <!-- Lightbox -->
-<div class="lightbox" id="lightbox"><span class="lb-close" id="lbClose"><i class="fa-solid fa-xmark"></i></span><img src="" alt="Gallery preview" id="lbImg"></div>
+<div class="lightbox" id="lightbox"><span class="lb-close" id="lbClose"><i class="fa-solid fa-xmark"></i></span><img loading="lazy" decoding="async" src="" alt="Gallery preview" id="lbImg"></div>
 
 <!-- Toast -->
 <div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i><div><b id="toastTitle">Booking Confirmed!</b><p id="toastMsg">We'll contact you shortly to confirm.</p></div></div>
@@ -1422,7 +1423,7 @@ const ROOMS=[
     el.style.left=d.pos+'%';
     el.style.top='90px';
     el.dataset.room=d.room;
-    el.innerHTML=`<img src="${R.bg}" alt="${R.name}" onerror="this.style.opacity=0">
+    el.innerHTML=`<img loading="lazy" decoding="async" src="${R.bg}" alt="${R.name}" onerror="this.style.opacity=0">
       <div class="door-tag"><h4>${R.name}</h4><em>${R.tag}</em>
       <span class="enter"><i class="fa-solid fa-door-open"></i> Enter</span></div>`;
     (d.side==='l'?wallL:wallR).appendChild(el);
@@ -1491,7 +1492,7 @@ const RoomUI=(function(){
       sec.className='room';
       sec.dataset.i=i;
       sec.innerHTML=`
-        <div class="room__bg"><img src="${R.bg}" alt="${R.name}" onerror="this.style.opacity=0"></div>
+        <div class="room__bg"><img loading="lazy" decoding="async" src="${R.bg}" alt="${R.name}" onerror="this.style.opacity=0"></div>
         <div class="room__num">0${i+1}</div>
         <div class="room__inner">
           <div class="room__intro">
@@ -1592,10 +1593,10 @@ function serviceDetailHTML(s){
   <div class="sd-wrap">
     <div class="sd-grid">
       <div>
-        <div class="sd-media"><img src="${s.gallery[0]}" alt="${s.name}"></div>
+        <div class="sd-media"><img loading="lazy" decoding="async" src="${s.gallery[0]}" alt="${s.name}"></div>
         <div class="sd-thumbs">
-          <img src="${s.gallery[1]}" alt="${s.name} ritual">
-          <img src="${s.gallery[2]}" alt="LuxeGlow sanctuary">
+          <img loading="lazy" decoding="async" src="${s.gallery[1]}" alt="${s.name} ritual">
+          <img loading="lazy" decoding="async" src="${s.gallery[2]}" alt="LuxeGlow sanctuary">
         </div>
       </div>
       <div>
@@ -1655,8 +1656,8 @@ const BA=[
 $('#baGrid').innerHTML=BA.map((b,i)=>`
   <div class="ba-card reveal">
     <div class="ba-stage" data-i="${i}">
-      <img class="ba-before" src="${b.before}" alt="Before" onerror="this.style.opacity=.2">
-      <img class="ba-after" src="${b.after}" alt="After" onerror="this.style.opacity=.2">
+      <img loading="lazy" decoding="async" class="ba-before" src="${b.before}" alt="Before" onerror="this.style.opacity=.2">
+      <img loading="lazy" decoding="async" class="ba-after" src="${b.after}" alt="After" onerror="this.style.opacity=.2">
       <div class="ba-line"><div class="ba-handle"><i class="fa-solid fa-left-right"></i></div></div>
       <span class="ba-tag b">Before</span><span class="ba-tag a">After</span>
       <input class="ba-range" type="range" min="0" max="100" value="50" aria-label="Reveal transformation">
@@ -1697,8 +1698,8 @@ $('#teamGrid').innerHTML=TEAM.map(m=>`
     <div class="member-img">
       <img src="${m.img}" alt="${m.name}" loading="lazy" onerror="this.style.opacity=.2">
       <div class="member-social">
-        <a href="#" data-cursor><i class="fa-brands fa-instagram"></i></a>
-        <a href="#" data-cursor><i class="fa-brands fa-tiktok"></i></a>
+        <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" data-cursor aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="https://www.tiktok.com/" target="_blank" rel="noopener noreferrer" data-cursor aria-label="Tiktok"><i class="fa-brands fa-tiktok"></i></a>
         <a href="#booking" data-cursor><i class="fa-solid fa-calendar"></i></a>
       </div>
     </div>
@@ -1718,7 +1719,7 @@ tTrack.innerHTML=TESTI.map((t,i)=>`
   <div class="testi-slide ${i===0?'active':''}">
     <div class="testi-stars">★★★★★</div>
     <p class="testi-quote">“${t.q}”</p>
-    <div class="testi-author"><img src="${t.img}" alt="${t.name}" onerror="this.style.opacity=.2"><div class="who"><b>${t.name}</b><span>${t.role}</span></div></div>
+    <div class="testi-author"><img loading="lazy" decoding="async" src="${t.img}" alt="${t.name}" onerror="this.style.opacity=.2"><div class="who"><b>${t.name}</b><span>${t.role}</span></div></div>
   </div>`).join('');
 tDots.innerHTML=TESTI.map((_,i)=>`<button class="${i===0?'on':''}" aria-label="Testimonial ${i+1}"></button>`).join('');
 let tI=0; const tSlides=$$('.testi-slide',tTrack), tBtns=$$('button',tDots);
@@ -1767,7 +1768,7 @@ $('#blogGrid').innerHTML=BLOG.map(p=>`
       <span class="post-cat">${p.cat}</span>
       <h3>${p.title}</h3>
       <p>${p.excerpt}</p>
-      <div class="post-meta"><span><i class="fa-regular fa-clock"></i> ${p.read} read</span><a href="#" class="read" data-cursor>Read More <i class="fa-solid fa-arrow-right"></i></a></div>
+      <div class="post-meta"><span><i class="fa-regular fa-clock"></i> ${p.read} read</span><a href="#booking" class="read" data-cursor>Read More <i class="fa-solid fa-arrow-right"></i></a></div>
     </div>
   </article>`).join('');
 
@@ -1775,7 +1776,7 @@ $('#blogGrid').innerHTML=BLOG.map(p=>`
    19. INSTAGRAM
    ============================================================ */
 const INSTA=[IMG.makeup,IMG.nailart,IMG.spa,IMG.hair,IMG.facial,IMG.glow,IMG.mani,IMG.color,IMG.woman,IMG.aroma,IMG.massage,IMG.interior];
-$('#instaGrid').innerHTML=INSTA.map(src=>`<a href="#" data-cursor><img src="${src}" alt="Instagram post" loading="lazy" onerror="this.style.opacity=.2"></a>`).join('');
+$('#instaGrid').innerHTML=INSTA.map(src=>`<a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" data-cursor><img src="${src}" alt="Instagram post" loading="lazy" onerror="this.style.opacity=.2"></a>`).join('');
 
 /* ============================================================
    20. BOOKING FORM + NEWSLETTER + TOAST
