@@ -348,3 +348,22 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
 }
 
 .lv { overflow-x: clip; }
+
+/* ---- Site index (replaces marquee) ------------------------------------- */
+.lv-index { padding-block: clamp(4rem, 9vw, 7rem) 1rem; border-bottom: 1px solid var(--line); }
+.lv-index-note { font-family: var(--font-mono); font-size: 0.75rem; color: var(--stone); margin-bottom: 1.5rem; }
+.lv-index ul { list-style: none; display: flex; flex-wrap: wrap; column-gap: 0.4em; row-gap: 0.1em; font-family: var(--font-display); font-weight: 700; font-size: clamp(1.9rem, 1rem + 3.4vw, 4.4rem); letter-spacing: -0.035em; line-height: 1.05; }
+.lv-index li:not(:last-child)::after { content: "/"; margin-left: 0.4em; color: var(--line); font-weight: 400; }
+.lv-index a { text-decoration: none; color: var(--ink); transition: color 0.25s var(--ease-out), opacity 0.25s; }
+.lv-index sup { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 400; letter-spacing: 0; color: var(--stone); margin-left: 0.25em; vertical-align: 2.2em; }
+.lv-index ul:hover a { opacity: 0.28; }
+.lv-index ul:hover a:hover, .lv-index a:focus-visible { opacity: 1; color: var(--signal-deep); }
+.lv-peek { position: fixed; left: 0; top: 0; z-index: 50; width: 280px; pointer-events: none; opacity: 0; scale: 0.85; rotate: -3deg; transition: opacity 0.25s var(--ease-out), scale 0.35s var(--ease-out), rotate 0.35s var(--ease-out); }
+.lv-peek.is-on { opacity: 1; scale: 1; rotate: 2deg; }
+.lv-peek img { display: block; width: 100%; height: auto; border-radius: 12px; box-shadow: 0 24px 50px -20px rgb(20 23 26 / 0.5); }
+
+/* ---- Experience: logo sits with the company name ---------------------- */
+.lv-when { display: block; padding-top: 1rem; }
+.lv-org { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.9rem; }
+.lv-org .lv-role { margin: 0.25rem 0 0; }
+.lv-co { width: 52px; height: 52px; flex: none; padding: 7px; border-radius: 12px; }

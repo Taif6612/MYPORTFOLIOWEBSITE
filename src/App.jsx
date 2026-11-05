@@ -160,6 +160,35 @@ function Cursor() {
   return <div className="lv-cursor" ref={dot} aria-hidden="true" />;
 }
 
+/* Typographic index of every live site; hovering a name floats its screenshot
+   beside the cursor (fine pointers only). Replaces the generic marquee. */
+function SiteIndex() {
+  const peek = useRef(null);
+  const [cur, setCur] = useState(null);
+  const move = (e) => {
+    if (peek.current) peek.current.style.transform = `translate(${e.clientX + 28}px, ${e.clientY - 210}px)`;
+  };
+  return (
+    <section className="lv-index" aria-label="Index of live sites" onPointerMove={canHover ? move : undefined} onPointerLeave={() => setCur(null)}>
+      <p className="lv-index-note lv-wrap">Index · {sites.length} live builds</p>
+      <ul className="lv-wrap">
+        {sites.map((p) => (
+          <li key={p.id}>
+            <a href={p.url} target="_blank" rel="noopener noreferrer" onPointerEnter={() => setCur(p)} onFocus={() => setCur(p)} onBlur={() => setCur(null)}>
+              {p.title}<sup>{p.category}</sup>
+            </a>
+          </li>
+        ))}
+      </ul>
+      {canHover && (
+        <div className={`lv-peek${cur ? " is-on" : ""}`} ref={peek} aria-hidden="true">
+          {cur && <img src={cur.poster} alt="" width="800" height="500" />}
+        </div>
+      )}
+    </section>
+  );
+}
+
 export default function App() {
   const reduced = useReducedMotion();
   useReveals(reduced, true);
@@ -208,11 +237,7 @@ export default function App() {
           </div>
         </section>
 
-        <div className="lv-marquee" aria-hidden="true">
-          <div>{Array.from({ length: 2 }, (_, k) => (
-            <span key={k}>Landing pages ✺ Web apps ✺ E-commerce ✺ Dashboards ✺ Chrome extensions ✺ Automations ✺ Accessibility ✺ </span>
-          ))}</div>
-        </div>
+        <SiteIndex />
 
         {/* WHO — portrait + about */}
         <section id="about" className="lv-about lv-wrap" aria-labelledby="about-title">
@@ -284,13 +309,15 @@ export default function App() {
           <ol className="lv-timeline">
             {experience.map((e) => (
               <li key={e.org} className="reveal">
-                <div className="lv-when">
-                  {e.logo ? <img className="lv-co" src={e.logo} alt={`${e.org} logo`} width="56" height="56" loading="lazy" /> : <span className="lv-co lv-co--mono" aria-hidden="true">{e.mono}</span>}
-                  {e.when}
-                </div>
+                <div className="lv-when">{e.when}</div>
                 <div>
-                  <h3>{e.org}</h3>
-                  <p className="lv-role">{e.role}</p>
+                  <div className="lv-org">
+                    {e.logo ? <img className="lv-co" src={e.logo} alt="" width="52" height="52" loading="lazy" /> : <span className="lv-co lv-co--mono" aria-hidden="true">{e.mono}</span>}
+                    <div>
+                      <h3>{e.org}</h3>
+                      <p className="lv-role">{e.role}</p>
+                    </div>
+                  </div>
                   <p>{e.text}</p>
                 </div>
               </li>
