@@ -369,3 +369,36 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
 .lv-co { width: 52px; height: 52px; flex: none; padding: 7px; border-radius: 12px; }
 
 .lv-co[src*="gy6"] { padding: 0; object-fit: cover; }
+
+/* ---- Build hero: wireframe → paint → shipped ---------------------------- */
+.lv-hero { height: auto; }
+.lv-hero-pin { position: relative; height: auto; min-height: min(100vh, 980px); }
+.lv-build { width: min(100%, 96vh); justify-self: center; }
+.lv-build-win { background: var(--paper-3); border-radius: var(--radius); box-shadow: 0 2px 4px rgb(20 23 26 / 0.06), 0 40px 80px -30px rgb(20 23 26 / 0.45); overflow: hidden; transform: rotate(-1.2deg); }
+.lv-build-stage { position: relative; aspect-ratio: 16 / 10; }
+.lv-build-stage { background: repeating-linear-gradient(0deg, transparent 0 23px, rgb(36 56 120 / 0.07) 23px 24px), repeating-linear-gradient(90deg, transparent 0 23px, rgb(36 56 120 / 0.07) 23px 24px), #f7f5ef; }
+.lv-wire { position: absolute; inset: 0; width: 100%; height: 100%; }
+.lv-wire rect { fill: none; stroke: #2f4a8a; stroke-width: 0.5; vector-effect: non-scaling-stroke; stroke-dasharray: 600; stroke-dashoffset: 600; animation: lv-draw 1.2s var(--ease-out) forwards; }
+.lv-wire rect:nth-child(n+4) { animation-delay: 0.2s; }
+.lv-wire rect:nth-child(n+7) { animation-delay: 0.4s; }
+@keyframes lv-draw { to { stroke-dashoffset: 0; } }
+.lv-build-stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; clip-path: inset(0 100% 0 0); transition: clip-path 1.3s cubic-bezier(0.65, 0, 0.35, 1); }
+.lv-build[data-stage="1"] .lv-build-stage img, .lv-build[data-stage="2"] .lv-build-stage img { clip-path: inset(0 0 0 0); }
+.lv-build[data-stage="1"] .lv-build-stage::after { /* paint edge */
+  content: ""; position: absolute; top: 0; bottom: 0; width: 3px; background: var(--signal); box-shadow: 0 0 24px 4px rgb(232 80 30 / 0.6); animation: lv-edge 1.3s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+@keyframes lv-edge { from { left: 0; } to { left: 100%; opacity: 0; } }
+.lv-stamp {
+  position: absolute; right: 7%; bottom: 10%; padding: 0.35em 0.8em; border: 3px solid var(--signal); border-radius: 8px;
+  font-family: var(--font-display); font-weight: 800; font-size: clamp(1.2rem, 2.6vw, 2.4rem); letter-spacing: 0.02em; text-transform: uppercase;
+  color: var(--signal); background: rgb(255 255 255 / 0.82); transform: rotate(-8deg) scale(2.4); opacity: 0;
+}
+.lv-build[data-stage="2"] .lv-stamp { animation: lv-stamp 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) forwards; }
+@keyframes lv-stamp { to { opacity: 1; transform: rotate(-8deg) scale(1); } }
+.lv-steps { list-style: none; display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 1.2rem; margin-top: 1.4rem; font-family: var(--font-mono); font-size: 0.75rem; color: var(--stone); }
+.lv-steps li:not(.lv-steps-name)::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 0.5em; border-radius: 50%; border: 1.5px solid currentColor; vertical-align: 0; transition: background 0.3s; }
+.lv-steps li.is-on { color: var(--ink); }
+.lv-steps li.is-on::before { background: var(--signal); border-color: var(--signal); }
+.lv-steps-name { margin-left: auto; color: var(--ink); font-weight: 500; }
+@media (max-width: 860px) { .lv-build-win { transform: none; } .lv-steps-name { margin-left: 0; width: 100%; } }
+@media (prefers-reduced-motion: reduce) { .lv-wire rect { animation: none; stroke-dashoffset: 0; } }

@@ -13,7 +13,6 @@ import "./styles/live.css";
 
 const sites = projects.filter((p) => p.url && p.poster && p.id !== "proctorless");
 const flagship = projects.find((p) => p.id === "proctorless");
-const deck = sites.slice(0, 5);
 
 const experience = [
   {
@@ -189,6 +188,51 @@ function SiteIndex() {
   );
 }
 
+/* Hero: one browser that builds a real site in front of you:
+   wireframe → paint → SHIPPED stamp, then the next project. */
+const STAGES = ["Wireframe", "Build", "Shipped"];
+function BuildHero({ reduced }) {
+  const [n, setN] = useState(0);
+  const [stage, setStage] = useState(reduced ? 2 : 0);
+  const [ready, setReady] = useState(false); // current poster decoded
+  useEffect(() => {
+    // Warm the next poster so its paint never waits on the network.
+    const next = new Image();
+    next.src = sites[(n + 1) % sites.length].poster;
+  }, [n]);
+  useEffect(() => {
+    if (reduced || !ready) return;
+    const t = [
+      setTimeout(() => setStage(1), 1300),
+      setTimeout(() => setStage(2), 2700),
+      setTimeout(() => { setStage(0); setReady(false); setN((k) => (k + 1) % sites.length); }, 5200),
+    ];
+    return () => t.forEach(clearTimeout);
+  }, [n, reduced, ready]);
+  const p = sites[n];
+  return (
+    <div className="lv-build" data-stage={stage} aria-hidden="true">
+      <div className="lv-build-win">
+        <div className="lv-chrome"><i /><i /><i /><span className="lv-url">taif.codes{p.url}</span></div>
+        <div className="lv-build-stage">
+          <svg className="lv-wire" viewBox="0 0 160 100" preserveAspectRatio="none" key={`w${n}`}>
+            <rect x="6" y="5" width="22" height="5" rx="1" /><rect x="110" y="5" width="44" height="5" rx="1" />
+            <rect x="6" y="20" width="80" height="10" rx="1" /><rect x="6" y="34" width="60" height="5" rx="1" />
+            <rect x="6" y="44" width="28" height="8" rx="4" /><rect x="96" y="18" width="58" height="40" rx="2" />
+            <rect x="6" y="66" width="46" height="28" rx="2" /><rect x="57" y="66" width="46" height="28" rx="2" /><rect x="108" y="66" width="46" height="28" rx="2" />
+          </svg>
+          <img key={`i${n}`} src={p.poster} srcSet={p.posterSrcSet} sizes="(max-width: 860px) 90vw, 50vw" alt="" width="1440" height="900" fetchpriority={n === 0 ? "high" : undefined} onLoad={() => setReady(true)} ref={(el) => el && el.complete && el.naturalWidth && !ready && setReady(true)} />
+          <span className="lv-stamp" key={`s${n}`}>Shipped</span>
+        </div>
+      </div>
+      <ol className="lv-steps">
+        {STAGES.map((l, k) => <li key={l} className={k <= stage ? "is-on" : ""}>{l}</li>)}
+        <li className="lv-steps-name">{p.title}</li>
+      </ol>
+    </div>
+  );
+}
+
 export default function App() {
   const reduced = useReducedMotion();
   useReveals(reduced, true);
@@ -211,7 +255,7 @@ export default function App() {
 
       <main id="top">
         {/* HOOK — a stack of real sites fans out as you scroll */}
-        <section className="lv-hero" data-scene="deck" aria-labelledby="hero-title">
+        <section className="lv-hero" aria-labelledby="hero-title">
           <div className="lv-hero-pin">
             <div className="lv-blobs" aria-hidden="true"><i /><i /><i /></div>
             <div className="lv-hero-copy">
@@ -227,13 +271,7 @@ export default function App() {
                 <a className="lv-btn lv-btn--ghost" href="#work">See the work</a>
               </div>
             </div>
-            <div className="lv-deck" aria-hidden="true">
-              {deck.map((p, i) => (
-                <div key={p.id} className="lv-card" style={{ "--i": i, "--n": deck.length }}>
-                  <Browser p={p} eager={i < 2} />
-                </div>
-              ))}
-            </div>
+            <BuildHero reduced={reduced} />
           </div>
         </section>
 
