@@ -49,6 +49,12 @@ Live deck shipped: new tokens and fonts, storyline sections, scroll scenes, new 
 - Plate iframes load full sub-sites (up to 3 MB each) → load only on hover/click, poster otherwise.
 - Stack icons from jsDelivr CDN → self-host as one SVG sprite.
 
+### Phase 3 status (2026-11-05)
+- CampusEdge: unbundled the 6.4 MB self-extracting page into static files, precompiled JSX with esbuild (Babel removed from the browser), switched React from dev to production builds, and converted photos to WebP. Down to about 1.6 MB per visit.
+- Removed `components.css` (about 1,700 lines of dead styles). Restored portrait/About, clock band and quote, extension logos, company logos (Riseup Labs official icon; Team GY6 as a GY6 monogram until a logo file is supplied), and hover-to-play live previews.
+- Living details: drifting gradient background, "complete" pixel hover, shine sweep, rotating word, cursor ring, scroll progress bar, marquee strip.
+- Checked at 1280x800, 1366x768, 1920x1080 and 375 mobile.
+
 ## 4. Security (initial findings, full red-team at end)
 - **Missing headers:** no Content-Security-Policy, no Permissions-Policy, HSTS lacks `includeSubDomains; preload`. (Medium)
 - `/api/auth` returns 500 "Missing OAUTH_GITHUB_CLIENT_ID" → info leak + broken CMS login. (Low)

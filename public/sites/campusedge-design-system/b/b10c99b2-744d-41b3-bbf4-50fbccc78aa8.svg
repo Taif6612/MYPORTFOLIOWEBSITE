@@ -1,0 +1,9 @@
+<svg width="240" height="48" viewBox="0 0 240 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="CampusEdge Institute">
+  
+  <rect x="0" y="0" width="48" height="48" rx="12" fill="#0a1a3f"></rect>
+  <path d="M13 31 L24 13 L35 31" stroke="#e0b443" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+  <path d="M16 35 L24 22 L32 35" stroke="#3b78f0" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+  
+  <text x="60" y="24" font-family="&#39;Spectral&#39;, Georgia, serif" font-size="21" font-weight="700" fill="#0a1a3f">Campus<tspan fill="#1f5bdb">Edge</tspan></text>
+  <text x="60" y="39" font-family="&#39;IBM Plex Mono&#39;, monospace" font-size="9" letter-spacing="3" fill="#6b7a93">INSTITUTE · EST. 1962</text>
+</svg>
