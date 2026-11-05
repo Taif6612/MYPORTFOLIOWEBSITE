@@ -402,3 +402,21 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
 .lv-steps-name { margin-left: auto; color: var(--ink); font-weight: 500; }
 @media (max-width: 860px) { .lv-build-win { transform: none; } .lv-steps-name { margin-left: 0; width: 100%; } }
 @media (prefers-reduced-motion: reduce) { .lv-wire rect { animation: none; stroke-dashoffset: 0; } }
+
+/* ---- Awards & certificates -------------------------------------------- */
+.lv-awards { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(2rem, 5vw, 5rem); align-items: center; padding-block: clamp(4rem, 9vw, 7rem); }
+.lv-award { margin: 0; }
+.lv-award img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--radius); box-shadow: var(--shadow); transform: rotate(-1.5deg); }
+.lv-award-copy .lv-muted { margin-top: 0.75rem; }
+.lv-slot {
+  display: grid; place-items: center; aspect-ratio: 4 / 3; border-radius: var(--radius);
+  border: 1.5px dashed var(--line); color: var(--stone); background: var(--paper-2);
+  font-family: var(--font-mono); font-size: 0.75rem;
+}
+.lv-certs { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-top: 2rem; }
+.lv-certs a { display: grid; gap: 0.35rem; text-decoration: none; font-size: var(--step--1); }
+.lv-certs a img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 10px; box-shadow: var(--shadow); transition: transform 0.3s var(--ease-out); }
+.lv-certs a:hover img { transform: translateY(-4px) rotate(-1deg); }
+.lv-certs a:hover strong { color: var(--signal-deep); }
+.lv-slot--cert { aspect-ratio: 4 / 3; }
+@media (max-width: 860px) { .lv-awards { grid-template-columns: 1fr; } .lv-certs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

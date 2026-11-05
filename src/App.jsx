@@ -5,6 +5,7 @@ import { useReducedMotion } from "./lib/usePrefs.js";
 import { useReveals } from "./lib/useReveals.js";
 import Booking from "./components/Booking.jsx";
 import Clock from "./components/Clock.jsx";
+import { award, certificates } from "./data/awards.js";
 import "./styles/live.css";
 
 /* Live deck homepage. Story: hook → proof → range → depth → credibility → ask.
@@ -375,6 +376,36 @@ export default function App() {
               </li>
             ))}
           </ul>
+        </section>
+
+        {/* RECOGNITION — award photo + certificates (slots until filled in data/awards.js) */}
+        <section id="awards" className="lv-awards lv-wrap" aria-labelledby="awards-title">
+          <figure className={`lv-award reveal${award.photo ? "" : " is-empty"}`}>
+            {award.photo ? (
+              <img src={award.photo} alt={award.alt} loading="lazy" decoding="async" />
+            ) : (
+              <div className="lv-slot" aria-hidden="true">Award photo</div>
+            )}
+          </figure>
+          <div className="lv-award-copy reveal">
+            <h2 id="awards-title" className="lv-h2">{award.title}.</h2>
+            <p className="lv-muted">{award.event}</p>
+            <ul className="lv-certs">
+              {[...certificates, ...Array(Math.max(0, 3 - certificates.length)).fill(null)].map((c, k) => (
+                <li key={k} className={c ? "" : "is-empty"}>
+                  {c ? (
+                    <a href={c.url || c.image} target="_blank" rel="noopener noreferrer">
+                      {c.image && <img src={c.image} alt="" loading="lazy" />}
+                      <strong>{c.name}</strong>
+                      <span className="lv-muted">{c.issuer}{c.year ? ` · ${c.year}` : ""}</span>
+                    </a>
+                  ) : (
+                    <div className="lv-slot lv-slot--cert" aria-hidden="true">Certificate</div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
         </section>
 
         {/* AVAILABILITY — clock band */}
