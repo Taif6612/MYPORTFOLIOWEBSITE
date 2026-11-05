@@ -367,3 +367,5 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
 .lv-org { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.9rem; }
 .lv-org .lv-role { margin: 0.25rem 0 0; }
 .lv-co { width: 52px; height: 52px; flex: none; padding: 7px; border-radius: 12px; }
+
+.lv-co[src*="gy6"] { padding: 0; object-fit: cover; }

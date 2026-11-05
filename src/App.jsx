@@ -25,7 +25,7 @@ const experience = [
   },
   {
     org: "Team GY6",
-    mono: "GY6",
+    logo: "/logo-gy6.webp",
     role: "Full-Stack Developer Intern · remote",
     when: "Feb – Jul 2026",
     text: "Built and maintained Next.js sites and a full WooCommerce store for clients in Australia and the UK, plus n8n automations for their operations. Term extended by a month.",
