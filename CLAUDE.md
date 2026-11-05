@@ -6,6 +6,13 @@ Context for Claude Code working in this repo. (Auto-loaded each session.)
 **Taif Ur Rahman's** personal portfolio — an "editorial gallery" React/Vite site.
 **Live: https://taif.codes**. Repo: https://github.com/Taif6612/MYPORTFOLIOWEBSITE (public, `main`).
 
+## ⚠ Redesigned 2026-11-05 ("Live deck") — supersedes older notes below
+- Homepage is now **`src/App.jsx`** (single file, all sections) + **`src/styles/live.css`** (scoped `.lv`). Story: Hero deck → ProctorLess proof → pinned horizontal rail of live sites (`#work`) → Experience (`#experience`) → Research/stack → Booking (`#booking`).
+- Scroll scenes: `useScenes` sets `--p` (0..1) on each `[data-scene]`; all motion is CSS reading `--p`. Reduced motion pins it. Mobile (<860px) drops pinning; rail becomes native swipe.
+- Plates no longer iframe sites; they show WebP posters and link to `/sites/<id>/`.
+- Removed: Preloader, Cursor, SignalRail, Header, Hero, HeroShader, WorkIndex, ProjectPlate, Recognition, Clock, About, Footer, RotatingWord, Lenis, paper shaders. Old sections below describing them are historical.
+- Tokens in `global.css`: paper `#f1ede4`, ink `#14171a`, signal `#e8501e` (small text uses `--signal-deep #b33a0f`). Fonts Bricolage Grotesque / Instrument Sans / JetBrains Mono. Product brief in `PRODUCT.md`. Plan + audit log in `REDESIGN-NOTES.md`.
+
 ## Stack & commands
 - React + Vite. Homepage is **plain JS/JSX**; the blog/CMS is **TypeScript** (the two coexist — Vite compiles both). GSAP + ScrollTrigger, Lenis smooth scroll, `@paper-design/shaders-react` (`MeshGradient`) for the soft animated hero background. (The old three.js "detection-field" hero was removed — don't re-add three unless needed.)
 - **Routing + SSG:** `vite-react-ssg` (+ `react-router-dom`) pre-renders every route to static HTML. The app entry is **`src/main.tsx`** (exports `createRoot`), routes in **`src/routes.tsx`**. `index.html` is the shared template — its per-page SEO `<head>` is set by React, **not** the template (don't re-add `<title>`/description there or you get duplicates on every page).

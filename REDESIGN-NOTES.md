@@ -41,6 +41,10 @@ Proposed narrative flow (one scroll = one story):
 6. **Ask** — booking CTA.
 Direction to be confirmed with owner (see questions).
 
+### Phase 2 status — DONE 2026-11-05 (commit a3ed42b)
+Live deck shipped: new tokens and fonts, storyline sections, scroll scenes, new CV. Blog inherits the new tokens.
+**Still open:** `components.css` still holds about 1,700 lines of old homepage styles (only Booking and blog use parts of it). Prune it in phase 3.
+
 ## 3. Performance (to measure after redesign)
 - Plate iframes load full sub-sites (up to 3 MB each) → load only on hover/click, poster otherwise.
 - Stack icons from jsDelivr CDN → self-host as one SVG sprite.
