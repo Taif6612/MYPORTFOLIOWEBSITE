@@ -13,7 +13,7 @@ export const SOURCE = `for (const p of particles) {
 
 const LIGHT = { bg: "241,237,228", colors: ["#e8501e", "#f08a4b", "#14171a", "#b33a0f", "#f6c58f"], alpha: 0.42 };
 // Dark variant: glowing threads for the gallery hall.
-export const DARK = { bg: "20,23,26", colors: ["#e8501e", "#ff8a5c", "#f6c58f", "#7a2c10", "#ffd9b8"], alpha: 0.3 };
+export const DARK = { bg: "20,23,26", colors: ["#e8501e", "#ff8a5c", "#f6c58f", "#7a2c10", "#ffd9b8"], alpha: 0.3, max: 450, every: 2 };
 
 export default function FlowField({ reduced, theme = LIGHT, className = "lv-art" }) {
   const COLORS = theme.colors;
@@ -34,7 +34,7 @@ export default function FlowField({ reduced, theme = LIGHT, className = "lv-art"
       cv.width = w * dpr; cv.height = h * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.fillStyle = `rgb(${theme.bg})`; ctx.fillRect(0, 0, w, h);
-      const n = Math.round(Math.min(900, (w * h) / 1300));
+      const n = Math.round(Math.min(theme.max || 900, (w * h) / 1300));
       parts = Array.from({ length: n }, seed);
     };
     const pull = (p) => {
@@ -63,7 +63,8 @@ export default function FlowField({ reduced, theme = LIGHT, className = "lv-art"
       ctx.globalAlpha = 1;
       t += 16;
     };
-    const loop = () => { if (visible) step(); raf = requestAnimationFrame(loop); };
+    let f = 0;
+    const loop = () => { if (visible && ++f % (theme.every || 1) === 0) step(); raf = requestAnimationFrame(loop); };
 
     resize();
     for (let i = 0; i < 320; i++) step(); // arrive already painted, not blank

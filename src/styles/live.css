@@ -382,3 +382,15 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
   .lv-site-meta, .lv-site-sum, .lv-tags { opacity: calc(1 - var(--ad, 0) * 0.85); transition: opacity 0.25s; }
 }
 @media (prefers-reduced-motion: reduce) { .lv-site { transform: none; filter: none; } }
+
+/* ---- Gallery perf + scrollable previews ------------------------------- */
+@media (min-width: 861px) {
+  /* Dim with an overlay instead of filter (filters force full repaints every frame). */
+  .lv-site { filter: none; will-change: transform; }
+  .lv-site > a::before {
+    content: ""; position: absolute; inset: 0; z-index: 3; border-radius: var(--radius); pointer-events: none;
+    background: rgb(20 23 26 / calc(var(--ad, 0) * 0.6));
+  }
+}
+.lv-live { overscroll-behavior: contain; }
+.lv-live iframe { pointer-events: auto; }

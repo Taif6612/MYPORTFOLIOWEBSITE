@@ -88,15 +88,35 @@ const canHover = typeof window !== "undefined" && window.matchMedia("(hover: hov
    so the page never pays for ten sites up front. */
 function LivePreview({ src }) {
   const box = useRef(null);
-  const [scale, setScale] = useState(0.3);
+  const [size, setSize] = useState({ s: 0.3, h: 900 });
   useEffect(() => {
-    const ro = new ResizeObserver(([e]) => setScale(e.contentRect.width / 1440));
+    // Desktop-width site scaled into the card; its height matches the card so
+    // the site scrolls *inside* the frame with the mouse wheel.
+    const ro = new ResizeObserver(([e]) => {
+      const s = e.contentRect.width / 1440;
+      setSize({ s, h: e.contentRect.height / s });
+    });
     ro.observe(box.current);
-    return () => ro.disconnect();
+    // Wheel over the card scrolls the site inside it; at the site's top or
+    // bottom the wheel falls through to the page again.
+    const card = box.current.parentElement;
+    const frame = box.current.querySelector("iframe");
+    const onWheel = (e) => {
+      const win = frame.contentWindow;
+      if (!win) return;
+      const doc = win.document.scrollingElement || win.document.documentElement;
+      const atTop = doc.scrollTop <= 0 && e.deltaY < 0;
+      const atEnd = doc.scrollTop + doc.clientHeight >= doc.scrollHeight - 1 && e.deltaY > 0;
+      if (atTop || atEnd) return;
+      e.preventDefault();
+      win.scrollBy(0, e.deltaY);
+    };
+    card.addEventListener("wheel", onWheel, { passive: false });
+    return () => { ro.disconnect(); card.removeEventListener("wheel", onWheel); };
   }, []);
   return (
     <div className="lv-live" ref={box}>
-      <iframe src={src} title="Live preview" loading="lazy" tabIndex={-1} style={{ transform: `scale(${scale})` }} />
+      <iframe src={src} title="Live preview, scroll to explore" loading="lazy" style={{ height: size.h, transform: `scale(${size.s})` }} />
     </div>
   );
 }
@@ -121,7 +141,7 @@ function Browser({ p, eager, live }) {
         decoding="async"
       />
       {on && <LivePreview src={`${p.url}index.html`} />}
-      {live && canHover && !on && <span className="lv-hint">Hover to play the live site</span>}
+      {live && canHover && !on && <span className="lv-hint">Hover, then scroll inside to explore</span>}
     </div>
   );
 }
