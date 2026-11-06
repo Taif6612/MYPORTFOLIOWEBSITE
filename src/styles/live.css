@@ -351,3 +351,34 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
 @media (max-width: 860px) { .lv-code pre { font-size: 0.66rem; } }
 
 @media (max-width: 860px) { .lv-hero-pin { grid-template-columns: minmax(0, 1fr); } .lv-code { width: 100%; } }
+
+/* ---- Gallery hall: glowing ink, curved walls, spotlight, glossy floor -- */
+.lv-range { isolation: isolate; }
+.lv-range-pin { isolation: isolate; }
+.lv-art--hall { z-index: -2; opacity: 0.9; }
+.lv-range-pin::before { /* spotlight from above onto the centre card */
+  content: ""; position: absolute; z-index: -1; left: 50%; top: -10%; width: 70vw; height: 120%; translate: -50% 0; pointer-events: none;
+  background: radial-gradient(ellipse 40% 55% at 50% 30%, rgb(255 214 180 / 0.16), transparent 70%);
+}
+.lv-range-pin::after { /* floor fade so reflections melt into the dark */
+  content: ""; position: absolute; z-index: -1; inset: auto 0 0; height: 30%; pointer-events: none;
+  background: linear-gradient(transparent, rgb(20 23 26 / 0.85));
+}
+.lv-range-head { text-shadow: 0 2px 30px rgb(20 23 26 / 0.8); }
+@media (min-width: 861px) {
+  .lv-rail { perspective: 1400px; transform-style: preserve-3d; }
+  .lv-site {
+    transform: rotateY(calc(var(--d, 0) * -34deg)) translateZ(calc((1 - var(--ad, 0)) * 70px)) scale(calc(1 - var(--ad, 0) * 0.08));
+    filter: brightness(calc(1 - var(--ad, 0) * 0.55)) saturate(calc(1 - var(--ad, 0) * 0.4));
+    transition: transform 0.25s var(--ease-out), filter 0.25s;
+    transform-origin: 50% 50%;
+  }
+  .lv-site .lv-browser { -webkit-box-reflect: below 10px linear-gradient(transparent 62%, rgb(255 255 255 / 0.16)); }
+  .lv-site .lv-browser::after { /* glass sheen that slides as the card turns */
+    content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+    background: linear-gradient(105deg, transparent 30%, rgb(255 255 255 / 0.10) 45%, transparent 60%);
+    background-size: 250% 100%; background-position: calc(50% + var(--d, 0) * 80%) 0;
+  }
+  .lv-site-meta, .lv-site-sum, .lv-tags { opacity: calc(1 - var(--ad, 0) * 0.85); transition: opacity 0.25s; }
+}
+@media (prefers-reduced-motion: reduce) { .lv-site { transform: none; filter: none; } }

@@ -11,9 +11,12 @@ export const SOURCE = `for (const p of particles) {
   ink.lineTo(p.x, p.y);   // the trail is the art
 }`;
 
-const COLORS = ["#e8501e", "#f08a4b", "#14171a", "#b33a0f", "#f6c58f"];
+const LIGHT = { bg: "241,237,228", colors: ["#e8501e", "#f08a4b", "#14171a", "#b33a0f", "#f6c58f"], alpha: 0.42 };
+// Dark variant: glowing threads for the gallery hall.
+export const DARK = { bg: "20,23,26", colors: ["#e8501e", "#ff8a5c", "#f6c58f", "#7a2c10", "#ffd9b8"], alpha: 0.3 };
 
-export default function FlowField({ reduced }) {
+export default function FlowField({ reduced, theme = LIGHT, className = "lv-art" }) {
+  const COLORS = theme.colors;
   const ref = useRef(null);
   useEffect(() => {
     const cv = ref.current;
@@ -30,7 +33,7 @@ export default function FlowField({ reduced }) {
       w = r.width; h = r.height;
       cv.width = w * dpr; cv.height = h * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.fillStyle = "#f1ede4"; ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = `rgb(${theme.bg})`; ctx.fillRect(0, 0, w, h);
       const n = Math.round(Math.min(900, (w * h) / 1300));
       parts = Array.from({ length: n }, seed);
     };
@@ -39,10 +42,10 @@ export default function FlowField({ reduced }) {
       return d2 < 32000 ? Math.atan2(dy, dx) + Math.PI / 2 : 0; // swirl around the cursor
     };
     const step = () => {
-      ctx.fillStyle = "rgba(241,237,228,0.012)"; // very slow fade: long silky trails
+      ctx.fillStyle = `rgba(${theme.bg},0.012)`; // very slow fade: long silky trails
       ctx.fillRect(0, 0, w, h);
       ctx.lineWidth = 1;
-      ctx.globalAlpha = 0.42;
+      ctx.globalAlpha = theme.alpha;
       // One path per colour: ~5 strokes a frame instead of one per particle.
       for (let c = 0; c < COLORS.length; c++) {
         ctx.strokeStyle = COLORS[c];
@@ -88,8 +91,8 @@ export default function FlowField({ reduced }) {
       document.removeEventListener("pointerleave", onLeave);
       document.removeEventListener("visibilitychange", onVis);
     };
-  }, [reduced]);
-  return <canvas ref={ref} className="lv-art" aria-hidden="true" />;
+  }, [reduced, theme]);
+  return <canvas ref={ref} className={className} aria-hidden="true" />;
 }
 
 /* The code panel types SOURCE out once, then idles with a blinking caret. */
