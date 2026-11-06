@@ -466,3 +466,22 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
 /* Big blurred shadows were the #1 scroll cost on the rail (repainted per frame).
    A tight shadow + a hairline gives the same lift for a fraction of the paint. */
 .lv-site .lv-browser { box-shadow: none; outline: 1px solid rgb(20 23 26 / 0.12); outline-offset: -1px; }
+
+/* ---- Rail v5: compositor scroll timeline ------------------------------
+   The strip's travel is a CSS animation whose clock IS the scroll position,
+   so the GPU moves it in lockstep with scrolling: no JS frame, no lag.
+   Card 0's centre sits at S/2 (negative margins), the pitch is S + G. */
+@supports (animation-timeline: view()) {
+  @media (min-width: 861px) {
+    .lv-range { view-timeline: --rail block; }
+    .lv-rail {
+      animation: lv-rail linear both;
+      animation-timeline: --rail;
+      animation-range: contain 0% contain 100%;
+    }
+    @keyframes lv-rail {
+      from { transform: translate3d(calc(50vw - var(--S) / 2), 0, 0); }
+      to { transform: translate3d(calc(50vw - var(--S) / 2 - (var(--count) - 1) * (var(--S) + var(--G))), 0, 0); }
+    }
+  }
+}

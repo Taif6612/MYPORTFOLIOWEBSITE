@@ -54,6 +54,9 @@ function useScenes(reduced) {
     const rail = document.querySelector(".lv-rail");
     const bar = document.querySelector(".lv-progress");
     const wideQ = window.matchMedia("(min-width: 861px)");
+    // Chrome/Edge/Safari 26+: CSS moves the strip on the compositor, locked to the
+    // scroll. JS only falls back where scroll-driven animations aren't supported.
+    const cssDriven = CSS.supports("animation-timeline: view()");
     let raf = 0, on_ = -1, pitch = 0, c0 = 0;
     // Rail geometry is read once per resize, never per frame (offsetLeft ignores transforms).
     const measure = () => {
@@ -76,8 +79,10 @@ function useScenes(reduced) {
         // Rail: write the transform straight onto the strip (compositor only, no
         // inherited custom property invalidating every descendant's style).
         if (!wideQ.matches) return;
-        const x = innerWidth / 2 - c0 - p * (cards.length - 1) * pitch;
-        rail.style.transform = `translate3d(${x.toFixed(1)}px,0,0)`;
+        if (!cssDriven) {
+          const x = innerWidth / 2 - c0 - p * (cards.length - 1) * pitch;
+          rail.style.transform = `translate3d(${x.toFixed(1)}px,0,0)`;
+        }
         const i = Math.round(p * (cards.length - 1));
         if (i !== on_) {
           on_ = i;
