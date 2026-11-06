@@ -161,35 +161,6 @@ function Cursor() {
   return <div className="lv-cursor" ref={dot} aria-hidden="true" />;
 }
 
-/* Typographic index of every live site; hovering a name floats its screenshot
-   beside the cursor (fine pointers only). Replaces the generic marquee. */
-function SiteIndex() {
-  const peek = useRef(null);
-  const [cur, setCur] = useState(null);
-  const move = (e) => {
-    if (peek.current) peek.current.style.transform = `translate(${e.clientX + 28}px, ${e.clientY - 210}px)`;
-  };
-  return (
-    <section className="lv-index" aria-label="Index of live sites" onPointerMove={canHover ? move : undefined} onPointerLeave={() => setCur(null)}>
-      <p className="lv-index-note lv-wrap">Index · {sites.length} live builds</p>
-      <ul className="lv-wrap">
-        {sites.map((p) => (
-          <li key={p.id}>
-            <a href={p.url} target="_blank" rel="noopener noreferrer" onPointerEnter={() => setCur(p)} onFocus={() => setCur(p)} onBlur={() => setCur(null)}>
-              {p.title}<sup>{p.category}</sup>
-            </a>
-          </li>
-        ))}
-      </ul>
-      {canHover && (
-        <div className={`lv-peek${cur ? " is-on" : ""}`} ref={peek} aria-hidden="true">
-          {cur && <img src={cur.poster} alt="" width="800" height="500" />}
-        </div>
-      )}
-    </section>
-  );
-}
-
 export default function App() {
   const reduced = useReducedMotion();
   useReveals(reduced, true);
@@ -232,7 +203,6 @@ export default function App() {
           </div>
         </section>
 
-        <SiteIndex />
 
         {/* WHO — portrait + about */}
         <section id="about" className="lv-about lv-wrap" aria-labelledby="about-title">
