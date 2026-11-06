@@ -10,23 +10,10 @@
          Seo component for every /guides page. Keeping them out of this template
          avoids duplicate head tags on the static pages. -->
 
-    <!-- Fonts: Newsreader (display serif), Hanken Grotesk (body), Space Mono (technical captions).
-         Loaded non-render-blocking (media=print → all onload) so the font CSS never
-         sits on the critical path; display=swap shows fallback text immediately. -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400..700&family=JetBrains+Mono:wght@400;500&display=swap"
-      media="print"
-      onload="this.media='all'"
-    />
-    <noscript>
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400..700&family=JetBrains+Mono:wght@400;500&display=swap"
-      />
-    </noscript>
+    <!-- Fonts are self-hosted (src/styles/fonts.css). Preloading the two the hero
+         uses means they are ready before the page renders: no swap, no layout shift. -->
+    <link rel="preload" href="/fonts/bricolagegrotesque-0.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/instrumentsans-0.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 </head>
   <body>
