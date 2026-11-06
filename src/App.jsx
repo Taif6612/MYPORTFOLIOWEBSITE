@@ -50,8 +50,6 @@ function useScenes(reduced) {
       scenes.forEach((s) => s.style.setProperty("--p", s.dataset.scene === "deck" ? "1" : "0"));
       return;
     }
-    const cards = [...document.querySelectorAll(".lv-site")];
-    const wide = window.matchMedia("(min-width: 861px)").matches;
     let raf = 0;
     const tick = () => {
       raf = 0;
@@ -61,13 +59,6 @@ function useScenes(reduced) {
         const span = Math.max(1, r.height - vh);
         const p = Math.min(1, Math.max(0, -r.top / span));
         s.style.setProperty("--p", p.toFixed(4));
-      }
-      // Gallery hall: each card knows how far it sits from the centre (-1..1).
-      if (wide) for (const c of cards) {
-        const r = c.getBoundingClientRect();
-        const d = Math.max(-1, Math.min(1, (r.left + r.width / 2 - innerWidth / 2) / (innerWidth / 2)));
-        c.style.setProperty("--d", d.toFixed(3));
-        c.style.setProperty("--ad", Math.abs(d).toFixed(3));
       }
     };
     const on = () => raf || (raf = requestAnimationFrame(tick));
@@ -275,7 +266,6 @@ export default function App() {
         {/* RANGE — pinned horizontal rail of every live site */}
         <section id="work" className="lv-range" data-scene="rail" style={{ "--count": sites.length }} aria-labelledby="work-title">
           <div className="lv-range-pin">
-            <FlowField reduced={reduced} className="lv-art lv-art--hall" />
             <div className="lv-wrap lv-range-head">
               <h2 id="work-title" className="lv-h2">Ten sites, ten industries, all live.</h2>
               <p className="lv-muted">Every one is a complete build you can click through, not a screenshot.</p>

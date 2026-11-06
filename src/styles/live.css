@@ -408,3 +408,13 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
   .lv-site .lv-browser { -webkit-box-reflect: none; }
   .lv-site > a::before { background: rgb(241 237 228 / calc(var(--ad, 0) * 0.55)); }
 }
+
+/* ---- Rail perf: flat cards, no per-frame card work -------------------- */
+@media (min-width: 861px) {
+  .lv-rail { perspective: none; transform-style: flat; }
+  .lv-site { transform: none; will-change: auto; transition: none; }
+  .lv-site > a::before { display: none; }
+  .lv-site .lv-browser::after { display: none; }
+  .lv-site-meta, .lv-site-sum, .lv-tags { opacity: 1; }
+}
+.lv-rail { backface-visibility: hidden; }
