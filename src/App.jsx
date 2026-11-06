@@ -50,7 +50,8 @@ function useScenes(reduced) {
       scenes.forEach((s) => s.style.setProperty("--p", s.dataset.scene === "deck" ? "1" : "0"));
       return;
     }
-    let raf = 0;
+    const cards = [...document.querySelectorAll(".lv-site")];
+    let raf = 0, on_ = -1;
     const tick = () => {
       raf = 0;
       const vh = window.innerHeight;
@@ -59,6 +60,10 @@ function useScenes(reduced) {
         const span = Math.max(1, r.height - vh);
         const p = Math.min(1, Math.max(0, -r.top / span));
         s.style.setProperty("--p", p.toFixed(4));
+        if (s.dataset.scene === "rail") { // which card sits in the centre window
+          const i = Math.round(p * (cards.length - 1));
+          if (i !== on_) { cards[on_]?.classList.remove("is-on"); cards[i]?.classList.add("is-on"); on_ = i; }
+        }
       }
     };
     const on = () => raf || (raf = requestAnimationFrame(tick));

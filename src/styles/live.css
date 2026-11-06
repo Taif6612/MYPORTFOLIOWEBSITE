@@ -418,3 +418,25 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
   .lv-site-meta, .lv-site-sum, .lv-tags { opacity: 1; }
 }
 .lv-rail { backface-visibility: hidden; }
+
+/* ---- Rail v3: filmstrip through a centre window ------------------------
+   Small thumbnails flow left; the one in the centre opens up large.
+   Position is pure CSS from --p; JS only flips .is-on when the index changes. */
+@media (min-width: 861px) {
+  .lv-range { --S: 12vw; --B: min(46vw, 70vh); --G: 1.25rem; }
+  .lv-rail {
+    gap: var(--G); padding-inline: 0; align-items: center;
+    transform: translateX(calc(50vw - var(--B) / 2 - var(--p, 0) * (var(--count) - 1) * (var(--S) + var(--G))));
+  }
+  .lv-site { width: var(--S); flex: none; transition: width 0.6s var(--ease-out); }
+  .lv-site.is-on { width: var(--B); }
+  .lv-site:not(.is-on) .lv-browser { opacity: 0.7; transition: opacity 0.4s; }
+  .lv-site:not(.is-on) :is(.lv-site-sum, .lv-tags, .lv-hint, .lv-url) { opacity: 0; }
+  .lv-site:not(.is-on) .lv-site-meta { font-size: 0.8em; }
+  .lv-site-sum, .lv-tags { transition: opacity 0.4s 0.2s; }
+}
+@media (min-width: 861px) {
+  .lv-site:not(.is-on) .lv-site-meta { font-size: 1em; }
+  .lv-site:not(.is-on) .lv-site-meta h3 { font-size: 0.8rem; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lv-site:not(.is-on) .lv-site-meta span { display: none; }
+}
