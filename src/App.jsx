@@ -160,7 +160,8 @@ function RotatingWord() {
   }, []);
   return (
     <span className="lv-rot" aria-live="off">
-      <span key={i} className="lv-rot-word">{WORDS[i]}</span>
+      {/* every word sits in the same cell, so the slot is always the longest word wide: no reflow */}
+      {WORDS.map((w, n) => <span key={n === i ? `on${i}` : n} className="lv-rot-word" data-on={n === i || undefined}>{w}</span>)}
     </span>
   );
 }

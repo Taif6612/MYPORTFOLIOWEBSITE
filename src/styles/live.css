@@ -440,3 +440,5 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
   .lv-site:not(.is-on) .lv-site-meta h3 { font-size: 0.8rem; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .lv-site:not(.is-on) .lv-site-meta span { display: none; }
 }
+.lv-rot-word { grid-area: 1 / 1; }
+.lv-rot-word:not([data-on]) { visibility: hidden; animation: none; }
