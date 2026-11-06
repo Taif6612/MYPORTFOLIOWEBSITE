@@ -67,8 +67,10 @@ export default function FlowField({ reduced, theme = LIGHT, className = "lv-art"
     const loop = () => { if (visible && ++f % (theme.every || 1) === 0) step(); raf = requestAnimationFrame(loop); };
 
     resize();
-    for (let i = 0; i < 320; i++) step(); // arrive already painted, not blank
-    if (reduced) { for (let i = 0; i < 170; i++) step(); return; } // a still painting
+    if (reduced) { for (let i = 0; i < 490; i++) step(); return; } // a still painting
+    // Pre-paint in small slices so the first frames never block the main thread.
+    let pre = 320;
+    const prepaint = () => { for (let i = 0; i < 32 && pre > 0; i++, pre--) step(); if (pre > 0) raf = requestAnimationFrame(prepaint); else start(); };
 
     const io = new IntersectionObserver(([e]) => (visible = e.isIntersecting && !document.hidden));
     io.observe(cv);
@@ -85,8 +87,19 @@ export default function FlowField({ reduced, theme = LIGHT, className = "lv-art"
       if (Math.abs(r.width - w) > 1 || Math.abs(r.height - h) > 1) { resize(); for (let i = 0; i < 320; i++) step(); }
     });
     ro.observe(cv);
-    loop();
+    // Keep drifting only once the visitor is here (moves, scrolls) or after a beat.
+    let started = false, timer = 0;
+    function start() {
+      if (started) return;
+      const go = () => { if (started) return; started = true; clearTimeout(timer); loop(); };
+      timer = setTimeout(go, 3500);
+      addEventListener("pointermove", go, { once: true, passive: true });
+      addEventListener("scroll", go, { once: true, passive: true });
+      addEventListener("touchstart", go, { once: true, passive: true });
+    }
+    raf = requestAnimationFrame(prepaint);
     return () => {
+      started = true; clearTimeout(timer);
       cancelAnimationFrame(raf); io.disconnect(); ro.disconnect();
       window.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerleave", onLeave);
@@ -107,7 +120,7 @@ export function TypedSource({ reduced }) {
   return (
     <figure className="lv-code" aria-label="The code drawing the background">
       <figcaption>flow-field.js · drawing this page, live</figcaption>
-      <pre><code>{SOURCE.slice(0, n)}<span className="lv-caret" /></code></pre>
+      <pre><code>{SOURCE.slice(0, n)}<span className="lv-caret" /><span style={{ visibility: "hidden" }} aria-hidden="true">{SOURCE.slice(n)}</span></code></pre>
     </figure>
   );
 }

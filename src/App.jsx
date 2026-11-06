@@ -278,7 +278,7 @@ export default function App() {
             <ol className="lv-rail">
               {sites.map((p) => (
                 <li key={p.id} className="lv-site">
-                  <a href={p.url} target="_blank" rel="noopener noreferrer" aria-label={`Open ${p.title} live site`}>
+                  <a href={p.url} target="_blank" rel="noopener noreferrer">
                     <Browser p={p} live />
                   </a>
                   <div className="lv-site-meta">
