@@ -51,28 +51,49 @@ function useScenes(reduced) {
       return;
     }
     const cards = [...document.querySelectorAll(".lv-site")];
-    let raf = 0, on_ = -1;
+    const rail = document.querySelector(".lv-rail");
+    const bar = document.querySelector(".lv-progress");
+    const wideQ = window.matchMedia("(min-width: 861px)");
+    let raf = 0, on_ = -1, pitch = 0, c0 = 0;
+    // Rail geometry is read once per resize, never per frame (offsetLeft ignores transforms).
+    const measure = () => {
+      if (!wideQ.matches) { rail.style.transform = ""; return; }
+      c0 = cards[0].offsetLeft + cards[0].offsetWidth / 2;
+      pitch = cards[1].offsetLeft - cards[0].offsetLeft;
+    };
     const tick = () => {
       raf = 0;
       const vh = window.innerHeight;
-      for (const s of scenes) {
-        const r = s.getBoundingClientRect();
-        const span = Math.max(1, r.height - vh);
-        const p = Math.min(1, Math.max(0, -r.top / span));
-        s.style.setProperty("--p", p.toFixed(4));
-        if (s.dataset.scene === "rail") { // which card sits in the centre window
-          const i = Math.round(p * (cards.length - 1));
-          if (i !== on_) { cards[on_]?.classList.remove("is-on"); cards[i]?.classList.add("is-on"); on_ = i; }
+      const rects = scenes.map((s) => s.getBoundingClientRect()); // all reads first, then writes
+      scenes.forEach((s, k) => {
+        const r = rects[k];
+        if (s.dataset.scene !== "page" && (r.bottom < -vh || r.top > 2 * vh)) return; // off-screen scenes cost nothing
+        const p = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height - vh)));
+        // Page progress: write the bar's transform directly. Setting --p on the page
+        // root would make every element on the page restyle on every scroll frame.
+        if (s.dataset.scene === "page") { if (bar) bar.style.transform = `scaleX(${p.toFixed(4)})`; return; }
+        if (s.dataset.scene !== "rail") { s.style.setProperty("--p", p.toFixed(4)); return; }
+        // Rail: write the transform straight onto the strip (compositor only, no
+        // inherited custom property invalidating every descendant's style).
+        if (!wideQ.matches) return;
+        const x = innerWidth / 2 - c0 - p * (cards.length - 1) * pitch;
+        rail.style.transform = `translate3d(${x.toFixed(1)}px,0,0)`;
+        const i = Math.round(p * (cards.length - 1));
+        if (i !== on_) {
+          on_ = i;
+          cards.forEach((c, n) => { c.dataset.pos = n < i ? "before" : n > i ? "after" : "on"; c.classList.toggle("is-on", n === i); });
         }
-      }
+      });
     };
     const on = () => raf || (raf = requestAnimationFrame(tick));
+    const onResize = () => { measure(); on(); };
+    if (rail && cards.length > 1) measure();
     tick();
     window.addEventListener("scroll", on, { passive: true });
-    window.addEventListener("resize", on);
+    window.addEventListener("resize", onResize);
     return () => {
       window.removeEventListener("scroll", on);
-      window.removeEventListener("resize", on);
+      window.removeEventListener("resize", onResize);
       cancelAnimationFrame(raf);
     };
   }, [reduced]);

@@ -442,3 +442,27 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
 }
 .lv-rot-word { grid-area: 1 / 1; }
 .lv-rot-word:not([data-on]) { visibility: hidden; animation: none; }
+
+/* ---- Rail v4: transform-only filmstrip (butter mode) ------------------
+   Every card is laid out at the big size B but only occupies an S-wide slot
+   (negative margins). Small/big/push-aside are pure transforms, so the GPU
+   animates them without layout or paint. JS writes the strip's translate. */
+@media (min-width: 861px) {
+  .lv-range { --k: 0.27; --B: 46vw; --S: calc(var(--B) * var(--k)); --G: 1.25rem; }
+  .lv-rail { transform: none; transition: none; will-change: transform; }
+  .lv-site, .lv-site.is-on {
+    width: var(--B); margin-inline: calc((var(--S) - var(--B)) / 2);
+    transition: transform 0.6s var(--ease-out); will-change: transform;
+    transform: scale(var(--k));
+  }
+  .lv-site[data-pos="on"] { transform: none; z-index: 2; }
+  .lv-site[data-pos="before"] { transform: translateX(calc((var(--S) - var(--B)) / 2 - var(--G))) scale(var(--k)); }
+  .lv-site[data-pos="after"] { transform: translateX(calc((var(--B) - var(--S)) / 2 + var(--G))) scale(var(--k)); }
+  /* scaled-down cards: hide tiny text instead of rescaling it */
+  .lv-site:not(.is-on) :is(.lv-site-meta, .lv-site-sum, .lv-tags) { opacity: 0; }
+  .lv-site:not(.is-on) .lv-browser { opacity: 0.75; }
+  .lv-site > a:hover { transform: none; }
+}
+/* Big blurred shadows were the #1 scroll cost on the rail (repainted per frame).
+   A tight shadow + a hairline gives the same lift for a fraction of the paint. */
+.lv-site .lv-browser { box-shadow: none; outline: 1px solid rgb(20 23 26 / 0.12); outline-offset: -1px; }
