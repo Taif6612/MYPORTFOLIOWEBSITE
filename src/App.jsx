@@ -5,6 +5,7 @@ import { useReducedMotion } from "./lib/usePrefs.js";
 import { useReveals } from "./lib/useReveals.js";
 import Booking from "./components/Booking.jsx";
 import Clock from "./components/Clock.jsx";
+import FlowField, { TypedSource } from "./components/FlowField.jsx";
 import { award, certificates } from "./data/awards.js";
 import "./styles/live.css";
 
@@ -189,51 +190,6 @@ function SiteIndex() {
   );
 }
 
-/* Hero: one browser that builds a real site in front of you:
-   wireframe → paint → SHIPPED stamp, then the next project. */
-const STAGES = ["Wireframe", "Build", "Shipped"];
-function BuildHero({ reduced }) {
-  const [n, setN] = useState(0);
-  const [stage, setStage] = useState(reduced ? 2 : 0);
-  const [ready, setReady] = useState(false); // current poster decoded
-  useEffect(() => {
-    // Warm the next poster so its paint never waits on the network.
-    const next = new Image();
-    next.src = sites[(n + 1) % sites.length].poster;
-  }, [n]);
-  useEffect(() => {
-    if (reduced || !ready) return;
-    const t = [
-      setTimeout(() => setStage(1), 1300),
-      setTimeout(() => setStage(2), 2700),
-      setTimeout(() => { setStage(0); setReady(false); setN((k) => (k + 1) % sites.length); }, 5200),
-    ];
-    return () => t.forEach(clearTimeout);
-  }, [n, reduced, ready]);
-  const p = sites[n];
-  return (
-    <div className="lv-build" data-stage={stage} aria-hidden="true">
-      <div className="lv-build-win">
-        <div className="lv-chrome"><i /><i /><i /><span className="lv-url">taif.codes{p.url}</span></div>
-        <div className="lv-build-stage">
-          <svg className="lv-wire" viewBox="0 0 160 100" preserveAspectRatio="none" key={`w${n}`}>
-            <rect x="6" y="5" width="22" height="5" rx="1" /><rect x="110" y="5" width="44" height="5" rx="1" />
-            <rect x="6" y="20" width="80" height="10" rx="1" /><rect x="6" y="34" width="60" height="5" rx="1" />
-            <rect x="6" y="44" width="28" height="8" rx="4" /><rect x="96" y="18" width="58" height="40" rx="2" />
-            <rect x="6" y="66" width="46" height="28" rx="2" /><rect x="57" y="66" width="46" height="28" rx="2" /><rect x="108" y="66" width="46" height="28" rx="2" />
-          </svg>
-          <img key={`i${n}`} src={p.poster} srcSet={p.posterSrcSet} sizes="(max-width: 860px) 90vw, 50vw" alt="" width="1440" height="900" fetchpriority={n === 0 ? "high" : undefined} onLoad={() => setReady(true)} ref={(el) => el && el.complete && el.naturalWidth && !ready && setReady(true)} />
-          <span className="lv-stamp" key={`s${n}`}>Shipped</span>
-        </div>
-      </div>
-      <ol className="lv-steps">
-        {STAGES.map((l, k) => <li key={l} className={k <= stage ? "is-on" : ""}>{l}</li>)}
-        <li className="lv-steps-name">{p.title}</li>
-      </ol>
-    </div>
-  );
-}
-
 export default function App() {
   const reduced = useReducedMotion();
   useReveals(reduced, true);
@@ -258,21 +214,21 @@ export default function App() {
         {/* HOOK — a stack of real sites fans out as you scroll */}
         <section className="lv-hero" aria-labelledby="hero-title">
           <div className="lv-hero-pin">
-            <div className="lv-blobs" aria-hidden="true"><i /><i /><i /></div>
+            <FlowField reduced={reduced} />
             <div className="lv-hero-copy">
               <h1 id="hero-title" className="lv-display">
-                I ship <span className="fx-pixel">complete</span> websites.
-                <span className="lv-hero-sub"><span className="fx-shine">Open any</span> <em>of them.</em></span>
+                A few lines of <span className="fx-pixel">code</span>,
+                <span className="lv-hero-sub"><span className="fx-shine">something</span> <em>beautiful.</em></span>
               </h1>
               <p className="lv-lead">
-                I build <RotatingWord /> end to end. Ten finished sites below are live on this domain, plus production work for clients in Australia and the UK.
+                I'm Taif, a full-stack engineer. Everything moving behind this text is being painted right now by the code beside it. Move your cursor through it. I build <RotatingWord /> with the same care.
               </p>
               <div className="lv-ctas">
                 <a className="lv-btn" href="#booking">Book a project</a>
                 <a className="lv-btn lv-btn--ghost" href="#work">See the work</a>
               </div>
             </div>
-            <BuildHero reduced={reduced} />
+            <TypedSource reduced={reduced} />
           </div>
         </section>
 

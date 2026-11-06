@@ -420,3 +420,30 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
 .lv-certs a:hover strong { color: var(--signal-deep); }
 .lv-slot--cert { aspect-ratio: 4 / 3; }
 @media (max-width: 860px) { .lv-awards { grid-template-columns: 1fr; } .lv-certs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* ---- Generative hero: flow field + live source ------------------------- */
+.lv-hero-pin { isolation: isolate; }
+.lv-art { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; display: block; }
+.lv-hero-copy { position: relative; }
+.lv-hero-copy::before { /* soft paper halo keeps type readable over the ink */
+  content: ""; position: absolute; inset: -3rem -4rem; z-index: -1;
+  background: radial-gradient(closest-side, rgb(241 237 228 / 0.92), rgb(241 237 228 / 0.6) 60%, transparent);
+}
+.lv-code {
+  justify-self: end; align-self: end; margin: 0 0 2rem; width: min(100%, 460px);
+  background: rgb(20 23 26 / 0.9); color: #e9e6df; border-radius: var(--radius);
+  box-shadow: 0 30px 60px -30px rgb(20 23 26 / 0.6); backdrop-filter: blur(6px);
+  padding: 1rem 1.25rem 1.25rem; transform: rotate(1.2deg);
+}
+.lv-code figcaption { font-family: var(--font-mono); font-size: 0.7rem; color: #ff8a5c; margin-bottom: 0.75rem; }
+.lv-code pre { font-family: var(--font-mono); font-size: clamp(0.7rem, 0.62rem + 0.3vw, 0.85rem); line-height: 1.6; white-space: pre-wrap; min-height: 9.6em; }
+.lv-caret { display: inline-block; width: 0.55em; height: 1.1em; margin-left: 1px; vertical-align: -0.2em; background: var(--signal); animation: lv-blink 1s steps(1) infinite; }
+@keyframes lv-blink { 50% { opacity: 0; } }
+@media (max-width: 860px) { .lv-code { justify-self: stretch; transform: none; margin-top: 1rem; } }
+@media (prefers-reduced-motion: reduce) { .lv-caret { animation: none; } }
+
+.lv-code { width: min(100%, 540px); }
+.lv-code pre { white-space: pre; overflow-x: auto; scrollbar-width: none; }
+@media (max-width: 860px) { .lv-code pre { font-size: 0.66rem; } }
+
+@media (max-width: 860px) { .lv-hero-pin { grid-template-columns: minmax(0, 1fr); } .lv-code { width: 100%; } }
