@@ -394,3 +394,17 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
 }
 .lv-live { overscroll-behavior: contain; }
 .lv-live iframe { pointer-events: auto; }
+
+/* ---- Hall on paper: same world as the rest of the page ---------------- */
+.lv-range { background: var(--paper); color: var(--ink); }
+.lv-range .lv-muted { color: var(--ink-2); }
+.lv-art--hall { opacity: 0.35; }
+.lv-range-pin::before { display: none; }
+.lv-range-pin::after { display: none; }
+.lv-range-head { text-shadow: none; }
+.lv-site .lv-browser { box-shadow: 0 24px 50px -28px rgb(20 23 26 / 0.45); }
+@media (min-width: 861px) {
+  .lv-site { transform: rotateY(calc(var(--d, 0) * -18deg)) scale(calc(1 - var(--ad, 0) * 0.06)); }
+  .lv-site .lv-browser { -webkit-box-reflect: none; }
+  .lv-site > a::before { background: rgb(241 237 228 / calc(var(--ad, 0) * 0.55)); }
+}

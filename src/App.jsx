@@ -5,7 +5,7 @@ import { useReducedMotion } from "./lib/usePrefs.js";
 import { useReveals } from "./lib/useReveals.js";
 import Booking from "./components/Booking.jsx";
 import Clock from "./components/Clock.jsx";
-import FlowField, { TypedSource, DARK } from "./components/FlowField.jsx";
+import FlowField, { TypedSource } from "./components/FlowField.jsx";
 import { award, certificates } from "./data/awards.js";
 import "./styles/live.css";
 
@@ -275,7 +275,7 @@ export default function App() {
         {/* RANGE — pinned horizontal rail of every live site */}
         <section id="work" className="lv-range" data-scene="rail" style={{ "--count": sites.length }} aria-labelledby="work-title">
           <div className="lv-range-pin">
-            <FlowField reduced={reduced} theme={DARK} className="lv-art lv-art--hall" />
+            <FlowField reduced={reduced} className="lv-art lv-art--hall" />
             <div className="lv-wrap lv-range-head">
               <h2 id="work-title" className="lv-h2">Ten sites, ten industries, all live.</h2>
               <p className="lv-muted">Every one is a complete build you can click through, not a screenshot.</p>
