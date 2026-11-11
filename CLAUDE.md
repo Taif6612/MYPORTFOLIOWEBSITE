@@ -7,8 +7,9 @@ Context for Claude Code working in this repo. (Auto-loaded each session.)
 **Live: https://taif.codes**. Repo: https://github.com/Taif6612/MYPORTFOLIOWEBSITE (public, `main`).
 
 ## ⚠ Redesigned 2026-11-05 ("Live deck") — supersedes older notes below
-- Homepage is now **`src/App.jsx`** (single file, all sections) + **`src/styles/live.css`** (scoped `.lv`). Story: Hero deck → ProctorLess proof → pinned horizontal rail of live sites (`#work`) → Experience (`#experience`) → Research/stack → Booking (`#booking`).
+- Homepage is now **`src/App.jsx`** (single file, all sections) + **`src/styles/live.css`** (scoped `.lv`). Story: Inspect-lens hero → ProctorLess proof → pinned horizontal rail of live sites (`#work`) → Experience (`#experience`) → Research/stack → Booking (`#booking`).
 - Scroll scenes: `useScenes` sets `--p` (0..1) on each `[data-scene]`; all motion is CSS reading `--p`. Reduced motion pins it. Mobile (<860px) drops pinning; rail becomes native swipe.
+- **Hero = inspect lens** (`Hero`/`HeroLayer` in App.jsx, "HOOK: the inspect lens" in live.css, 2026-11-11). The hero markup renders twice: the page, and an aria-hidden build copy (`.lv-x`: outlines, live box sizes, grid, CSS notes) inside a round `.lv-lens`. Moving the lens = translate the lens + opposite-translate `.lv-x` (compositor only). Both copies must keep identical layout: style the build copy with colour/outline only, never size/spacing. Touch devices drift the lens; reduced motion parks it. The old FlowField/TypedSource/RotatingWord hero was removed.
 - Plates no longer iframe sites; they show WebP posters and link to `/sites/<id>/`.
 - Removed: Preloader, Cursor, SignalRail, Header, Hero, HeroShader, WorkIndex, ProjectPlate, Recognition, Clock, About, Footer, RotatingWord, Lenis, paper shaders. Old sections below describing them are historical.
 - Tokens in `global.css`: paper `#f1ede4`, ink `#14171a`, signal `#e8501e` (small text uses `--signal-deep #b33a0f`). Fonts Bricolage Grotesque / Instrument Sans / JetBrains Mono. Product brief in `PRODUCT.md`. Plan + audit log in `REDESIGN-NOTES.md`.

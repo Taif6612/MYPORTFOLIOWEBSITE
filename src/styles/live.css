@@ -59,16 +59,6 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
 .lv-head nav a:not(.lv-btn) { text-decoration: none; }
 .lv-head nav a:not(.lv-btn):hover { color: var(--signal-deep); }
 
-/* ---- HOOK: the deck ---------------------------------------------------- */
-.lv-hero { height: 240vh; position: relative; }
-.lv-hero-pin {
-  position: sticky; top: 0; height: 100vh; min-height: 640px; overflow: clip;
-  display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: center;
-  gap: 2rem; padding: 6rem var(--gutter) 2rem;
-}
-.lv-display { font-size: clamp(2.8rem, 1rem + 5.6vw, 6rem); font-weight: 800; }
-.lv-hero-sub { display: block; color: var(--signal-deep); }
-.lv-hero-copy .lv-lead { margin-top: 1.5rem; }
 
 /* ---- Browser frame ----------------------------------------------------- */
 .lv-browser { background: var(--paper-3); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
@@ -160,8 +150,6 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
 /* ---- Small screens: no pinning, native swipe rail ---------------------- */
 @media (max-width: 860px) {
   .lv-head nav a:not(.lv-btn):not([href="#work"]) { display: none; }
-  .lv-hero { height: auto; }
-  .lv-hero-pin { position: relative; height: auto; min-height: 0; grid-template-columns: 1fr; padding-top: 7rem; }
       .lv-proof, .lv-cred, .lv .booking-grid { grid-template-columns: 1fr; }
   .lv-range { height: auto; padding-block: 5rem; }
   .lv-range-pin { position: relative; height: auto; padding-top: 0; }
@@ -182,16 +170,6 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
 
 /* ======================= Restored + eye-catch layer ===================== */
 
-/* Hero: the second line gains weight and slides as the deck fans out */
-.lv-hero { isolation: isolate; }
-.lv-hero-sub { font-weight: calc(500 + var(--p, 0) * 300); }
-.lv-hero-sub em { font-style: normal; display: inline-block; transform: translateX(calc(var(--p, 0) * 0.35em)); }
-.lv-hero-pin::before {
-  content: ""; position: absolute; z-index: -1; right: -10vw; top: 10vh;
-  width: 60vw; aspect-ratio: 1; border-radius: 50%;
-  background: radial-gradient(closest-side, rgb(232 80 30 / 0.22), transparent 70%);
-  transform: translateY(calc(var(--p, 0) * -18vh)) scale(calc(1 + var(--p, 0) * 0.3));
-}
 
 
 /* About + portrait */
@@ -251,12 +229,9 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
 .lv-quote figcaption { margin-top: 1rem; color: #a9adb1; font-size: var(--step--1); }
 
 /* ---- Laptop & desktop sizing: 1280x800 (13"), 1366x768, 1440x900, 1536x864, 1920x1080 */
-.lv-display { font-size: clamp(2.6rem, min(5.4vw, 10vh), 7rem); }
 .lv-site { width: clamp(260px, min(32vw, 58vh), 560px); }
 @media (min-width: 861px) and (max-height: 900px) {
-  .lv-hero-pin { padding-top: 5rem; min-height: 560px; }
   .lv-lead { font-size: var(--step-0); }
-  .lv-ctas { margin-top: 1.4rem; }
   .lv-range-pin { gap: 1.5rem; padding-top: 4.5rem; }
   .lv-range .lv-h2 { font-size: clamp(1.8rem, 4.2vh, 2.8rem); }
   .lv-site-sum { -webkit-line-clamp: 2; }
@@ -277,25 +252,6 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
   }
 
 /* ======================= Living details ================================= */
-.lv-hero-pin::before { content: none; }
-
-/* "complete" pixelates on hover via the #px-filter SVG in index.html */
-.fx-pixel { display: inline-block; transition: filter 0.2s; cursor: crosshair; }
-.fx-pixel:hover { filter: url(#px-filter); }
-
-/* Shine sweep across "Open any" */
-.fx-shine {
-  background: linear-gradient(100deg, var(--signal-deep) 40%, #ffb38a 50%, var(--signal-deep) 60%) 0 0 / 250% 100%;
-  -webkit-background-clip: text; background-clip: text; color: transparent;
-  animation: lv-shine 4.5s ease-in-out infinite;
-}
-@keyframes lv-shine { 0%, 55% { background-position: 100% 0; } 100% { background-position: -50% 0; } }
-
-/* Rotating word */
-.lv-rot { display: inline-grid; color: var(--ink); font-weight: 600; }
-.lv-rot-word { display: inline-block; background: linear-gradient(transparent 62%, rgb(232 80 30 / 0.28) 62%); animation: lv-rot-in 0.55s var(--ease-out); }
-@keyframes lv-rot-in { from { opacity: 0; transform: translateY(0.5em) rotateX(60deg); filter: blur(4px); } }
-
 /* Scroll progress */
 .lv-progress { position: fixed; inset: 0 0 auto; height: 3px; z-index: 60; background: var(--signal); transform-origin: 0 50%; transform: scaleX(var(--p, 0)); }
 
@@ -324,33 +280,6 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
 
 .lv-co[src*="gy6"] { padding: 0; object-fit: cover; }
 
-
-/* ---- Generative hero: flow field + live source ------------------------- */
-.lv-hero-pin { isolation: isolate; }
-.lv-art { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; display: block; }
-.lv-hero-copy { position: relative; }
-.lv-hero-copy::before { /* soft paper halo keeps type readable over the ink */
-  content: ""; position: absolute; inset: -3rem -4rem; z-index: -1;
-  background: radial-gradient(closest-side, rgb(241 237 228 / 0.92), rgb(241 237 228 / 0.6) 60%, transparent);
-}
-.lv-code {
-  justify-self: end; align-self: end; margin: 0 0 2rem; width: min(100%, 460px);
-  background: rgb(20 23 26 / 0.9); color: #e9e6df; border-radius: var(--radius);
-  box-shadow: 0 30px 60px -30px rgb(20 23 26 / 0.6); backdrop-filter: blur(6px);
-  padding: 1rem 1.25rem 1.25rem; transform: rotate(1.2deg);
-}
-.lv-code figcaption { font-family: var(--font-mono); font-size: 0.7rem; color: #ff8a5c; margin-bottom: 0.75rem; }
-.lv-code pre { font-family: var(--font-mono); font-size: clamp(0.7rem, 0.62rem + 0.3vw, 0.85rem); line-height: 1.6; white-space: pre-wrap; min-height: 9.6em; }
-.lv-caret { display: inline-block; width: 0.55em; height: 1.1em; margin-left: 1px; vertical-align: -0.2em; background: var(--signal); animation: lv-blink 1s steps(1) infinite; }
-@keyframes lv-blink { 50% { opacity: 0; } }
-@media (max-width: 860px) { .lv-code { justify-self: stretch; transform: none; margin-top: 1rem; } }
-@media (prefers-reduced-motion: reduce) { .lv-caret { animation: none; } }
-
-.lv-code { width: min(100%, 540px); }
-.lv-code pre { white-space: pre; overflow-x: auto; scrollbar-width: none; }
-@media (max-width: 860px) { .lv-code pre { font-size: 0.66rem; } }
-
-@media (max-width: 860px) { .lv-hero-pin { grid-template-columns: minmax(0, 1fr); } .lv-code { width: 100%; } }
 
 /* ---- Gallery hall: glowing ink, curved walls, spotlight, glossy floor -- */
 .lv-range { isolation: isolate; }
@@ -440,8 +369,6 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
   .lv-site:not(.is-on) .lv-site-meta h3 { font-size: 0.8rem; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .lv-site:not(.is-on) .lv-site-meta span { display: none; }
 }
-.lv-rot-word { grid-area: 1 / 1; }
-.lv-rot-word:not([data-on]) { visibility: hidden; animation: none; }
 
 /* ---- Rail v4: transform-only filmstrip (butter mode) ------------------
    Every card is laid out at the big size B but only occupies an S-wide slot
@@ -485,3 +412,104 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
     }
   }
 }
+
+/* ---- HOOK: the inspect lens --------------------------------------------
+   One layout rendered twice: the page (.lv-hero > .lv-hero-in) and its build
+   (.lv-x, inside the lens). Hero.jsx moves the lens and counter-moves .lv-x. */
+.lv-hero {
+  --hx: max(var(--gutter), (100% - 1440px) / 2);
+  --fs: min(11vw, 15.5vh);
+  position: relative; height: 100vh; height: 100svh; min-height: 600px; max-height: 1160px;
+  overflow: clip; isolation: isolate;
+}
+.lv-hero-in {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: clamp(96px, 14vh, 136px) var(--hx) clamp(32px, 6vh, 64px);
+}
+.lv-hero-top { display: flex; justify-content: space-between; align-items: start; gap: 2rem; }
+.lv-hero-intro { font-size: var(--step-1); line-height: 1.3; max-width: 27ch; text-wrap: pretty; }
+.lv-hero-hint { font-size: var(--step--1); color: var(--stone); max-width: 30ch; text-align: right; padding-top: 0.4em; text-wrap: balance; }
+.lv-hint-touch { display: none; }
+@media (hover: none) { .lv-hint-hover { display: none; } .lv-hint-touch { display: inline; } }
+.lv-hero-foot { position: relative; }
+.lv-hero .lv-display { font-size: var(--fs); font-weight: 800; line-height: 0.9; letter-spacing: -0.045em; text-wrap: initial; }
+.lv-display > span { display: block; width: fit-content; white-space: nowrap; }
+.lv-hero-foot .lv-ctas { position: absolute; right: 0; bottom: calc(var(--fs) * 0.1); margin: 0; }
+.lv-btn > span { pointer-events: none; }
+
+/* entrance: intro, the three lines, the actions, then the lens opens */
+@keyframes lv-rise { from { opacity: 0; transform: translateY(0.4em); } }
+@keyframes lv-fade { from { opacity: 0; } }
+.lv-hero-intro { animation: lv-rise 0.9s var(--ease-out) 0.05s both; }
+.lv-hero-hint { animation: lv-fade 0.9s var(--ease-out) 0.6s both; }
+.lv-display > span { animation: lv-rise 1s var(--ease-out) 0.15s both; }
+.lv-display > span:nth-child(2) { animation-delay: 0.23s; }
+.lv-display > span:nth-child(3) { animation-delay: 0.31s; }
+.lv-hero-foot .lv-ctas { animation: lv-fade 0.9s var(--ease-out) 0.5s both; }
+
+/* the lens */
+.lv-lens {
+  --R: clamp(92px, 11vw, 172px);
+  position: absolute; left: 0; top: 0; z-index: 2;
+  width: calc(var(--R) * 2); height: calc(var(--R) * 2);
+  border-radius: 50%; overflow: hidden; pointer-events: none;
+  transform: translate3d(-999px, -999px, 0); will-change: transform;
+  box-shadow: 0 28px 60px -22px rgb(20 23 26 / 0.6), 0 0 0 6px rgb(241 237 228 / 0.55);
+  animation: lv-fade 0.8s var(--ease-out) 1s both;
+}
+.lv-lens::after { /* rim + crosshair, above the build */
+  content: ""; position: absolute; inset: 0; border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgb(241 237 228 / 0.3);
+  background:
+    linear-gradient(var(--signal), var(--signal)) center / 1px 20px no-repeat,
+    linear-gradient(var(--signal), var(--signal)) center / 20px 1px no-repeat;
+}
+.lv-x {
+  position: absolute; left: 0; top: 0; will-change: transform;
+  background-color: var(--ink); color: rgb(241 237 228 / 0.72);
+  background-image:
+    linear-gradient(rgb(241 237 228 / 0.05) 1px, transparent 0),
+    linear-gradient(90deg, rgb(241 237 228 / 0.05) 1px, transparent 0);
+  background-size: 16px 16px;
+}
+.lv-x * { animation: none !important; }
+.lv-x-cols {
+  position: absolute; inset: 0 var(--hx); z-index: -1;
+  display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px;
+}
+.lv-x-cols i { background: rgb(232 80 30 / 0.07); box-shadow: inset 1px 0 rgb(232 80 30 / 0.2), inset -1px 0 rgb(232 80 30 / 0.2); }
+.lv-x [data-ins] { position: relative; outline: 1px dashed rgb(232 80 30 / 0.85); }
+.lv-x [data-ins]::before {
+  content: attr(data-label); position: absolute; left: -1px; bottom: calc(100% + 1px);
+  font: 500 11px/1 var(--font-mono); letter-spacing: 0; color: var(--paper); white-space: nowrap;
+  background: var(--signal-deep); padding: 4px 6px; border-radius: 3px 3px 0 0;
+}
+.lv-x .lv-display { color: rgb(241 237 228 / 0.06); -webkit-text-stroke: 1px rgb(241 237 228 / 0.85); }
+.lv-x .lv-display > span { outline: 1px dotted rgb(241 237 228 / 0.28); }
+.lv-x .lv-hero-hint { color: rgb(241 237 228 / 0.5); }
+.lv-x .lv-btn, .lv-x .lv-btn--ghost {
+  color: var(--paper) !important; box-shadow: inset 0 0 0 1px var(--signal);
+  background: repeating-linear-gradient(-45deg, rgb(232 80 30 / 0.4) 0 1px, transparent 1px 6px); /* padding */
+}
+.lv-x .lv-btn > span { background: rgb(86 132 214 / 0.35); outline: 1px solid rgb(120 166 245 / 0.7); } /* content box */
+.lv-x .lv-ctas [data-ins]::before { bottom: auto; top: calc(100% + 1px); border-radius: 0 0 3px 3px; }
+.lv-x-note { position: absolute; font: 12px/1.65 var(--font-mono); color: rgb(241 237 228 / 0.66); white-space: pre; }
+.lv-x-note--lens { left: var(--rx); top: var(--ry); transform: translate(-50%, -50%); color: #ffb08c; }
+.lv-x[data-rest="word"] .lv-x-note--lens { display: none; }
+.lv-x-note--css { left: 0; bottom: calc(100% + 2.5rem); }
+
+@media (max-width: 860px) {
+  .lv-hero { --fs: clamp(2.5rem, 12.6vw, 4.6rem); height: auto; min-height: 0; max-height: none; }
+  .lv-hero-in { position: relative; inset: auto; justify-content: flex-start; gap: clamp(3rem, 9vh, 5rem); padding: 104px var(--hx) 3.5rem; }
+  .lv-hero-top { flex-direction: column; gap: 0.75rem; }
+  .lv-hero-hint { text-align: left; padding: 0; }
+  .lv-display > span { white-space: normal; text-wrap: balance; }
+  .lv-hero-foot .lv-ctas { position: static; margin-top: 1.75rem; }
+  .lv-x-cols { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  .lv-x-cols i:nth-child(n + 5), .lv-x-note { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lv-hero *, .lv-lens { animation: none !important; }
+}
+.lv-cursor.is-off { opacity: 0; }
