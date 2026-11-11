@@ -95,7 +95,7 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
 .lv-site h3 { font-size: var(--step-1); font-weight: 700; }
 .lv-site-meta .lv-muted { font-size: var(--step--1); white-space: nowrap; }
 .lv-site-sum { margin-top: 0.5rem; color: var(--ink-2); font-size: var(--step--1); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-.lv-tags { margin-top: 0.6rem; font-family: var(--font-mono); font-size: 0.72rem; color: #ff8a5c; }
+.lv-tags { margin-top: 0.6rem; font-family: var(--font-mono); font-size: 0.72rem; color: var(--signal-deep); }
 
 /* ---- DEPTH ------------------------------------------------------------- */
 .lv-depth { padding-block: clamp(5rem, 12vw, 10rem) 2rem; }
