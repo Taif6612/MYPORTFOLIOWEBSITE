@@ -48,6 +48,7 @@ export async function createPixelRoom({ canvas, stage, reduced = false, screenSr
   const hourOverride = Q.has("h") ? +Q.get("h") : null;
 
   /* ---------- renderer & low-res pipeline ---------- */
+  await pause(); // let the module's own evaluation finish in its own task
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: "high-performance" });
   renderer.setPixelRatio(1);
   renderer.shadowMap.enabled = true;
@@ -466,10 +467,31 @@ void main(){
   const envTimer = setInterval(applyEnv, 60000);
   await pause();
   const warm = new THREE.Scene(); warm.add(new THREE.Mesh(new THREE.PlaneGeometry(), normalMat));
-  await Promise.all([renderer.compileAsync(scene, cam), renderer.compileAsync(warm, cam), renderer.compileAsync(postScene, postCam)]).catch(() => {});
+  for (const [sc, c] of [[scene, cam], [warm, cam], [postScene, postCam]]) { await renderer.compileAsync(sc, c).catch(() => {}); await pause(); }
   await pause();
-  // render the shadow maps once on their own before the first visible frame (it compiles their depth shaders)
-  renderer.shadowMap.needsUpdate = true; renderer.setRenderTarget(rtC); renderer.render(scene, cam); renderer.setRenderTarget(null);
+  // Warm-up. ANGLE (Chrome on Windows) only finishes a shader at its first draw, so the first full frame
+  // used to block for ~150 ms. Draw one object per shader variant, each in its own task, into the same
+  // targets the real frame uses (a private layer hides everything else; lights join it so the variant matches).
+  const WARM = 2, lights = [hemi, sky, lamp, fairy, monLight], reps = new Map();
+  scene.traverse((o) => {
+    const m = o.material; if (!m || Array.isArray(m) || !o.visible) return;
+    const key = [o.type, m.type, m.vertexColors, !!m.map, m.side, m.transparent].join();
+    if (!reps.has(key)) reps.set(key, o);
+  });
+  lights.forEach((l) => l.layers.enable(WARM));
+  renderer.shadowMap.needsUpdate = true; // the first warm-up draw also fills the shadow maps
+  renderer.setRenderTarget(rtC);
+  for (const o of reps.values()) {
+    if (signal?.aborted) break;
+    o.layers.enable(WARM); cam.layers.set(WARM); renderer.render(scene, cam); o.layers.disable(WARM);
+    await pause();
+  }
+  lights.forEach((l) => l.layers.disable(WARM));
+  const bg0 = scene.background; scene.background = null; scene.overrideMaterial = normalMat; cam.layers.set(0);
+  renderer.setRenderTarget(rtN); renderer.render(scene, cam);
+  scene.overrideMaterial = null; scene.background = bg0; cam.layers.enable(FX);
+  await pause();
+  renderer.setRenderTarget(null); renderer.render(postScene, postCam);
   await pause();
   if (!signal?.aborted) raf = requestAnimationFrame(frame);
 

@@ -5,6 +5,25 @@ import { useEffect, useRef, useState } from "react";
    room is one lit corner of an apartment block. The sky colour follows the visitor's
    clock and is mirrored into --hero-bg / --hero-fg (first set by the inline script in
    index.html so there is no flash before three.js arrives). */
+/* WebGL present AND hardware-accelerated. Under software rasterizers (SwiftShader /
+   llvmpipe: headless Chromium, blocklisted GPUs) the room renders on the CPU and
+   blocks the page for seconds, so those devices keep the plain tagline-on-sky hero
+   and never download three.js. Same gate the old shader hero used (0528297). */
+function gpuIsHardware() {
+  if (location.search.includes("noroom")) return false; // A/B and escape hatch
+  try {
+    const c = document.createElement("canvas");
+    const gl = c.getContext("webgl2", { failIfMajorPerformanceCaveat: true }) || c.getContext("webgl", { failIfMajorPerformanceCaveat: true });
+    if (!gl) return false;
+    const ext = gl.getExtension("WEBGL_debug_renderer_info");
+    const renderer = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : "";
+    gl.getExtension("WEBGL_lose_context")?.loseContext();
+    return !/swiftshader|software|llvmpipe|basic render|microsoft basic/i.test(renderer);
+  } catch {
+    return false;
+  }
+}
+
 export default function Hero({ reduced }) {
   const sec = useRef(null), stage = useRef(null), cv = useRef(null), hud = useRef(null), dive = useRef(null), roomRef = useRef(null);
   const [ready, setReady] = useState(false);
@@ -85,7 +104,7 @@ export default function Hero({ reduced }) {
         onScroll();
       })
       .catch(() => {});
-    const later = () => { idle = window.requestIdleCallback ? requestIdleCallback(start, { timeout: 2000 }) : setTimeout(start, 200); };
+    const later = () => { if (gpuIsHardware()) idle = window.requestIdleCallback ? requestIdleCallback(start, { timeout: 2000 }) : setTimeout(start, 200); };
     if (document.readyState === "complete") later(); else window.addEventListener("load", later, { once: true });
 
     const ro = new ResizeObserver(() => room?.resize());
