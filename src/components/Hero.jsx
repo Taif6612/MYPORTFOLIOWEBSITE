@@ -1,14 +1,25 @@
 import { useEffect, useRef, useState } from "react";
 
-/* Hero = tagline in front of the pixel room (pixelRoom.js, loaded after first paint).
-   The section is tall with a sticky stage: scrolling pulls the camera back until the
-   room is one lit corner of an apartment block. The sky colour follows the visitor's
-   clock and is mirrored into --hero-bg / --hero-fg (first set by the inline script in
-   index.html so there is no flash before three.js arrives). */
+/* Hero = tagline in front of the pixel room. The room (pixelRoom.js) is three.js and
+   never runs during first paint: after the page has loaded it starts inside a worker
+   on an OffscreenCanvas (pixelRoom.worker.js), so building and drawing it cannot block
+   the page; browsers without worker WebGL run the same module on the main thread.
+   This component owns everything DOM: pointer and scroll input, the caption, labels,
+   toasts and the dive overlay. The section is tall with a sticky stage: scrolling pulls
+   the camera back until the room is one lit corner of an apartment block. The sky
+   follows the visitor's clock and is mirrored into --hero-bg / --hero-fg (first set by
+   the inline script in index.html so there is no flash before the room arrives). */
+
+const SCREEN = "/hero-screen.webp"; // screenshot of #about: on the monitor, and what the dive resolves into
+const FRAMES = ["proctorless", "autohub-premium", "luxeglow-spa", "solar-panel"].map((id) => `/projects/shots/${id}-800.webp`);
+const COPY = { trophy: "Winner, Algorithm Project Showcase · TechFest", degree: "B.Sc. in Computer Science, 2026" };
+const LABELS = { screen: "Step inside", watch: "Your time", mug: "Coffee", lamp: "Lamp", plant: "Plant", me: "Say hi", trophy: "Trophy", degree: "Degree", frames: "See my work", phone: "Call me" };
+const greet = (h) => (h >= 5 && h < 12 ? "Good morning" : h >= 12 && h < 17 ? "Good afternoon" : h >= 17 && h < 23 ? "Good evening" : "You’re up late");
+
 /* WebGL present AND hardware-accelerated. Under software rasterizers (SwiftShader /
-   llvmpipe: headless Chromium, blocklisted GPUs) the room renders on the CPU and
-   blocks the page for seconds, so those devices keep the plain tagline-on-sky hero
-   and never download three.js. Same gate the old shader hero used (0528297). */
+   llvmpipe: headless Chromium, blocklisted GPUs) the room would render on the CPU,
+   so those devices keep the plain tagline-on-sky hero and never download three.js.
+   Same gate the old shader hero used (0528297). */
 function gpuIsHardware() {
   if (location.search.includes("noroom")) return false; // A/B and escape hatch
   try {
@@ -24,47 +35,66 @@ function gpuIsHardware() {
   }
 }
 
+/* Can a worker draw the room? Needs a transferable canvas and WebGL on OffscreenCanvas
+   (Safari before 17 has the canvas but not the WebGL). `?roommain` forces the fallback. */
+function workerCanRender() {
+  if (location.search.includes("roommain")) return false;
+  try {
+    if (typeof Worker === "undefined" || !("transferControlToOffscreen" in HTMLCanvasElement.prototype)) return false;
+    const gl = new OffscreenCanvas(1, 1).getContext("webgl2");
+    gl?.getExtension("WEBGL_lose_context")?.loseContext();
+    return !!gl;
+  } catch {
+    return false;
+  }
+}
+
 export default function Hero({ reduced }) {
-  const sec = useRef(null), stage = useRef(null), cv = useRef(null), hud = useRef(null), dive = useRef(null), roomRef = useRef(null);
+  const sec = useRef(null), stage = useRef(null), cv = useRef(null), hud = useRef(null), dive = useRef(null), tip = useRef(null);
   const [ready, setReady] = useState(false);
   const [mode, setMode] = useState("room");
   const [time, setTime] = useState("");
+  const [hello, setHello] = useState("");
   const [watch, setWatch] = useState("");
   const [toast, setToast] = useState(null);
   const [touch, setTouch] = useState(false);
 
   useEffect(() => {
     if (!toast) return;
-    const h = setTimeout(() => setToast(null), 1700);
+    const h = setTimeout(() => setToast(null), 2200);
     return () => clearTimeout(h);
   }, [toast]);
 
   useEffect(() => {
     setTouch(window.matchMedia("(hover: none)").matches);
-    const root = document.documentElement, s = sec.current, st = stage.current;
-    let room = null, dead = false;
+    const root = document.documentElement, s = sec.current, st = stage.current, canvas = cv.current;
     const hm = { hour: "numeric", minute: "2-digit" };
+    const ac = new AbortController(), probes = new Map();
+    // `room(method, ...args)` reaches the room wherever it runs; null until it exists
+    let room = null, worker = null, mainRoom = null, dead = false, idle = 0, modeNow = "room", ptrRaf = 0, ptrEvt = null, probeId = 0;
 
-    const onScroll = () => {
+    const sync = () => {
       const r = s.getBoundingClientRect();
       const p = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height - st.offsetHeight)));
-      room?.setScroll(p);
+      room?.("setScroll", p);
       hud.current.style.opacity = String(Math.min(1, Math.max(0, 1 - p * 3.5)));
       st.style.setProperty("--hint", String(Math.max(0, 1 - p * 6)));
       root.classList.toggle("on-hero", r.bottom > 72);
     };
+    // NDC on the canvas (x right, y up): what the room picks with
+    const ndc = (x, y) => { const c = canvas.getBoundingClientRect(); return [((x - c.left) / c.width) * 2 - 1, 1 - ((y - c.top) / c.height) * 2]; };
 
     // The dive: the camera has flown into the monitor. Resolve its picture from big
     // blocks to sharp, land on the real About section underneath, then fade away.
     const land = () => {
       const el = dive.current, c = el.firstChild, ctx = c.getContext("2d"), img = new Image();
-      img.src = "/hero-screen.webp";
+      img.src = SCREEN;
       const tmp = document.createElement("canvas"), tc = tmp.getContext("2d");
       const finish = () => {
         const about = document.getElementById("about");
         const head = document.querySelector(".lv-head")?.offsetHeight || 0;
         window.scrollTo({ top: about.getBoundingClientRect().top + window.scrollY - head + 8, behavior: "instant" });
-        room?.reset();
+        room?.("reset");
         el.classList.add("is-out");
         setTimeout(() => el.classList.remove("is-on", "is-out"), 500);
       };
@@ -81,55 +111,101 @@ export default function Hero({ reduced }) {
       }, finish);
     };
 
+    // everything the room tells the page (plain data: it may come from a worker)
     const ui = {
-      env: ({ bg, fg, time: d }) => { root.style.setProperty("--hero-bg", bg); root.style.setProperty("--hero-fg", fg); setTime(d.toLocaleTimeString([], hm)); },
-      mode: setMode,
+      env: ({ bg, fg, time: ms }) => { const d = new Date(ms); root.style.setProperty("--hero-bg", bg); root.style.setProperty("--hero-fg", fg); setTime(d.toLocaleTimeString([], hm)); setHello(greet(d.getHours())); },
+      size: ({ w, h }) => { canvas.style.width = `${w}px`; canvas.style.height = `${h}px`; },
+      mode: (m) => { modeNow = m; setMode(m); },
       toast: (text) => setToast({ text, n: performance.now() }),
-      watch: (d) => { const t = d.toLocaleTimeString([], { ...hm, second: "2-digit" }); setWatch((w) => (w === t ? w : t)); },
+      watch: (ms) => { const t = new Date(ms).toLocaleTimeString([], { ...hm, second: "2-digit" }); setWatch((w) => (w === t ? w : t)); },
+      hover: (name) => { st.style.cursor = name ? "pointer" : ""; const el = tip.current; if (name) el.textContent = LABELS[name] || ""; el.classList.toggle("is-on", !!name); },
+      go: (hash) => document.querySelector(hash)?.scrollIntoView({ behavior: reduced ? "auto" : "smooth" }),
       dive: land,
       ready: () => setReady(true),
+      probe: (id, name) => { probes.get(id)?.(name); probes.delete(id); },
     };
 
-    // The room is an enhancement on top of a finished hero: fetch and build it only once
-    // the page has loaded and the main thread is idle. No WebGL: the hero stays tagline-on-sky.
-    const ac = new AbortController();
-    let idle = 0;
-    const start = () => import("./pixelRoom.js")
-      .then(({ createPixelRoom }) => (dead ? null : createPixelRoom({ canvas: cv.current, stage: st, reduced, screenSrc: "/hero-screen.webp", ui, signal: ac.signal })))
-      .then((r) => {
-        if (!r) return;
-        if (dead) { r.dispose(); return; }
-        room = roomRef.current = r;
-        if (location.search.includes("roomdebug")) window.__room = r; // for automated click tests
-        onScroll();
-      })
-      .catch(() => {});
+    const options = () => ({ width: st.clientWidth, height: st.clientHeight, reduced, query: location.search, screenSrc: SCREEN, frames: FRAMES, copy: COPY });
+    const up = () => {
+      sync(); room("setActive", !document.hidden);
+      if (location.search.includes("roomdebug")) window.__room = { // for automated click tests
+        pick: (x, y) => new Promise((res) => { probes.set(++probeId, res); room("probe", probeId, ...ndc(x, y)); }),
+        get mode() { return modeNow; }, worker: !!worker,
+      };
+    };
+    const start = () => {
+      if (dead) return;
+      if (workerCanRender()) {
+        try { worker = new Worker(new URL("./pixelRoom.worker.js", import.meta.url), { type: "module" }); } catch { worker = null; }
+      }
+      if (worker) {
+        worker.onmessage = ({ data }) => ui[data.ui]?.(...data.a);
+        const off = canvas.transferControlToOffscreen(); // from here the canvas belongs to the worker
+        worker.postMessage({ init: { ...options(), canvas: off } }, [off]);
+        room = (method, ...a) => worker.postMessage({ call: method, a });
+        up();
+        return;
+      }
+      import("./pixelRoom.js")
+        .then(({ createPixelRoom }) => (dead ? null : createPixelRoom({ ...options(), canvas, ui, signal: ac.signal })))
+        .then((r) => {
+          if (!r) return;
+          if (dead) { r.dispose(); return; }
+          mainRoom = r; room = (method, ...a) => r[method]?.(...a);
+          up();
+        })
+        .catch(() => {}); // no WebGL after all: the hero stays tagline-on-sky
+    };
+    // The room is an enhancement on top of a finished hero: start it only once the page has loaded and is idle.
     const later = () => { if (gpuIsHardware()) idle = window.requestIdleCallback ? requestIdleCallback(start, { timeout: 2000 }) : setTimeout(start, 200); };
     if (document.readyState === "complete") later(); else window.addEventListener("load", later, { once: true });
 
-    const ro = new ResizeObserver(() => room?.resize());
-    const io = new IntersectionObserver(([e]) => room?.setActive(e.isIntersecting));
-    const esc = (e) => { if (e.key === "Escape") room?.leaveWatch(); };
+    // pointer: coalesced to one message a frame
+    const flush = () => {
+      ptrRaf = 0; const e = ptrEvt; if (!e || !room) return;
+      const r = st.getBoundingClientRect();
+      room("pointer", ((e.x - r.left) / r.width) * 2 - 1, ((e.y - r.top) / r.height) * 2 - 1, ...ndc(e.x, e.y), e.ui);
+      tip.current.style.transform = `translate(${Math.round(e.x - r.left + 14)}px, ${Math.round(e.y - r.top + 18)}px)`;
+    };
+    const onMove = (e) => { if (e.pointerType === "touch") return; ptrEvt = { x: e.clientX, y: e.clientY, ui: !!e.target.closest("a, button, h1, p") }; if (!ptrRaf) ptrRaf = requestAnimationFrame(flush); };
+    const onLeave = () => { ptrEvt = null; room?.("leave"); };
+    const onClick = (e) => { if (!e.target.closest("a, button")) room?.("click", ...ndc(e.clientX, e.clientY)); };
+    const onKey = (e) => { if (e.key === "Escape") room?.("leaveWatch"); };
+    const onVis = () => room?.("setActive", !document.hidden && inView);
+    let inView = true;
+    const ro = new ResizeObserver(() => room?.("resize", st.clientWidth, st.clientHeight));
+    const io = new IntersectionObserver(([e]) => { inView = e.isIntersecting; onVis(); });
     ro.observe(st); io.observe(s);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("keydown", esc);
-    onScroll();
+    st.addEventListener("pointermove", onMove, { passive: true });
+    st.addEventListener("pointerleave", onLeave);
+    st.addEventListener("click", onClick);
+    window.addEventListener("scroll", sync, { passive: true });
+    window.addEventListener("keydown", onKey);
+    document.addEventListener("visibilitychange", onVis);
+    sync();
     return () => {
       dead = true; ac.abort();
       window.removeEventListener("load", later);
       (window.cancelIdleCallback || clearTimeout)(idle);
+      cancelAnimationFrame(ptrRaf);
       ro.disconnect(); io.disconnect();
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("keydown", esc);
+      st.removeEventListener("pointermove", onMove);
+      st.removeEventListener("pointerleave", onLeave);
+      st.removeEventListener("click", onClick);
+      window.removeEventListener("scroll", sync);
+      window.removeEventListener("keydown", onKey);
+      document.removeEventListener("visibilitychange", onVis);
       root.classList.remove("on-hero");
-      room?.dispose(); roomRef.current = null;
+      worker?.terminate(); mainRoom?.dispose();
+      setReady(false);
     };
   }, [reduced]);
 
   return (
     <section id="hero" className="lv-hero" ref={sec} aria-labelledby="hero-title">
       <div className="lv-stage" ref={stage} data-mode={mode}>
-        <canvas ref={cv} className={`lv-room${ready ? " is-on" : ""}`} aria-hidden="true" />
+        {/* keyed: a canvas handed to a worker can't be reused, so a new run gets a new element */}
+        <canvas key={reduced ? "still" : "live"} ref={cv} className={`lv-room${ready ? " is-on" : ""}`} aria-hidden="true" />
         <div className="lv-hud" ref={hud}>
           <p className="lv-hero-intro">I’m Taif, a full-stack engineer. I design it, build it, and keep it running.</p>
           <h1 id="hero-title" className="lv-display">
@@ -144,10 +220,11 @@ export default function Hero({ reduced }) {
         </div>
         {ready && (
           <>
-            <p className="lv-room-cap">Set to your time, {time}.<br />{touch ? "Tap" : "Click"} around the room.</p>
+            <p className="lv-room-cap">{hello}. It’s {time} where you are.<br />{touch ? "Tap" : "Click"} around the room.</p>
             {!reduced && <p className="lv-room-hint" aria-hidden="true">Scroll to step outside</p>}
           </>
         )}
+        <span className="lv-tip" ref={tip} aria-hidden="true" />
         <p className={`lv-toast${toast ? " is-on" : ""}`} role="status">{toast?.text}</p>
         {mode === "watch" && (
           <div className="lv-watchcap"><b>{watch}</b><span>Your time, right now. {touch ? "Tap" : "Click"} to go back.</span></div>
