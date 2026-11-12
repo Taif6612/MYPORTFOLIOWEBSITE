@@ -5,10 +5,10 @@ import { loadGuides } from "./src/cms/load";
 import { writeFeeds } from "./src/cms/feeds";
 
 // The homepage is a lazy route, and vite-react-ssg preloads every chunk its
-// module graph can reach — including the WebGL mesh shader, which Hero.jsx
-// deliberately downloads only on hardware-accelerated GPUs. Dropping that one
-// preload keeps software-GPU devices (and Lighthouse) from fetching it.
-const CONDITIONAL_CHUNK_PRELOAD = /<link\b[^>]*\brel="modulepreload"[^>]*\/HeroShader-[^>]*>\s*/g;
+// module graph can reach — including the pixel room (three.js, ~500 KB), which
+// Hero.jsx deliberately fetches only after the page has loaded. Dropping that
+// preload keeps it from competing with the page's own scripts and fonts.
+const CONDITIONAL_CHUNK_PRELOAD = /<link\b[^>]*\brel="modulepreload"[^>]*\/pixelRoom-[^>]*>\s*/g;
 
 // https://vitejs.dev/config/
 export default defineConfig({

@@ -5,6 +5,7 @@ import { useReducedMotion } from "./lib/usePrefs.js";
 import { useReveals } from "./lib/useReveals.js";
 import Booking from "./components/Booking.jsx";
 import Clock from "./components/Clock.jsx";
+import Hero from "./components/Hero.jsx";
 import { award, certificates } from "./data/awards.js";
 import "./styles/live.css";
 
@@ -175,135 +176,6 @@ function Arrow() {
   );
 }
 
-/* HOOK: the finished page on top; a lens that follows the pointer shows the same
-   page as it's built (boxes, live sizes, grid, the real CSS). Both copies share one
-   layout, so moving the lens is two opposite translates per frame: compositor only. */
-function HeroLayer({ x }) {
-  const H = x ? "div" : "h1";
-  const A = x ? "span" : "a";
-  return (
-    <div className="lv-hero-in">
-      {x && <div className="lv-x-cols">{Array.from({ length: 12 }, (_, i) => <i key={i} />)}</div>}
-      {x && (
-        <pre className="lv-x-note lv-x-note--lens">{`// you're looking through
-// a lens made of
-lens.translate( x,  y)
-page.translate(-x, -y)
-// two transforms a frame,
-// nothing repaints`}</pre>
-      )}
-      <div className="lv-hero-top">
-        <p className="lv-hero-intro" data-ins="p.intro">I’m Taif, a full-stack engineer.<br />I design it, build it, and keep it running.</p>
-        <p className="lv-hero-hint" data-ins="p.hint">
-          <span className="lv-hint-hover">Move your cursor to look under the page.</span>
-          <span className="lv-hint-touch">Tap anywhere to look under the page.</span>
-        </p>
-      </div>
-      <div className="lv-hero-foot">
-        {x && (
-          <pre className="lv-x-note lv-x-note--css">{`h1 {
-  font: 800 min(11vw, 15.5vh)/.9 "Bricolage Grotesque";
-  letter-spacing: -.045em;
-}
-h1 > span { display: block; white-space: nowrap; }`}</pre>
-        )}
-        <H id={x ? undefined : "hero-title"} className="lv-display" data-ins="h1">
-          <span>I build what you see</span>
-          <span>and everything</span>
-          <span>you don’t.</span>
-        </H>
-        <div className="lv-ctas">
-          <A className="lv-btn" href={x ? undefined : "#booking"} data-ins="a.cta"><span>Book a project</span></A>
-          <A className="lv-btn lv-btn--ghost" href={x ? undefined : "#work"} data-ins="a.cta"><span>See the work</span></A>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Hero({ reduced }) {
-  const stage = useRef(null), lens = useRef(null), view = useRef(null);
-  useEffect(() => {
-    const s = stage.current, l = lens.current, v = view.current;
-    const touch = window.matchMedia("(hover: none)").matches;
-    const drift = touch && !reduced;
-    const k = reduced ? 1 : 0.14;
-    let R = 0, rx = 0, ry = 0, hx = 0, hy = 0, hw = 0, hh = 0;
-    let tx = 0, ty = 0, cx = 0, cy = 0, raf = 0, live = true, hold = 0, ready = false;
-    const t0 = performance.now();
-    const place = () => {
-      l.style.transform = `translate3d(${(cx - R).toFixed(1)}px,${(cy - R).toFixed(1)}px,0)`;
-      v.style.transform = `translate3d(${(R - cx).toFixed(1)}px,${(R - cy).toFixed(1)}px,0)`;
-    };
-    const tick = (now) => {
-      raf = 0;
-      if (drift && now > hold) {
-        const p = (now - t0) / 1000;
-        tx = hx + hw * (0.5 + 0.36 * Math.sin(p * 0.42));
-        ty = hy + hh * (0.5 + 0.4 * Math.sin(p * 0.77));
-      }
-      cx += (tx - cx) * k; cy += (ty - cy) * k;
-      place();
-      if (live && (drift || Math.abs(tx - cx) > 0.2 || Math.abs(ty - cy) > 0.2)) raf = requestAnimationFrame(tick);
-    };
-    const kick = () => { if (live && !raf) raf = requestAnimationFrame(tick); };
-    const measure = () => {
-      const r = s.getBoundingClientRect();
-      v.style.width = `${r.width}px`; v.style.height = `${r.height}px`;
-      const top = s.querySelector(".lv-hero-top").getBoundingClientRect();
-      const h1 = s.querySelector(".lv-display").getBoundingClientRect();
-      const word = s.querySelector(".lv-display > span:nth-child(2)").getBoundingClientRect();
-      const pad = h1.left - r.left, band = h1.top - top.bottom, inBand = band >= 176;
-      // rest in the open band above the headline (sized to fit it) when there's room,
-      // otherwise on "everything", the word the lens is about
-      l.style.removeProperty("--R");
-      R = l.offsetWidth / 2;
-      if (inBand) { R = Math.min(R, band / 2 + 12); l.style.setProperty("--R", `${R}px`); rx = r.width - pad - R; ry = top.bottom - r.top + band / 2; }
-      else { rx = Math.min(r.width - R, word.right - r.left - R * 0.55); ry = word.top - r.top + word.height / 2; }
-      v.dataset.rest = inBand ? "band" : "word";
-      v.style.setProperty("--rx", `${rx}px`); v.style.setProperty("--ry", `${ry}px`);
-      // touch drift covers the band and the headline
-      hx = pad; hy = top.bottom - r.top; hw = h1.width; hh = h1.bottom - top.bottom;
-      // labels show the real rendered size of each box
-      v.querySelectorAll("[data-ins]").forEach((el) => { el.dataset.label = `${el.dataset.ins} ${el.offsetWidth}×${el.offsetHeight}`; });
-      if (!ready) { cx = tx = rx; cy = ty = ry; ready = true; }
-      place(); kick();
-    };
-    const at = (e) => { const r = s.getBoundingClientRect(); tx = e.clientX - r.left; ty = e.clientY - r.top; kick(); };
-    const move = (e) => { if (e.pointerType !== "touch") at(e); };
-    const down = (e) => { if (e.pointerType === "touch") { hold = performance.now() + 2600; at(e); } };
-    const leave = (e) => { if (e.pointerType !== "touch") { tx = rx; ty = ry; kick(); } };
-    const focus = (e) => {
-      const r = s.getBoundingClientRect(), q = e.target.getBoundingClientRect();
-      tx = q.left - r.left + q.width / 2; ty = q.top - r.top + q.height / 2; hold = performance.now() + 2600; kick();
-    };
-    const ro = new ResizeObserver(measure);
-    const io = new IntersectionObserver(([en]) => { live = en.isIntersecting; if (live) kick(); else { cancelAnimationFrame(raf); raf = 0; } });
-    ro.observe(s); io.observe(s);
-    document.fonts?.ready.then(measure);
-    s.addEventListener("pointermove", move, { passive: true });
-    s.addEventListener("pointerdown", down, { passive: true });
-    s.addEventListener("pointerleave", leave);
-    s.addEventListener("focusin", focus);
-    return () => {
-      ro.disconnect(); io.disconnect(); cancelAnimationFrame(raf);
-      s.removeEventListener("pointermove", move);
-      s.removeEventListener("pointerdown", down);
-      s.removeEventListener("pointerleave", leave);
-      s.removeEventListener("focusin", focus);
-    };
-  }, [reduced]);
-
-  return (
-    <section className="lv-hero" ref={stage} aria-labelledby="hero-title">
-      <HeroLayer />
-      <div className="lv-lens" ref={lens} aria-hidden="true">
-        <div className="lv-x" ref={view}><HeroLayer x /></div>
-      </div>
-    </section>
-  );
-}
-
 /* Small cursor ring that swells over anything clickable (fine pointers only). */
 function Cursor() {
   const dot = useRef(null);
@@ -312,7 +184,7 @@ function Cursor() {
     const move = (e) => {
       x = e.clientX; y = e.clientY;
       dot.current.classList.toggle("is-link", !!e.target.closest("a, button, input, textarea, .lv-browser"));
-      dot.current.classList.toggle("is-off", !!e.target.closest(".lv-hero")); // the lens is the cursor there
+      dot.current.classList.toggle("is-off", !!e.target.closest(".lv-stage")); // the room uses the native pointer
     };
     const loop = () => {
       cx += (x - cx) * 0.22; cy += (y - cy) * 0.22;
