@@ -76,10 +76,10 @@ export async function createPixelRoom({ canvas, width, height, dpr = 1, textRigh
   const rtN = new THREE.WebGLRenderTarget(4, 4, nearest);
   const normalMat = new THREE.MeshNormalMaterial();
   const post = new THREE.ShaderMaterial({
-    uniforms: { tC: { value: rtC.texture }, tD: { value: rtC.depthTexture }, tN: { value: rtN.texture }, res: { value: new THREE.Vector2(4, 4) }, span: { value: FAR - NEAR } },
+    uniforms: { tC: { value: rtC.texture }, tD: { value: rtC.depthTexture }, tN: { value: rtN.texture }, res: { value: new THREE.Vector2(4, 4) }, span: { value: FAR - NEAR }, dt: { value: 0.18 }, ck: { value: 0.32 } },
     vertexShader: "varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}",
     fragmentShader: `
-uniform sampler2D tC,tD,tN;uniform vec2 res;uniform float span;varying vec2 vUv;
+uniform sampler2D tC,tD,tN;uniform vec2 res;uniform float span,dt,ck;varying vec2 vUv;
 float D(vec2 u){return texture2D(tD,u).x*span;}
 vec3 N(vec2 u){return texture2D(tN,u).xyz*2.-1.;}
 void main(){
@@ -93,7 +93,7 @@ void main(){
     float di=clamp(sign((dn-d)*.25+.0025),0.,1.);
     nd+=(1.-dot(n,nn))*di*ni;
   }
-  col = step(.18,dd)>0. ? col*.58 : col*(1.+step(.25,nd)*.32);
+  col = step(dt,dd)>0. ? col*.58 : col*(1.+step(.25,nd)*ck);
   gl_FragColor=vec4(col,1.);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
@@ -684,6 +684,11 @@ void main(){
     const h = VH / 2 / s.zoom, w = (h * W) / H;
     cam.left = -s.fx * 2 * w; cam.right = (1 - s.fx) * 2 * w; cam.bottom = -s.fy * 2 * h; cam.top = (1 - s.fy) * 2 * h;
     cam.near = s.near; post.uniforms.span.value = FAR - s.near; cam.updateProjectionMatrix();
+    // An outline is a jump in depth to the next pixel. A flat surface seen at a slant also steps in depth from pixel to pixel,
+    // by about two pixel-widths at most here, so the threshold grows with the pixel: pulled back to the map, ground, roofs and
+    // walls keep their true colour (they used to cross 0.18 and darken, flickering as the camera zoomed) and only real
+    // silhouettes outline. Creases light up less from afar too, so small things don't speckle.
+    const px = (cam.top - cam.bottom) / lh; post.uniforms.dt.value = Math.max(0.18, px * 2.2); post.uniforms.ck.value = lerp(0.32, 0.12, clamp((px - 0.07) / 0.13, 0, 1));
     cam.position.set(s.target.x + Math.sin(s.az) * Math.cos(s.el) * CAMD, s.target.y + Math.sin(s.el) * CAMD, s.target.z + Math.cos(s.az) * Math.cos(s.el) * CAMD);
     cam.lookAt(s.target); cam.updateMatrixWorld();
     // snap translation to the texel grid so a moving target never shimmers

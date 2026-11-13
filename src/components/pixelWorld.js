@@ -42,7 +42,7 @@ export function buildWorld({ scene, grad, G }) {
   /* ---------- ground: home land, Dubai's sand, Abu Dhabi's island; the sea is the slab underneath ---------- */
   const land = (x0, x1, z0, z1, c, top = 0.02) => S.box(x1 - x0, 0.14, z1 - z0, c, (x0 + x1) / 2, Y + top - 0.07, (z0 + z1) / 2);
   const HOME = "#7f8c63";
-  land(-72, 17, -44, 48, HOME); land(-96, -78, -44, 48, HOME); land(-78, -72, -6, 48, HOME); // the gap is the Karnaphuli
+  land(-72, 17, -44, 48, HOME); land(-96, -78, -44, 48, HOME); land(-78, -72, -14, 48, HOME); land(-78, -72, -14, -5, "#4f8a45", 0.05); // the gap is the Karnaphuli, from the sea up to the bridge; grass past it
   land(17, 58, -46, 14, SAND); land(-42, 12, -79, -52, SAND); // Dubai · Abu Dhabi island
   const palm = (x, z, h = 2.6) => { S.box(0.22, h, 0.22, "#8a6a44", x, Y + h / 2, z); for (let i = 0; i < 5; i++) geo(new THREE.BoxGeometry(1.5, 0.12, 0.34).translate(0.7, 0, 0).rotateZ(-0.35).rotateY((i / 5) * Math.PI * 2), LEAF, x, Y + h, z); };
 
@@ -254,30 +254,35 @@ export function buildWorld({ scene, grad, G }) {
 
   /* ---------- neighbourhoods: homes, parks and boats, so no ground is left bare ---------- */
   const rnd = (a, b, c) => { let h = Math.imul((a * 73856093) ^ (b * 19349663) ^ (c * 83492791), 2654435761); h ^= h >>> 15; return (h >>> 0) / 4294967296; };
-  // an apartment block with windows on its two camera-facing walls (lit ones glow at night). Bangladesh style: pastel
-  // render, balconies, water tanks on the roof. Gulf style: glass, white floor bands, a plant room on top.
+  // an apartment block with windows on its two camera-facing walls (lit ones glow at night). Windows are few and big, like
+  // the main building's, and soft against the wall, so a street of blocks reads calm from the map instead of speckled.
+  // Bangladesh style: a water tank on the roof. Gulf style: a glass band on every floor, a plant room on top.
   const block = (x, z, w, d, floors, c, gulf = false) => {
-    const FH = 1.35, h = floors * FH + 0.4, win = gulf ? "#5a86ad" : "#2d3546";
+    const FH = 1.35, h = floors * FH + 0.4, glass = gulf ? "#86a2b8" : "#7d8fa3";
     S.box(w, h, d, c, x, Y + h / 2, z);
-    const nx = Math.max(1, Math.floor((w - 0.3) / 0.95)), nz = Math.max(1, Math.floor((d - 0.3) / 0.95));
+    const nx = Math.max(1, Math.round(w / 1.8)), nz = Math.max(1, Math.round(d / 1.8));
     for (let f = 0; f < floors; f++) {
       const y = Y + 0.95 + f * FH;
-      for (let i = 0; i < nx; i++) { const xx = x - w / 2 + (w / nx) * (i + 0.5); quad(S, 0.48, 0.6, win, xx, y, z + d / 2 + 0.02); if (rnd(x | 0, f, i) < 0.45) quad(N, 0.48, 0.6, "#ffd890", xx, y, z + d / 2 + 0.035); if (!gulf && f > 0 && (f + i) % 3 === 0) S.box(0.8, 0.08, 0.4, "#ece6da", xx, y - 0.45, z + d / 2 + 0.2); }
-      for (let i = 0; i < nz; i++) { const zz = z - d / 2 + (d / nz) * (i + 0.5); quad(S, 0.48, 0.6, win, x + w / 2 + 0.02, y, zz, 1); if (rnd(z | 0, f, i + 9) < 0.45) quad(N, 0.48, 0.6, "#ffd890", x + w / 2 + 0.035, y, zz, 1); }
-      if (gulf && f % 2 === 1) S.box(w + 0.06, 0.1, d + 0.06, "#f2f1ec", x, Y + 0.3 + f * FH, z);
+      if (gulf) {
+        quad(S, w - 0.4, 0.62, glass, x, y, z + d / 2 + 0.02); quad(S, d - 0.4, 0.62, glass, x + w / 2 + 0.02, y, z, 1);
+        if (rnd(x | 0, f, 1) < 0.5) quad(N, w - 0.4, 0.62, "#ffe2a8", x, y, z + d / 2 + 0.035); if (rnd(z | 0, f, 2) < 0.5) quad(N, d - 0.4, 0.62, "#ffe2a8", x + w / 2 + 0.035, y, z, 1);
+        continue;
+      }
+      for (let i = 0; i < nx; i++) { const xx = x - w / 2 + (w / nx) * (i + 0.5); quad(S, 0.8, 0.7, glass, xx, y, z + d / 2 + 0.02); if (rnd(x | 0, f, i) < 0.45) quad(N, 0.8, 0.7, "#ffd890", xx, y, z + d / 2 + 0.035); }
+      for (let i = 0; i < nz; i++) { const zz = z - d / 2 + (d / nz) * (i + 0.5); quad(S, 0.8, 0.7, glass, x + w / 2 + 0.02, y, zz, 1); if (rnd(z | 0, f, i + 9) < 0.45) quad(N, 0.8, 0.7, "#ffd890", x + w / 2 + 0.035, y, zz, 1); }
     }
-    if (gulf) S.box(w * 0.55, 0.6, d * 0.55, "#d8dde3", x, Y + h + 0.3, z);
-    else { S.box(w + 0.1, 0.25, d + 0.1, "#d9d2c4", x, Y + h + 0.12, z); for (const s of [-1, 1]) S.cyl(0.3, 0.55, rnd(x | 0, z | 0, s + 2) < 0.5 ? "#2f5fb8" : "#1d1e22", x + s * w * 0.22, Y + h + 0.52, z - d * 0.2, "y", 6); }
+    if (gulf) S.box(w * 0.55, 0.6, d * 0.55, "#e2ddd2", x, Y + h + 0.3, z);
+    else { S.box(w + 0.1, 0.25, d + 0.1, "#d9d2c4", x, Y + h + 0.12, z); S.cyl(0.32, 0.55, rnd(x | 0, z | 0, 2) < 0.5 ? "#4f6f9a" : "#3a3d4c", x - w * 0.2, Y + h + 0.52, z - d * 0.2, "y", 6); }
   };
   const tree = (x, z, k = 1) => { S.box(0.28 * k, 1.4 * k, 0.28 * k, "#6a4c32", x, Y + 0.7 * k, z); S.box(1.7 * k, 1.4 * k, 1.7 * k, rnd(x | 0, z | 0, 5) < 0.5 ? "#2f6b3a" : "#3f8448", x, Y + 1.9 * k, z); };
-  const villa = (x, z, c = WHITE) => { S.box(3, 1.7, 2.6, c, x, Y + 0.85, z); S.box(1.6, 0.9, 1.4, c, x - 0.5, Y + 2.15, z - 0.4); S.box(3.1, 0.12, 2.7, "#c9b48a", x, Y + 1.76, z); S.box(0.06, 0.7, 0.9, "#5a86ad", x + 1.52, Y + 0.9, z + 0.4); land(x - 1.2, x + 1.2, z + 1.6, z + 2.9, "#5ab0d8", 0.06); palm(x + 1.9, z + 2.2, 2.2); };
+  const villa = (x, z, c = WHITE) => { S.box(3, 1.7, 2.6, c, x, Y + 0.85, z); S.box(1.6, 0.9, 1.4, c, x - 0.5, Y + 2.15, z - 0.4); S.box(3.1, 0.12, 2.7, "#c9b48a", x, Y + 1.76, z); S.box(0.06, 0.7, 0.9, "#5a86ad", x + 1.52, Y + 0.9, z + 0.4); land(x - 1.2, x + 1.2, z + 1.6, z + 2.9, "#5ab0d8", 0.06); };
   const park = (x0, x1, z0, z1, pond) => {
     land(x0, x1, z0, z1, "#4f8a45", 0.05); S.box(x1 - x0, 0.03, 0.7, "#c9b48a", (x0 + x1) / 2, Y + 0.08, (z0 + z1) / 2);
     if (pond) land(pond[0] - 1.6, pond[0] + 1.6, pond[1] - 1.1, pond[1] + 1.1, "#5aa0d0", 0.07);
     for (let x = x0 + 1.4; x < x1 - 1; x += 3.1) for (const z of [z0 + 1.2, z1 - 1.2]) if (!pond || Math.hypot(x - pond[0], z - pond[1]) > 2.6) tree(x, z, 0.85);
   };
   // Bangladesh: the corner past the bridge (low homes, a pond park), a row facing the park, blocks either side of the port
-  park(-96, -84, -40, -25, [-90, -33]);
+  park(-96, -84, -40, -25);
   [[-92, -19, 3.4, 3.2, 3, "#e8c9a0"], [-87.5, -13.5, 3.4, 3, 3, "#bfe0d0"], [-92.5, -8, 3, 3, 2, "#f0b8b0"], [-87, -6.5, 3, 3, 3, "#f3e3b0"]].forEach((b) => block(...b));
   [[-58, -7.6, 3.6, 3, 3, "#f1d9b5"], [-53.5, -7.6, 3.4, 3, 4, "#cfe3e8"], [-46.5, -7.6, 3.8, 3, 3, "#f0c7c0"], [-42, -7.6, 3.2, 3, 3, "#e7e0a8"]] /* low: the Parliament stands behind them */.forEach((b) => block(...b));
   [[-35, -27, 4, 4, 6, "#e9d3b0"], [-35.2, -20, 4.2, 4, 8, "#cfe0d6"], [-34.8, -12.6, 4.4, 4, 7, "#f2c9b8"]].forEach((b) => block(...b));
@@ -312,7 +317,7 @@ export function buildWorld({ scene, grad, G }) {
   const hidden = (x, z, r, h) => { const b = sx(x, z) + 1.41 * r; return x + r < 3.15 && z + r < -3.3 && sx(x, z) - 1.41 * r > -19.7 && b < 4.5 && sy(x, z) + 0.79 * r + 0.83 * h < 24.7 + (4.53 - b) * 0.466; }; // under the block's roofline
   const used = [ // what is already on the ground: x0, x1, z0, z1
     [-67, 47, 2.4, 43.6], [-29.3, 3.9, -4.1, 3.9], [-64.8, -29.2, -5.3, 5.3], [2.4, 19, -39, 6.9], // the street and its park strip, the block, the green beside it, the side road
-    [-61.8, -38.2, -31.8, -10.2], [-71.5, -60.5, -13, -5], [-84, -66, -18.5, -13.5], [-78.8, -71.2, -45, -5.2], [-71, -33, -45, -39.7], // Parliament lake, Minar, bridge, river, beach
+    [-61.8, -38.2, -31.8, -10.2], [-71.5, -60.5, -13, -5], [-84, -66, -18.5, -13.5], [-78.8, -71.2, -45, -5], [-71, -33, -45, -39.7], // Parliament lake, Minar, bridge, river, beach
     [-75, -65, -36.5, -27.5], [-65, -53, -40.5, -31.5], [-50.5, -39.5, -36, -29], [-32, -9, -45, -35], [-37, -35, -33, -31], [-81, -79, -31, -29], [-67, -65, 3, 5], [-85, -83, -3, -1], // hills, tea, waterfall, port, palms
     [-96.8, -83.2, -40.8, -24.2], [-94.8, -84.8, -21, -4.5], [-60.6, -39.6, -9.6, -5.6], [-37.8, -32, -29.5, -10], [-3.6, 2, -35.5, -15], [-10.3, -3.2, -36.8, -11.2], // neighbourhoods
     [19, 32, -27, -13], [29.4, 38.6, -5.6, 1.6], [19.5, 28.5, -39, -31], [34.5, 41.5, -30.5, -23.5], [41.5, 46.5, -12.5, -7.5], [17, 25, -45.8, -38.5], [39.5, 47.5, -44.5, -32.5], // Dubai
@@ -326,62 +331,52 @@ export function buildWorld({ scene, grad, G }) {
     [-8.5, 0.5, -62.5, -54.5, PAVE], [-18.5, -10.5, -58.5, -51.5, PAVE], [-18.5, -9.5, -69.5, -62.5, PAVE], [-40.5, -29.5, -62, -52, PAVE], [-7, 6, -79, -67, "#a88a6a"]]) land(x0, x1, z0, z1, c, 0.03);
   land(21, 31, -15.6, -13.4, "#5aa0d0", 0.05); for (let x = 22.5; x < 30; x += 1.8) N.box(0.12, 1.2, 0.12, "#e8f4ff", x, Y + 0.6, -14.5); // the Dubai Fountain, lit at night
   const free = (x0, x1, z0, z1) => used.every(([a, b, c, d]) => x1 <= a || x0 >= b || z1 <= c || z0 >= d);
-  const BDC = ["#f1d9b5", "#cfe3e8", "#f0c7c0", "#e7e0a8", "#d9e8c8", "#f2e6d0", "#c9d6ec", "#efd0a8"], GUC = ["#e9e4da", "#cfd6de", "#e6dcc8", "#dcd3c2", "#f2ece0", "#bfd0de"];
-  const TIN = ["#7d8f9c", "#a8553e", "#3f7f6a", "#4a6fa8", "#8a8f96"], AWN = ["#c8463c", "#2f6fb0", "#e0a83a", "#3f9a7a"];
+  const BDC = ["#efe0c4", "#ecc9a6", "#e6d3a8", "#e8bba2", "#f1e6d2", "#dcc3a1"], GUC = ["#efe8da", "#e6d8bd", "#ddd2bf", "#f2ece0"]; // warm: cream, peach, sand, terracotta
+  const TIN = ["#a8553e", "#8f6a52", "#8a8f96"], AWN = ["#c8463c", "#2f6fb0", "#e0a83a", "#3f9a7a"]; // AWN: beach umbrellas
   const of = (a, r) => a[Math.floor(r * a.length) % a.length];
   const plot = (x, z, c, r = 2.5) => land(x - r, x + r, z - r, z + r, c, 0.05);
   const house = (x, z, c, roof) => { // a one-storey home with a sloping tin roof
     S.box(2.4, 1.5, 2.1, c, x, Y + 0.75, z); for (const s of [-1, 1]) geo(new THREE.BoxGeometry(2.7, 0.1, 1.3).rotateX(s * 0.42), roof, x, Y + 1.78, z + s * 0.52);
     quad(S, 0.5, 0.9, "#4a3426", x - 0.5, Y + 0.45, z + 1.06); quad(S, 0.5, 0.45, "#2d3546", x + 1.21, Y + 0.9, z, 1); quad(N, 0.5, 0.45, "#ffd890", x + 1.22, Y + 0.9, z, 1);
   };
-  const green = (x, z, hm, gulf) => { plot(x, z, gulf ? "#6aa64e" : "#4f8a45"); for (const [dx, dz] of [[-1.3, -1.3], [1.3, -1.1], [-1.1, 1.3], [1.4, 1.4]]) if (hm < 2.7) S.box(0.9, 0.6, 0.9, "#3f7a3c", x + dx, Y + 0.35, z + dz); else if (gulf) palm(x + dx, z + dz, 2.2); else tree(x + dx, z + dz, 0.8); };
-  const pond = (x, z, hm) => { plot(x, z, "#4f8a45"); land(x - 1.7, x + 1.5, z - 1.4, z + 1.2, "#5aa0d0", 0.07); S.box(0.9, 0.12, 0.6, "#b9b2a2", x + 0.4, Y + 0.12, z + 1.4); if (hm >= 2.7) { tree(x - 2, z + 1.9, 0.75); tree(x + 1.9, z - 1.9, 0.75); } }; // a pukur with its ghat
+  const green = (x, z, hm, gulf) => { if (gulf) plot(x, z, "#6aa64e", 2.3); for (const [dx, dz] of [[-1.1, -0.9], [1.1, 1.0]]) if (hm < 2.7) S.box(1.2, 0.6, 1.2, "#3f7a3c", x + dx, Y + 0.35, z + dz); else if (gulf) palm(x + dx, z + dz, 2.4); else tree(x + dx, z + dz, 1); };
   const mosque = (x, z, gulf) => {
     const c = gulf ? "#efe6d2" : WHITE, dome = gulf ? "#d8c49a" : "#3f8a5a"; plot(x, z, "#c9c2b0");
     S.box(3.2, 2.0, 3.0, c, x, Y + 1.0, z); geo(hemi(1.15), dome, x, Y + 2.0, z); quad(S, 0.9, 1.3, "#5a86ad", x, Y + 0.7, z + 1.51);
     S.cyl(0.24, 5, c, x + 1.9, Y + 2.5, z - 1.6, "y", 8); geo(new THREE.ConeGeometry(0.3, 0.8, 8), dome, x + 1.9, Y + 5.4, z - 1.6); N.box(0.3, 0.12, 0.3, "#ffe2a8", x + 1.9, Y + 4, z - 1.6);
   };
-  const field = (x, z) => { // a football ground: centre line, boxes, two goals
-    plot(x, z, "#5aa84a"); S.box(0.08, 0.02, 4.4, WHITE, x, Y + 0.07, z);
-    for (const s of [-1, 1]) { S.box(0.08, 0.02, 1.8, WHITE, x + s * 1.5, Y + 0.07, z); for (const dz of [-0.6, 0.6]) S.box(0.08, 0.7, 0.08, WHITE, x + s * 2.2, Y + 0.4, z + dz); S.box(0.08, 0.08, 1.28, WHITE, x + s * 2.2, Y + 0.76, z); }
-  };
-  const bazaar = (x, z) => { plot(x, z, "#a88a62"); for (let i = 0; i < 4; i++) { const xx = x - 1.8 + i * 1.2; S.box(1.0, 1.0, 1.0, "#7a5a3c", xx, Y + 0.5, z - 0.6); geo(new THREE.BoxGeometry(1.1, 0.08, 1.2).rotateX(0.3), AWN[i], xx, Y + 1.2, z + 0.1); S.box(0.8, 0.3, 0.4, of(["#e0c040", "#c0644f", "#5b8a5a"], (i * 0.37) % 1), xx, Y + 0.65, z + 0.4); } };
-  const mall = (x, z) => { plot(x, z, "#55585f"); S.box(4.4, 2.2, 2.6, "#e6e1d6", x, Y + 1.1, z - 1); S.box(4.42, 0.5, 2.62, "#5a86ad", x, Y + 1.5, z - 1); N.box(4.44, 0.2, 2.64, "#cfe0ff", x, Y + 1.5, z - 1); for (let i = 0; i < 4; i++) S.box(0.6, 0.35, 1.0, of(["#c8463c", WHITE, "#2f6fb0", "#3a3d4c"], i / 4), x - 1.6 + i * 1.05, Y + 0.25, z + 1.4); };
+  const mall = (x, z) => { S.box(4.4, 2.2, 2.8, "#efe8da", x, Y + 1.1, z - 0.6); quad(S, 4.0, 0.6, "#86a2b8", x, Y + 1.4, z + 0.82); quad(N, 4.0, 0.6, "#ffe2a8", x, Y + 1.4, z + 0.835); };
   const lot = (x, z, style, r, r2, hm) => {
     if (style === "bd") {
-      if (hm < 2.2) pond(x, z, hm);
-      else if (r < 0.5 && hm > 3.4) { plot(x, z, "#b3ab98"); block(x + (r2 - 0.5) * 0.6, z, 3.4 + r2 * 1.2, 3.2 + r * 1.2, Math.max(2, Math.min(2 + Math.floor(r2 * 6), Math.floor((hm - 0.6) / 1.35))), of(BDC, r2)); }
-      else if (r < 0.66) { plot(x, z, "#a88a62"); house(x - 1.2, z - 1.1, of(BDC, r2), of(TIN, r)); house(x + 1.2, z + 1.2, of(BDC, 1 - r2), of(TIN, r2)); }
-      else if (r < 0.78) green(x, z, hm, false);
-      else if (r < 0.84) pond(x, z, hm);
-      else if (r < 0.88 && hm > 5.6) mosque(x, z, false);
-      else if (r < 0.93) field(x, z);
-      else bazaar(x, z);
+      if (hm < 2.2) green(x, z, hm, false);
+      else if (r < 0.55 && hm > 3.4) block(x + (r2 - 0.5) * 0.6, z, 3.6 + r2 * 1.0, 3.4 + r * 1.0, Math.max(2, Math.min(2 + Math.floor(r2 * 5), Math.floor((hm - 0.6) / 1.35))), of(BDC, r2));
+      else if (r < 0.72) { house(x - 1.2, z - 1.1, of(BDC, r2), of(TIN, r)); house(x + 1.2, z + 1.2, of(BDC, 1 - r2), of(TIN, r2)); }
+      else if (r < 0.9) green(x, z, hm, false);
+      else if (r < 0.96 || hm < 5.6) green(x, z, hm, false);
+      else mosque(x, z, false);
       return;
     }
     const ad = style === "ad"; // Abu Dhabi stays lower than Dubai
     if (hm < 2.2) green(x, z, hm, true);
-    else if (r < 0.48 && hm > 5) { plot(x, z, "#d9d2c2"); block(x, z, 3.2 + r2 * 0.8, 3.0 + r * 0.6, Math.max(3, Math.min((ad ? 3 : 4) + Math.floor(r2 * (ad ? 6 : 12)), Math.floor((hm - 1) / 1.35))), of(GUC, r2), true); }
-    else if (r < 0.7 && hm > 2.6) { plot(x, z, "#d9d2c2"); villa(x - 0.3, z - 1, of([WHITE, "#efe3cc", "#e8dcc6"], r2)); }
-    else if (r < 0.8) green(x, z, hm, true);
-    else if (r < 0.88) mall(x, z);
-    else if (r < 0.92 && hm > 5.6) mosque(x, z, true);
-    else { plot(x, z, "#d9d2c2"); block(x, z, 3.6, 3.2, Math.max(1, Math.min(3, Math.floor((hm - 0.6) / 1.35))), of(GUC, r), true); }
+    else if (r < 0.5 && hm > 5) block(x, z, 3.4 + r2 * 0.6, 3.2 + r * 0.6, Math.max(3, Math.min((ad ? 3 : 4) + Math.floor(r2 * (ad ? 6 : 12)), Math.floor((hm - 1) / 1.35))), of(GUC, r2), true);
+    else if (r < 0.72 && hm > 2.6) villa(x - 0.3, z - 1, of(GUC, r2));
+    else if (r < 0.86) green(x, z, hm, true);
+    else if (r < 0.95 || hm < 5.6) mall(x, z);
+    else mosque(x, z, true);
   };
-  // lots of 5.6 with a lane round each, then whatever bits are left get a tree, a palm, a home or a bush
+  // lots of 5.6 standing straight on the ground (no lane grid: fewer edges), then a 2.8 pass puts a tree in what is left
   const fill = (X0, X1, Z0, Z1, style, C = 5.6) => {
     for (let x0 = X0; x0 + C <= X1 + 1e-6; x0 += C) for (let z0 = Z0; z0 + C <= Z1 + 1e-6; z0 += C) {
       const x = x0 + C / 2, z = z0 + C / 2, hm = maxH(x, z, C / 2 - 0.3), r = rnd(x0 * 7 | 0, z0 * 7 | 0, 1), r2 = rnd(x0 * 7 | 0, z0 * 7 | 0, 2);
       if (!free(x0, x0 + C, z0, z0 + C) || hidden(x, z, C / 2, Math.min(hm, 12))) continue;
       used.push([x0, x0 + C, z0, z0 + C]);
-      if (C > 3) { land(x0, x0 + C, z0, z0 + C, style === "bd" ? "#9a9282" : "#4a4d58", 0.035); lot(x, z, style, r, r2, hm); continue; }
-      if (C < 2) { plot(x, z, style === "bd" ? "#4f8a45" : "#d9d2c2", 0.7); if (r < 0.3) S.box(0.8, 0.5, 0.8, "#3f7a3c", x, Y + 0.3, z); }
-      else if (style === "bd") { plot(x, z, r < 0.6 ? "#4f8a45" : "#a88a62", 1.3); if (r >= 0.6 && hm > 2.4) house(x, z, of(BDC, r2), of(TIN, r)); else if (hm < 2.6 || r < 0.25) S.box(1.0, 0.6, 1.0, "#3f7a3c", x, Y + 0.35, z); else tree(x, z, 0.8); }
-      else { plot(x, z, "#6aa64e", 1.3); if (hm < 2.6 || r < 0.3) S.box(1.0, 0.6, 1.0, "#5f8f45", x, Y + 0.35, z); else palm(x, z, 2.2); }
+      land(x0, x0 + C, z0, z0 + C, style === "bd" ? "#4f8a45" : "#e6dcc6", 0.04);
+      if (C > 3) lot(x, z, style, r, r2, hm);
+      else if (hm >= 2.7 && r < 0.5) style === "bd" ? tree(x, z, 0.9) : r < 0.3 && palm(x, z, 2.3);
     }
   };
-  land(46, 58, 14, 44, SAND); land(-96, 58, 44, 52, "#ead6a6", 0); // Dubai's shore past the end of the road; a beach along the front
-  for (const C of [5.6, 2.8, 1.4]) { fill(-96, 17, -44, 48, "bd", C); fill(17, 58, -46, 44, "gulf", C); fill(-42, 36, -79, -52, "ad", C); }
+  land(46, 58, 14, 44, SAND); land(-96, 58, 44, 52, "#ead6a6", 0.01); // Dubai's shore past the end of the road; a beach along the front (above the sea's surface, never level with it)
+  for (const C of [5.6, 2.8]) { fill(-96, 17, -44, 48, "bd", C); fill(17, 58, -46, 44, "gulf", C); fill(-42, 36, -79, -52, "ad", C); }
   for (let x = -90; x < 56; x += 7.3) { const c = AWN[Math.floor(rnd(x | 0, 1, 7) * 4)]; S.box(0.1, 1.5, 0.1, "#6a5a4a", x, Y + 0.75, 50); geo(new THREE.ConeGeometry(1.0, 0.45, 8), c, x, Y + 1.5, 50); S.box(0.6, 0.12, 1.1, WHITE, x + 0.9, Y + 0.1, 50.6); }
 
   /* ---------- out at sea: Saint Martin's Island, the Sundarbans, more boats (they fill the tall phone view) ---------- */
