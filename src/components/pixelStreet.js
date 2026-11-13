@@ -9,13 +9,33 @@
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
-export const STREET_LABELS = { crv: "1999 Honda CR-V", jeep: "2005 Jeep Liberty", bus: "City bus", cng: "CNG" };
+export const STREET_LABELS = { crv: "1999 Honda CR-V", jeep: "2005 Jeep Liberty", bus: "City bus", cng: "CNG", rickshaw: "Rickshaw", bmw: "BMW 320d (F30)" };
 
 const TYRE = "#15161b", HUB = "#b4b8c2", GLASS = "#1f2c3a", DARK = "#26272d", CHROME = "#c9ccd3", LAMP = "#f6efd8", TAIL = "#c8261f";
 const WARM = "#ffd98a", HEAD = "#fff3c4", RED = "#ff4a3a"; // glow colours (night only)
 const WALK = "#8d919c", ASPHALT = "#3b3e48", MARK = "#dcd9cc", POST = "#2b2e3d";
 const SHIRTS = ["#d2553a", "#3e6e8e", "#d9a441", "#5b8a5a", "#8a5a9e", "#e0d4bc", "#2f4f6b", "#c0644f", "#b9a4cf", "#4f8f8a"];
 const SKINS = ["#9b6b4b", "#7d5238", "#b98863"], BROLLY = ["#c8463c", "#3f9a7a", "#e0a83a", "#3e6e8e", "#e9e2d3"];
+
+// A kit collects coloured boxes, cylinders and any other geometry, then merges them into one vertex-coloured mesh.
+const _kc = new THREE.Color();
+export const kitFor = (root) => () => {
+  const geos = [];
+  const add = (g, c, x = 0, y = 0, z = 0) => {
+    if (g.index) { const u = g.toNonIndexed(); g.dispose(); g = u; } // extruded profiles come unindexed; everything in a kit must match
+    g.translate(x, y, z); _kc.set(c);
+    const n = g.attributes.position.count, a = new Float32Array(n * 3);
+    for (let i = 0; i < n; i++) { a[i * 3] = _kc.r; a[i * 3 + 1] = _kc.g; a[i * 3 + 2] = _kc.b; }
+    g.setAttribute("color", new THREE.BufferAttribute(a, 3)); geos.push(g);
+  };
+  return {
+    geo: add,
+    box: (w, h, d, c, x, y, z) => add(new THREE.BoxGeometry(w, h, d), c, x, y, z),
+    cyl: (r, h, c, x, y, z, axis = "y", seg = 10) => { const g = new THREE.CylinderGeometry(r, r, h, seg); if (axis === "z") g.rotateX(Math.PI / 2); else if (axis === "x") g.rotateZ(Math.PI / 2); add(g, c, x, y, z); },
+    // an empty kit (a vehicle with no night lights) still makes a mesh, just with nothing in it
+    mesh: (mat, parent = root) => { const m = new THREE.Mesh(geos.length ? mergeGeometries(geos) : new THREE.BufferGeometry(), mat); m.castShadow = m.receiveShadow = false; parent.add(m); return m; },
+  };
+};
 
 /* G = ground height; front / right = the building's street-facing walls (z and x). */
 export function buildStreet({ scene, grad, G, front, right }) {
@@ -25,23 +45,7 @@ export function buildStreet({ scene, grad, G, front, right }) {
   const root = new THREE.Group(); root.visible = false; scene.add(root);
   const _c = new THREE.Color();
 
-  // a kit collects coloured boxes and cylinders, then merges them into one mesh
-  const kit = () => {
-    const geos = [];
-    const add = (g, c, x = 0, y = 0, z = 0) => {
-      if (g.index) { const u = g.toNonIndexed(); g.dispose(); g = u; } // extruded profiles come unindexed; everything in a kit must match
-      g.translate(x, y, z); _c.set(c);
-      const n = g.attributes.position.count, a = new Float32Array(n * 3);
-      for (let i = 0; i < n; i++) { a[i * 3] = _c.r; a[i * 3 + 1] = _c.g; a[i * 3 + 2] = _c.b; }
-      g.setAttribute("color", new THREE.BufferAttribute(a, 3)); geos.push(g);
-    };
-    return {
-      geo: add,
-      box: (w, h, d, c, x, y, z) => add(new THREE.BoxGeometry(w, h, d), c, x, y, z),
-      cyl: (r, h, c, x, y, z, axis = "y", seg = 10) => { const g = new THREE.CylinderGeometry(r, r, h, seg); if (axis === "z") g.rotateX(Math.PI / 2); else if (axis === "x") g.rotateZ(Math.PI / 2); add(g, c, x, y, z); },
-      mesh: (mat, parent = root) => { const m = new THREE.Mesh(mergeGeometries(geos), mat); m.castShadow = m.receiveShadow = false; parent.add(m); return m; },
-    };
-  };
+  const kit = kitFor(root);
   const nightOnly = []; // glow meshes, switched with the street lights
 
   /* ---------- layout (x along the building front, z toward the camera) ---------- */
@@ -93,12 +97,6 @@ export function buildStreet({ scene, grad, G, front, right }) {
   S.box(0.4, 0.5, 0.4, "#3e6e8e", -32.6, G + 0.55, front + 2.5); S.box(0.4, 0.5, 0.4, "#c0644f", -29.5, G + 0.55, front + 2.6);
   SG.box(0.22, 0.22, 0.22, WARM, -31, G + 2.55, front + 1.6); P.cyl(2.6, 0.02, "#ffcf87", -31, G + 0.34, front + 2.1, "y", 12);
   S.box(0.12, 3.6, 0.12, POST, -38.4, G + 2.1, BAY0 - 0.5); S.box(0.1, 0.9, 0.9, "#2b6cb0", -38.4, G + 3.6, BAY0 - 0.5);
-
-  // a low block across the side road, so the corner reads as a city and not an edge
-  S.box(25, 9, 30, "#6b5a7a", 31.2, G + 4.5, front - 15.1); S.box(25.4, 0.4, 30.4, "#4c3f58", 31.2, G + 9.2, front - 15.1);
-  for (let z = front - 27; z < front - 2; z += 4.2) for (const y of [2.6, 6.4]) { S.box(0.1, 1.8, 2.2, GLASS, 18.66, G + y, z); if (Math.abs(Math.round(z * 7 + y * 3)) % 3 < 2) SG.box(0.12, 1.8, 2.2, WARM, 18.64, G + y, z); }
-  for (let x = 21; x < 43; x += 4.4) { S.box(2.6, 2.4, 0.1, GLASS, x, G + 2.0, front - 0.06); SG.box(2.6, 2.4, 0.12, WARM, x, G + 2.0, front - 0.05); S.box(3.2, 0.3, 1.2, ["#c8463c", "#3f9a7a", "#e0a83a"][Math.round(x) % 3], x, G + 3.5, front + 0.5); }
-
 
   /* ---------- vehicles: each is drawn facing +x, wheels on y = 0 ---------- */
   const wheels = (b, xs, zh, r, w = 0.44) => { for (const x of xs) for (const s of [-1, 1]) { b.cyl(r, w, TYRE, x, r, s * zh, "z", 10); b.cyl(r * 0.5, w + 0.06, HUB, x, r, s * zh, "z", 8); } };
@@ -191,6 +189,38 @@ export function buildStreet({ scene, grad, G, front, right }) {
     rim(b, AX[0], 0.335, 0.75, 0.205, 0.215, 5, "#c7cbd2", "#2a2c31"); rim(b, AX[1], 0.335, 0.75, 0.205, 0.215, 5, "#c7cbd2", "#2a2c31");
     b.box(4.3, 0.004, 1.9, "#1b1c21", 0, 0.016, 0);
   };
+  // BMW 320d (F30), Estoril Blue, M Sport: twin kidneys, angel-eye headlamps, deep side intakes, L-shaped tail lamps
+  const bmw = (b, g) => {
+    const C = "#2552a8", BLK = "#15161a", AX = [1.41, -1.4], R = 0.38, YB = 0.33;
+    b.geo(profile(shell([[2.31, YB], [2.33, 0.62], [2.25, 0.74], [1.0, 0.9], [0.92, 0.93], [-1.6, 0.98], [-1.8, 1.0], [-2.22, 0.97], [-2.3, 0.72], [-2.3, YB]], YB, AX, R), 1.78), C);
+    b.geo(profile([[0.95, 0.92], [0.12, 1.39], [-0.85, 1.42], [-1.3, 1.34], [-1.82, 0.99]], 1.5), GLASS);
+    b.box(0.98, 0.05, 1.52, C, -0.37, 1.41, 0);
+    for (const ax of AX) b.box(2 * R - 0.04, R, 1.6, "#0d0e10", ax, YB + R / 2, 0);
+    for (const s of [-1, 1]) {
+      const zs = s * 0.76;
+      rbox(b, 0.95, 0.07, 0.03, Math.atan2(0.47, -0.83), C, 0.535, 1.155, zs); b.box(0.09, 0.42, 0.03, BLK, -0.25, 1.17, zs); rbox(b, 0.5, 0.36, 0.03, -0.35, C, -1.3, 1.15, zs); // A, B, the kinked C
+      b.box(2.4, 0.03, 0.03, BLK, -0.42, 0.95, zs);
+      b.box(0.12, 0.09, 0.14, C, 0.85, 1.0, s * 0.93); b.box(0.12, 0.03, 0.02, C, 0.15, 0.86, s * 0.9); b.box(0.12, 0.03, 0.02, C, -0.95, 0.86, s * 0.9);
+      b.box(0.022, 0.12, 0.2, "#c9ccd3", 2.334, 0.6, s * 0.11); b.box(0.024, 0.09, 0.15, BLK, 2.336, 0.6, s * 0.11); // kidney
+      b.box(0.02, 0.1, 0.36, "#dfe6ee", 2.3, 0.67, s * 0.58); for (const dz of [0.5, 0.67]) { b.cyl(0.05, 0.02, "#f4f4f4", 2.312, 0.67, s * dz, "x", 10); g.cyl(0.05, 0.022, HEAD, 2.316, 0.67, s * dz, "x", 10); } // angel eyes
+      b.box(0.02, 0.13, 0.3, BLK, 2.335, 0.42, s * 0.6); // M Sport side intakes
+      b.box(0.02, 0.12, 0.34, TAIL, -2.31, 0.84, s * 0.62); b.box(0.13, 0.12, 0.02, TAIL, -2.25, 0.84, s * 0.89); g.box(0.02, 0.12, 0.34, RED, -2.318, 0.84, s * 0.62);
+      for (const ax of AX) b.geo(new THREE.TorusGeometry(R + 0.02, 0.03, 4, 12, Math.PI), C, ax, YB, s * 0.89);
+    }
+    b.box(0.02, 0.08, 0.7, BLK, 2.336, 0.4, 0); b.box(0.08, 0.03, 1.2, C, -2.2, 1.0, 0);
+    for (const dz of [-0.6, -0.48]) b.cyl(0.04, 0.1, "#c9ccd3", -2.33, 0.36, dz, "x", 8);
+    rim(b, AX[0], 0.33, 0.77, 0.225, 0.22, 5, "#9aa0a8", "#2a2c31"); rim(b, AX[1], 0.33, 0.77, 0.225, 0.22, 5, "#9aa0a8", "#2a2c31");
+    b.box(4.4, 0.004, 1.9, "#1b1c21", 0, 0.016, 0);
+  };
+  // rickshaw: the bicycle up front, the passenger bench under its hood, the painted back panel
+  const rickshaw = (hood) => (b) => {
+    b.cyl(0.42, 0.12, TYRE, 1.7, 0.42, 0, "z", 10); for (const s of [-1, 1]) b.cyl(0.48, 0.12, TYRE, -0.9, 0.48, s * 0.75, "z", 10);
+    b.box(2.2, 0.1, 0.12, "#8d949c", 0.5, 0.75, 0); b.box(0.12, 0.9, 0.1, "#8d949c", 1.6, 1.0, 0); b.box(0.1, 0.06, 0.9, "#8d949c", 1.6, 1.5, 0);
+    b.box(0.6, 0.12, 0.4, "#2a2b30", 0.9, 1.2, 0); b.box(0.45, 0.8, 0.5, "#e9e2d3", 0.95, 1.65, 0); b.box(0.4, 0.4, 0.4, SKINS[1], 0.95, 2.25, 0); b.box(0.42, 0.12, 0.42, "#1d1715", 0.95, 2.5, 0);
+    b.box(1.2, 0.18, 1.5, "#c8463c", -0.9, 1.15, 0); b.box(0.5, 0.6, 1.5, "#3a6ea5", -1.3, 1.5, 0);
+    b.box(1.25, 0.12, 1.66, hood, -0.95, 2.45, 0); b.box(0.12, 1.2, 1.66, hood, -1.55, 1.95, 0); b.box(0.06, 0.9, 1.5, "#e0c040", -1.62, 1.1, 0);
+    for (const s of [-1, 1]) b.box(1.25, 0.08, 0.06, "#e0c040", -0.95, 2.38, s * 0.83);
+  };
   const sedan = (c) => (b, g) => {
     b.box(6.8, 0.9, 2.8, c, 0, 0.85, 0); b.box(3.3, 0.8, 2.6, c, -0.3, 1.7, 0); b.box(2.9, 0.55, 2.64, GLASS, -0.3, 1.74, 0);
     b.box(0.1, 0.55, 2.2, GLASS, 1.37, 1.72, 0); b.box(0.1, 0.55, 2.2, GLASS, -1.97, 1.72, 0);
@@ -232,7 +262,7 @@ export function buildStreet({ scene, grad, G, front, right }) {
   // The two stars park on the camera side of the road, at the bottom of the view, so traffic passes behind them,
   // both nose-out: grille and headlamps to the camera, the way they look in the owner's photos.
   const jeepCar = parked(park(jeep, BAYS[2], NB0 + 3.9, OUT, M)), crvCar = parked(park(crv, BAYS[4], NB0 + 3.9, OUT, M)); // an empty bay between them
-  park(sedan("#3a6ea5"), BAYS[1], BAY0 + 3.8, IN); park(van("#eceff1"), BAYS[4], BAY0 + 3.9, IN); park(sedan("#2c2f38"), BAYS[6], BAY0 + 3.8, OUT);
+  park(sedan("#3a6ea5"), BAYS[1], BAY0 + 3.8, IN); park(van("#eceff1"), BAYS[4], BAY0 + 3.9, IN); const bmwCar = parked(park(bmw, BAYS[6], BAY0 + 3.9, OUT, M)); // an easter egg on the building side
   const cngs = [park(cng, SX0 + 1.4, -3, OUT), park(cng, SX0 + 1.4, -8.2, OUT)]; park(sedan("#8a8f99"), SX0 + 1.6, -19, OUT); // a CNG stand on the side road
   const starLamp = new THREE.PointLight("#ffd9a0", 0, 0, 2); starLamp.position.set(BAYS[3], G + 6.4, NB0 + 5.2); scene.add(starLamp); // real light on the two stars
   P.cyl(5.2, 0.02, "#ffcf87", BAYS[3], G + 0.14, NB0 + 4.2, "y", 16); // and its pool on the tarmac
@@ -248,6 +278,10 @@ export function buildStreet({ scene, grad, G, front, right }) {
   };
   drive(sedan("#3f7fb8"), 6.8, LANE_A, 1, -52, 6.5); cngs.push(drive(cng, 4.2, LANE_A, 1, -34, 6.5)); drive(van("#eceff1"), 7.4, LANE_A, 1, -12, 6.5); cngs.push(drive(cng, 4.2, LANE_A, 1, 16, 6.5));
   const busV = drive(bus, 14.5, LANE_B, -1, 30, 5.5); drive(sedan("#e0b12e"), 6.8, LANE_B, -1, 4, 5.5); cngs.push(drive(cng, 4.2, LANE_B, -1, -22, 5.5)); drive(sedan("#7b8089"), 6.8, LANE_B, -1, -46, 5.5);
+
+  // two rickshaws up and down the side road, keeping left
+  const sideMovers = [[rickshaw("#2f8f5a"), 1, -30], [rickshaw("#c8463c"), -1, -6]].map(([build, dir, z0]) => { const v = vehicle(build); v.position.set(dir > 0 ? SX1 - 2.2 : SX0 + 4.2, G + 0.1, z0); v.rotation.y = dir > 0 ? -Math.PI / 2 : Math.PI / 2; return { v, dir, z0 }; });
+  const rickshaws = sideMovers.map((m) => m.v);
 
   /* ---------- people: instanced parts walked up and down the pavements ---------- */
   const walkers = [];
@@ -275,6 +309,7 @@ export function buildStreet({ scene, grad, G, front, right }) {
       if (flashT <= 0) flashCar = null;
     }
     for (const m of movers) m.v.position.x = XL + 2 + ((((m.x0 - XL - 2 + m.dir * m.speed * t) % SPAN) + SPAN) % SPAN);
+    { const z0 = SZ0 + 3, L = BAY0 - 3 - z0; for (const m of sideMovers) m.v.position.z = z0 + ((((m.z0 - z0 + m.dir * 2.2 * t) % L) + L) % L); }
     brolly.visible = env.rain;
     for (let i = 0; i < N; i++) {
       const w = walkers[i], L = w.to - w.from; let p = w.from, d = 1, sw = 0, bob = 0, sit = 0;
@@ -298,7 +333,7 @@ export function buildStreet({ scene, grad, G, front, right }) {
   return {
     root, update, light: starLamp, cars,
     flash(name) { if (flashCar) flashCar.userData.glow.visible = false; flashCar = cars[name]; flashT = 0.66; },
-    picks: [["jeep", [jeepCar]], ["crv", [crvCar]], ["bus", [busV]], ["cng", cngs]],
+    picks: [["jeep", [jeepCar]], ["crv", [crvCar]], ["bus", [busV]], ["cng", cngs], ["rickshaw", rickshaws], ["bmw", [bmwCar]]],
     /* where the camera ends up: the two stars in the lower part of the frame, traffic and the shop fronts behind them.
        (Aimed 6 back and 5 left of the cars: from this camera angle that keeps them centred left to right.) */
     focus: new THREE.Vector3(BAYS[3] - 2.4, G + 2, NB0 + 3.9 - 3),

@@ -488,6 +488,7 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
   .lv-room-cap { left: var(--hx); right: auto; text-align: left; bottom: 18px; }
   .lv-room-hint { display: none; }
 }
+@media (max-aspect-ratio: 4/5) and (max-height: 740px) { .lv-facts { display: none; } } /* short phones: the room needs the room */
 @media (prefers-reduced-motion: reduce) {
   .lv-hero { height: auto; }
   .lv-stage { position: relative; }

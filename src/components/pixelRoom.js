@@ -14,12 +14,16 @@
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { buildStreet, STREET_LABELS } from "./pixelStreet.js";
+import { buildWorld, WORLD_LABELS } from "./pixelWorld.js";
+const PLACE = { ...STREET_LABELS, ...WORLD_LABELS };
 
 const V3 = THREE.Vector3;
 const { lerp, clamp, degToRad } = THREE.MathUtils;
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const AZ0 = degToRad(40), EL0 = degToRad(28);
-const NEAR = 1, FAR = 140, FX = 1; // FX layer: rain/steam/stars/sparkles, never outlined (and never ray-picked)
+// The camera sits CAMD back along its view line (an ortho camera looks the same from any distance; far back means the
+// ground nearest the viewer on a tall phone screen is still in front of it), and FAR reaches the sea beyond the map.
+const CAMD = 160, NEAR = 1, FAR = CAMD + 260, FX = 1; // FX layer: rain/steam/stars/sparkles, never outlined (and never ray-picked)
 
 /* hour → sky, sun colour, sun intensity, sun elevation°, lamp, hemi sky, hemi ground, hemi intensity, stars, moon/sun disc.
    The sky column is mirrored by the inline script in index.html (first paint, before this loads). */
@@ -36,7 +40,7 @@ export const KEYS = [
 ];
 
 const C = {
-  wall: "#4f4677", wall2: "#5a4f85", base: "#2f2848", floor: "#86593c", plank: "#6c452f", rug: "#8a3a42", rugEdge: "#c0644f",
+  wall: "#594f86", wall2: "#665a95", base: "#2f2848", floor: "#86593c", plank: "#6c452f", rug: "#8a3a42", rugEdge: "#c0644f",
   desk: "#9a6640", deskDark: "#6f4630", metal: "#2b2e3d", metal2: "#474c63", frame: "#caa47b", curtain: "#7c3d50",
   mug: "#e8501e", coffee: "#3b2418", pot: "#b9653d", leaf: "#4c7a46", leaf2: "#86b25e", flower: "#ffd36b",
   skin: "#9b6b4b", hair: "#1d1715", tee: "#b9a4cf", pants: "#2b2c3e", shoe: "#e9e2d3", bag: "#17181f",
@@ -51,10 +55,11 @@ const nextFrame = (cb) => (globalThis.requestAnimationFrame ? globalThis.request
 const stopFrame = (id) => (globalThis.cancelAnimationFrame ? globalThis.cancelAnimationFrame(id) : clearTimeout(id));
 const makeCanvas = (w, h) => (typeof OffscreenCanvas !== "undefined" ? new OffscreenCanvas(w, h) : Object.assign(document.createElement("canvas"), { width: w, height: h }));
 
-export async function createPixelRoom({ canvas, width, height, reduced = false, query = "", screenSrc, portraitSrc, frames = [], copy = {}, ui, signal }) {
+export async function createPixelRoom({ canvas, width, height, dpr = 1, textRight = 0.46, textBottom = 0.45, reduced = false, query = "", screenSrc, portraitSrc, frames = [], copy = {}, ui, signal }) {
   let dirty = true, shadowsDirty = true, gone = false; // first: async callbacks (texture loads) may set these mid-construction
   const Q = new URLSearchParams(query);
   const hourOverride = Q.has("h") ? +Q.get("h") : null;
+  const clockNow = () => { const d = new Date(); if (hourOverride != null) d.setHours(Math.floor(hourOverride), Math.round((hourOverride % 1) * 60)); return d; };
 
   /* ---------- renderer & low-res pipeline ---------- */
   await pause();
@@ -101,7 +106,7 @@ void main(){
   /* ---------- helpers ---------- */
   const scene = new THREE.Scene();
   const statics = new THREE.Group(); scene.add(statics); // everything added here is baked into one mesh below
-  const grad = new THREE.DataTexture(new Uint8Array([105, 105, 105, 255, 160, 160, 160, 255, 215, 215, 215, 255, 255, 255, 255, 255]), 4, 1);
+  const grad = new THREE.DataTexture(new Uint8Array([132, 132, 132, 255, 180, 180, 180, 255, 224, 224, 224, 255, 255, 255, 255, 255]), 4, 1);
   grad.minFilter = grad.magFilter = THREE.NearestFilter; grad.needsUpdate = true;
   const MC = new Map();
   const tm = (c) => { if (!MC.has(c)) MC.set(c, new THREE.MeshToonMaterial({ color: c, gradientMap: grad })); return MC.get(c); };
@@ -125,6 +130,15 @@ void main(){
     bitmaps.load(src, (bmp) => { if (gone) return; t.image = bmp; t.needsUpdate = true; dirty = true; }, undefined, () => {});
     return t;
   };
+
+  // small textures painted in code, one texel per pixel; rows are written top-down
+  const paintTex = (w, h, paint) => {
+    const d = new Uint8Array(w * h * 4), set = (x, y, c) => { if (x < 0 || y < 0 || x >= w || y >= h) return; const i = ((h - 1 - y) * w + x) * 4; _c.set(c); const v = _c.getHex(); d[i] = (v >> 16) & 255; d[i + 1] = (v >> 8) & 255; d[i + 2] = v & 255; d[i + 3] = 255; };
+    const rect = (x, y, rw, rh, c) => { for (let j = y; j < y + rh; j++) for (let i = x; i < x + rw; i++) set(i, j, c); };
+    const t = new THREE.DataTexture(d, w, h); t.colorSpace = THREE.SRGBColorSpace; t.userData.repaint = () => { d.fill(0); paint(set, rect, w, h); t.needsUpdate = true; }; t.userData.repaint(); return t;
+  };
+  const FONT = { 0: "111101101101111", 1: "010110010010111", 2: "111001111100111", 3: "111001111001111", 4: "101101111001001", 5: "111100111001111", 6: "111100111101111", 7: "111001001001001", 8: "111101111101111", 9: "111101111001111" };
+  const glyph = (set, ch, x, y, k, c) => { if (ch === ":") { for (const j of [1, 3]) for (let a = 0; a < k; a++) for (let b = 0; b < k; b++) set(x + a, y + j * k + b, c); return k; } const g = FONT[ch]; for (let j = 0; j < 5; j++) for (let i = 0; i < 3; i++) if (g[j * 3 + i] === "1") for (let a = 0; a < k; a++) for (let b = 0; b < k; b++) set(x + i * k + a, y + j * k + b, c); return 3 * k; };
 
   /* ---------- the room (x,z in [-3,3], y up) ---------- */
   const ROOM = new V3(0, 2.1, -0.4);
@@ -165,16 +179,27 @@ void main(){
     const m = mesh(new THREE.PlaneGeometry(FR.w, FR.h), frameMat(loadTex(src)), -2.935, y, z, scene);
     m.rotation.y = Math.PI / 2; m.castShadow = false; return m;
   });
-  // low cabinet under them: a speaker, a few books, a cactus
-  box(0.55, 0.9, 2.3, C.deskDark, -2.72, 0.45, 1.55); box(0.62, 0.06, 2.4, C.desk, -2.7, 0.93, 1.55);
-  box(0.02, 0.72, 0.03, C.base, -2.44, 0.45, 1.55); box(0.03, 0.09, 0.03, C.gold, -2.43, 0.5, 1.4); box(0.03, 0.09, 0.03, C.gold, -2.43, 0.5, 1.7);
-  box(0.34, 0.5, 0.34, C.metal, -2.72, 1.21, 0.72);
-  cyl(0.1, 0.1, 0.02, C.metal2, -2.54, 1.29, 0.72).rotation.z = Math.PI / 2; cyl(0.05, 0.05, 0.02, C.metal2, -2.54, 1.08, 0.72).rotation.z = Math.PI / 2;
-  box(0.36, 0.08, 0.5, C.books[0], -2.72, 1.0, 1.32); box(0.34, 0.08, 0.46, C.books[1], -2.72, 1.08, 1.34); box(0.3, 0.07, 0.42, C.books[5], -2.72, 1.155, 1.3);
-  cyl(0.12, 0.1, 0.18, C.pot, -2.72, 1.05, 1.88); box(0.1, 0.3, 0.1, C.leaf, -2.72, 1.29, 1.88); box(0.06, 0.06, 0.14, C.leaf, -2.72, 1.3, 1.99); box(0.06, 0.14, 0.06, C.leaf2, -2.72, 1.37, 2.03);
-  cyl(0.1, 0.12, 0.05, C.metal, -2.72, 0.985, 2.42); box(0.03, 0.26, 0.03, C.metal, -2.72, 1.13, 2.42);
-  const nookShade = mesh(new THREE.CylinderGeometry(0.1, 0.19, 0.24, 8), basic("#ffd9a0"), -2.72, 1.36, 2.42, scene); nookShade.castShadow = false;
-  const nook = new THREE.PointLight("#ffb46b", 4, 0, 2); nook.position.set(-2.5, 1.5, 2.42); scene.add(nook);
+  // the retro table under them: a CRT with the PS2 Slim and its games, and the two laptops that came before the LOQ
+  box(0.62, 0.55, 2.5, C.deskDark, -2.69, 0.275, 1.55); box(0.68, 0.05, 2.56, C.desk, -2.67, 0.575, 1.55);
+  box(0.03, 0.26, 1.3, "#17131d", -2.37, 0.3, 1.05); // open shelf
+  box(0.36, 0.07, 0.56, "#16171c", -2.52, 0.24, 0.8); box(0.01, 0.02, 0.5, "#3a3d47", -2.335, 0.255, 0.8); // PS2 Slim lying flat
+  const ps2Led = mesh(new THREE.BoxGeometry(0.012, 0.025, 0.03), basic("#3d8bff"), -2.335, 0.24, 1.0, scene); ps2Led.castShadow = false;
+  ["#d9822b", "#2f8f5a", "#b8312f", "#2f5fb8", "#e0c040", "#8a5ab8"].forEach((c, i) => { box(0.3, 0.24, 0.035, "#121216", -2.53, 0.3, 1.24 + i * 0.045); box(0.012, 0.16, 0.036, c, -2.375, 0.31, 1.24 + i * 0.045); }); // game cases, coloured spines
+  box(0.2, 0.05, 0.11, "#18191e", -2.45, 0.625, 1.38).rotation.y = 0.4; for (const s2 of [-1, 1]) box(0.07, 0.05, 0.08, "#18191e", -2.47 + s2 * 0.02, 0.62, 1.38 + s2 * 0.1).rotation.y = 0.4; // DualShock 2
+  box(0.6, 0.6, 0.7, "#2a2c33", -2.69, 0.9, 0.82); box(0.3, 0.44, 0.5, "#24262c", -2.94, 0.88, 0.82); // CRT
+  box(0.02, 0.06, 0.5, "#3a3d47", -2.385, 0.66, 0.82); box(0.02, 0.03, 0.03, "#5dff8a", -2.385, 0.66, 1.08);
+  const CRT = [0, 1].map((f) => paintTex(32, 24, (set, rect) => { // a little racing game, two frames
+    for (let y = 0; y < 10; y++) rect(0, y, 32, 1, ["#3a5bd0", "#4b6fe0", "#6a86ea", "#8ea2ee", "#f0a070", "#f6b66e", "#f8c97a", "#fad98c", "#7fbf5a", "#6aae4c"][y]);
+    rect(0, 10, 32, 14, "#5aa046");
+    for (let y = 10; y < 24; y++) { const half = 2 + (y - 10) * 1.05; rect(Math.round(16 - half), y, Math.round(half * 2), 1, "#55575f"); if ((y + f * 2) % 4 < 2) rect(15, y, 2, 1, "#f2f2ea"); rect(Math.round(16 - half) - 1, y, 1, 1, (y + f) % 2 ? "#e8e8e8" : "#d24a3c"); rect(Math.round(16 + half), y, 1, 1, (y + f) % 2 ? "#e8e8e8" : "#d24a3c"); }
+    rect(13, 18, 6, 4, "#d6362c"); rect(14, 17, 4, 1, "#f2c641"); rect(12, 21, 2, 2, "#15161a"); rect(18, 21, 2, 2, "#15161a"); rect(2, 2, 5, 1, "#ffffff"); rect(26, 2, 4, 1, "#ffffff");
+  }));
+  const crtScreen = mesh(new THREE.PlaneGeometry(0.56, 0.42), basic("#ffffff", { map: CRT[0] }), -2.383, 0.94, 0.82, scene); crtScreen.rotation.y = Math.PI / 2; crtScreen.castShadow = false;
+  // a small lamp on the CRT keeps the nook warm at night
+  cyl(0.06, 0.07, 0.03, C.metal, -2.75, 1.215, 0.62); box(0.02, 0.16, 0.02, C.metal, -2.75, 1.3, 0.62);
+  const nookShade = mesh(new THREE.CylinderGeometry(0.07, 0.13, 0.16, 8), basic("#ffd9a0"), -2.75, 1.43, 0.62, scene); nookShade.castShadow = false;
+  const nook = new THREE.PointLight("#ffb46b", 4, 0, 2); nook.position.set(-2.45, 1.45, 0.9); scene.add(nook);
+  const pRetro = proxy(0.7, 1.1, 0.95, -2.62, 0.75, 0.95);
 
   // back wall: a cork board of sticky notes, and the degree above the monitor
   box(1.4, 1.0, 0.06, C.frame, -2.05, 3.35, -2.97); box(1.28, 0.88, 0.05, C.cork, -2.05, 3.35, -2.955);
@@ -206,14 +231,36 @@ void main(){
   box(0.12, 0.04, 0.2, C.metal2, 0.42, DESK_Y + 0.02, -1.98);
   box(0.5, 0.03, 0.66, "#e6dcc5", -1.05, DESK_Y + 0.015, -1.95).rotation.y = 0.25;
   // pen cup, and the PC under the desk with a slow colour-cycling light
-  cyl(0.09, 0.08, 0.2, C.books[1], 1.95, DESK_Y + 0.1, -2.72);
-  box(0.025, 0.3, 0.025, C.notes[0], 1.92, DESK_Y + 0.27, -2.72).rotation.z = 0.2; box(0.025, 0.3, 0.025, C.red, 1.99, DESK_Y + 0.27, -2.7).rotation.z = -0.16; box(0.025, 0.3, 0.025, C.cream, 1.95, DESK_Y + 0.28, -2.76).rotation.x = 0.2;
-  box(0.42, 0.95, 0.9, C.metal, -0.95, 0.475, -2.4); box(0.36, 0.85, 0.02, C.metal2, -0.95, 0.475, -1.945);
-  const pcLight = mesh(new THREE.BoxGeometry(0.04, 0.6, 0.02), basic("#59d0ff"), -0.82, 0.5, -1.93, scene); pcLight.castShadow = false;
-  // the phone (click → booking)
-  const phone = new THREE.Group(); phone.position.set(1.86, DESK_Y + 0.02, -1.9); phone.rotation.y = -0.3; scene.add(phone);
-  box(0.22, 0.035, 0.4, C.metal, 0, 0, 0, phone);
-  const phoneScreen = mesh(new THREE.BoxGeometry(0.18, 0.012, 0.34), basic("#1b2030"), 0, 0.02, 0, phone); phoneScreen.castShadow = false;
+  cyl(0.09, 0.08, 0.2, C.books[1], -1.45, DESK_Y + 0.1, -2.2);
+  box(0.025, 0.3, 0.025, C.notes[0], -1.48, DESK_Y + 0.27, -2.2).rotation.z = 0.2; box(0.025, 0.3, 0.025, C.red, -1.41, DESK_Y + 0.27, -2.18).rotation.z = -0.16; box(0.025, 0.3, 0.025, C.cream, -1.45, DESK_Y + 0.28, -2.24).rotation.x = 0.2;
+  // the PC in the back-left corner (Ryzen 5 3400G, GTX 1650 Super): glass side toward the room, Wraith Spire ring cycling colour
+  const PC = new V3(-2.46, 0, -2.42);
+  box(0.46, 1.02, 0.96, "#1c1e25", PC.x, 0.51, PC.z); box(0.01, 0.86, 0.8, "#414a5c", PC.x + 0.235, 0.53, PC.z); // case, motherboard behind the glass
+  box(0.05, 0.13, 0.62, "#6b707b", PC.x + 0.25, 0.4, PC.z + 0.02); const gpuBar = mesh(new THREE.BoxGeometry(0.052, 0.022, 0.62), basic("#e9eef6"), PC.x + 0.252, 0.475, PC.z + 0.02, scene); gpuBar.castShadow = false; // GPU, lit edge
+  for (const dz of [-0.15, 0.17]) { cyl(0.055, 0.055, 0.02, "#121318", PC.x + 0.276, 0.4, PC.z + dz).rotation.z = Math.PI / 2; cyl(0.02, 0.02, 0.022, "#6a6f7a", PC.x + 0.277, 0.4, PC.z + dz).rotation.z = Math.PI / 2; }
+  for (const dz of [0.2, 0.25]) box(0.03, 0.16, 0.025, "#22242b", PC.x + 0.25, 0.74, PC.z + dz); // 2 x 8 GB
+  const caseStrip = mesh(new THREE.BoxGeometry(0.02, 0.02, 0.86), basic("#cfe6ff"), PC.x + 0.24, 0.98, PC.z, scene); caseStrip.castShadow = false; // the case light
+  cyl(0.11, 0.11, 0.05, "#141519", PC.x + 0.26, 0.74, PC.z - 0.05).rotation.z = Math.PI / 2; // Wraith Spire
+  box(0.03, 0.17, 0.9, "#25272e", PC.x + 0.245, 0.1, PC.z); box(0.02, 0.98, 0.03, "#2c2f37", PC.x + 0.24, 0.51, PC.z - 0.47); box(0.02, 0.98, 0.03, "#2c2f37", PC.x + 0.24, 0.51, PC.z + 0.47); // shroud, glass frame
+  box(0.44, 1.0, 0.02, "#24262d", PC.x, 0.51, PC.z + 0.48);
+  const pcLight = mesh(new THREE.TorusGeometry(0.12, 0.02, 4, 16), basic("#59d0ff"), PC.x + 0.288, 0.74, PC.z - 0.05, scene); pcLight.rotation.y = Math.PI / 2; pcLight.castShadow = false;
+  const pcPower = mesh(new THREE.BoxGeometry(0.04, 0.04, 0.012), basic("#59d0ff"), PC.x + 0.12, 0.92, PC.z + 0.492, scene); pcPower.castShadow = false;
+  const pPC = proxy(0.5, 1.05, 1.0, PC.x, 0.52, PC.z);
+  // the phone, a POCO M4 Pro, face up: its lock screen shows the visitor's time (click → close-up, click again → booking)
+  const PH = { w: 0.26, l: 0.54 };
+  const phone = new THREE.Group(); phone.position.set(1.76, DESK_Y + 0.02, -1.94); phone.rotation.y = 0.45; scene.add(phone); // top pointing away from the viewer, so the lock screen reads upright
+  box(PH.w, 0.032, PH.l, "#15161b", 0, 0, 0, phone);
+  let phoneMin = -1;
+  const phoneTex = paintTex(36, 76, (set, rect, w, h) => {
+    for (let y = 0; y < h; y++) rect(0, y, w, 1, y < 38 ? (y % 8 < 4 ? "#1d2350" : "#1f2656") : y < 60 ? "#2b2f6e" : "#3a3170");
+    rect(17, 2, 2, 2, "#05060a"); // punch-hole camera
+    const d = clockNow(), hh = String(d.getHours()).padStart(2, "0"), mm = String(d.getMinutes()).padStart(2, "0");
+    let x = 1; for (const ch of hh + ":" + mm) x += glyph(set, ch, x, 10, 2, "#f4f1e8") + 2;
+    rect(9, 23, 18, 1, "#9ea6d8"); // date
+    rect(3, 34, 30, 13, "#f1ede4"); rect(5, 36, 5, 5, "#e8501e"); rect(12, 36, 17, 2, "#3a3d4c"); rect(12, 40, 13, 1, "#8b8f9c"); rect(12, 43, 15, 1, "#8b8f9c"); // a message
+    rect(14, 70, 8, 1, "#c9cbe0");
+  });
+  const phoneScreen = mesh(new THREE.PlaneGeometry(PH.w - 0.025, PH.l - 0.03), basic("#ffffff", { map: phoneTex }), 0, 0.0165, 0, phone); phoneScreen.rotation.x = -Math.PI / 2; phoneScreen.castShadow = false;
   // bin with a few failed ideas
   cyl(0.2, 0.15, 0.42, "#3b3f55", 2.6, 0.21, -1.2); box(0.14, 0.1, 0.14, C.cream, 2.56, 0.44, -1.22); box(0.1, 0.08, 0.1, C.cream, 2.66, 0.43, -1.14).rotation.y = 0.5; box(0.1, 0.08, 0.1, C.cream, 2.22, 0.04, -1.0).rotation.y = 0.3;
 
@@ -232,29 +279,36 @@ void main(){
   box(0.06, 1.08, 0.92, "#2a2433", -2.97, 2.6, -0.75);
   const photo = mesh(new THREE.PlaneGeometry(0.8, 0.96), frameMat(loadTex(portraitSrc)), -2.935, 2.6, -0.75, scene); photo.rotation.y = Math.PI / 2; photo.castShadow = false;
   { const t = photo.material.map; t.repeat.x = 0.63; t.offset.x = 0.2; setV(t, 0.75, 0.25); }
-  // home lab in the back-left corner: a small rack, a router, a mini PC and a drive, each with blinking lights
-  const LAB = new V3(-2.45, 0, -2.6);
-  box(0.06, 1.3, 0.5, C.deskDark, LAB.x - 0.42, 0.65, LAB.z); box(0.06, 1.3, 0.5, C.deskDark, LAB.x + 0.42, 0.65, LAB.z);
-  for (const y of [0.04, 0.5, 0.92, 1.3]) box(0.9, 0.05, 0.5, C.desk, LAB.x, y, LAB.z);
-  box(0.6, 0.12, 0.36, "#e8e4da", LAB.x, 0.59, LAB.z + 0.02); box(0.04, 0.22, 0.04, "#e8e4da", LAB.x - 0.24, 0.76, LAB.z - 0.1); box(0.04, 0.22, 0.04, "#e8e4da", LAB.x + 0.24, 0.76, LAB.z - 0.1); // router + aerials
-  box(0.36, 0.14, 0.36, C.metal, LAB.x - 0.16, 1.02, LAB.z); box(0.26, 0.3, 0.4, "#3b3f55", LAB.x + 0.24, 1.1, LAB.z); // mini PC, drive
-  box(0.7, 0.36, 0.42, "#2f3348", LAB.x, 0.25, LAB.z); for (let i = 0; i < 4; i++) box(0.12, 0.26, 0.02, "#474c63", LAB.x - 0.24 + i * 0.16, 0.25, LAB.z + 0.215); // a 4-bay NAS
-  const LEDS = [[-0.2, 0.6], [-0.1, 0.6], [0, 0.6], [0.1, 0.6], [-0.1, 1.03], [0.24, 1.18], [0.24, 1.08], [-0.26, 0.36], [-0.1, 0.36], [0.06, 0.36], [0.22, 0.36]];
-  const leds = new THREE.InstancedMesh(new THREE.BoxGeometry(0.035, 0.035, 0.02), new THREE.MeshBasicMaterial(), LEDS.length);
-  LEDS.forEach(([x, y], i) => { leds.setMatrixAt(i, _m4.makeTranslation(LAB.x + x, y, LAB.z + (y < 0.5 ? 0.23 : y < 0.7 ? 0.205 : 0.21))); leds.setColorAt(i, _c.set("#5dff8a")); });
-  leds.layers.set(FX); scene.add(leds);
-  const pLab = proxy(0.95, 1.35, 0.55, LAB.x, 0.67, LAB.z);
-  // desk: headphones on a stand, and a rubber duck for talking bugs through
-  cyl(0.12, 0.13, 0.03, C.metal, 1.05, DESK_Y + 0.015, -2.72); box(0.03, 0.5, 0.03, C.metal, 1.05, DESK_Y + 0.27, -2.72);
-  mesh(new THREE.TorusGeometry(0.15, 0.03, 4, 10, Math.PI), "#2b2e3d", 1.05, DESK_Y + 0.52, -2.72, statics);
-  for (const s of [-1, 1]) cyl(0.08, 0.08, 0.07, "#d2553a", 1.05 + s * 0.16, DESK_Y + 0.46, -2.72).rotation.z = Math.PI / 2;
-  const duck = new THREE.Group(); duck.position.set(1.56, DESK_Y, -1.8); duck.rotation.y = 0.75; scene.add(duck);
+  // laptops: base, keyboard, touchpad, a lid on a hinge, a painted screen. Built facing +z (the user), then turned into place.
+  const laptop = (x, y, z, ry, w, d, shell, deck, keys, tex, tilt = 0.3) => {
+    const g = new THREE.Group(); g.position.set(x, y, z); g.rotation.y = ry; scene.add(g);
+    box(w, 0.04, d, shell, 0, 0.02, 0, g); box(w - 0.08, 0.008, d * 0.42, keys, 0, 0.044, -d * 0.1, g); box(w * 0.3, 0.008, d * 0.2, deck, 0, 0.044, d * 0.3, g);
+    const lid = new THREE.Group(); lid.position.set(0, 0.04, -d / 2 + 0.012); lid.rotation.x = -tilt; g.add(lid);
+    box(w, d * 0.92, 0.022, shell, 0, d * 0.46, 0, lid);
+    const scr = mesh(new THREE.PlaneGeometry(w - 0.05, d * 0.92 - 0.06), basic("#ffffff", { map: tex }), 0, d * 0.46 + 0.012, 0.0115, lid); scr.castShadow = false;
+    return { g, lid, scr };
+  };
+  const wallpaper = (a, b, accent) => paintTex(40, 24, (set, rect) => { for (let y = 0; y < 24; y++) rect(0, y, 40, 1, y < 12 ? a : b); for (let i = 0; i < 4; i++) rect(2, 2 + i * 5, 3, 3, accent); rect(0, 22, 40, 2, "#1b1d24"); });
+  const asus = laptop(-2.66, 0.6, 1.72, Math.PI / 2, 0.7, 0.46, "#4e3b31", "#5d4a3e", "#24252a", wallpaper("#2d6fc0", "#1f4f96", "#e8eef8"), 0.32); // ASUS X556UF, dark brown
+  const hp = laptop(-2.66, 0.6, 2.45, Math.PI / 2, 0.62, 0.42, "#1d1e22", "#a9adb5", "#2a2b30", wallpaper("#1f8a8a", "#16656a", "#f1ede4"), 0.36); // HP Pavilion 14
+  // the LOQ (Luna Grey, white-backlit keys) beside the monitor; its screen scrolls through code
+  const loqTex = paintTex(48, 96, (set, rect) => {
+    rect(0, 0, 48, 96, "#1d1f28"); rect(0, 0, 5, 96, "#252834");
+    const cols = ["#c792ea", "#82aaff", "#c3e88d", "#f78c6c", "#89ddff", "#ffcb6b"];
+    for (let y = 1, n = 0; y < 96; y += 3, n++) { rect(1, y, 2, 1, "#4a4f63"); let x = 7 + ((n * 7) % 4) * 2; for (let k = 0; k < 1 + (n * 5) % 4 && x < 46; k++) { const len = 3 + ((n * 13 + k * 7) % 9); rect(x, y, Math.min(len, 46 - x), 1, cols[(n + k * 2) % cols.length]); x += len + 2; } }
+  });
+  loqTex.wrapT = THREE.RepeatWrapping; loqTex.repeat.y = 30 / 96;
+  const loq = laptop(1.16, DESK_Y, -2.3, -0.14, 0.82, 0.54, "#4c5059", "#3c4048", "#1e2026", loqTex, 0.3);
+  box(0.82, 0.06, 0.07, "#383b43", 0, 0.03, -0.3, loq.g); // the rear thermal block
+  for (let r = 0; r < 4; r++) { const k = mesh(new THREE.BoxGeometry(0.66, 0.004, 0.012), basic("#dfe8f6"), 0, 0.05, -0.17 + r * 0.045, loq.g); k.castShadow = false; } // backlight rows
+  // the rubber duck, for talking bugs through
+  const duck = new THREE.Group(); duck.position.set(2.03, DESK_Y, -2.36); duck.rotation.y = 0.75; scene.add(duck);
   box(0.16, 0.11, 0.2, "#f2c641", 0, 0.055, 0, duck); box(0.11, 0.11, 0.11, "#f2c641", 0, 0.16, 0.05, duck); box(0.05, 0.03, 0.06, "#e8812a", 0, 0.15, 0.13, duck);
   box(0.02, 0.02, 0.01, C.ink, -0.03, 0.19, 0.106, duck); box(0.02, 0.02, 0.01, C.ink, 0.03, 0.19, 0.106, duck); box(0.06, 0.05, 0.06, "#f2c641", 0, 0.1, -0.11, duck);
   // the soft corner by the window: a bean bag with an open book, a stack of books, slippers by the rug
-  { const bb = mesh(new THREE.SphereGeometry(0.62, 8, 6), "#d9a441", 2.15, 0.34, 1.75, statics); bb.scale.set(1, 0.58, 0.95); }
-  mesh(new THREE.SphereGeometry(0.42, 8, 6), "#c99236", 2.3, 0.42, 1.45, statics).scale.set(1, 0.7, 0.6);
-  box(0.26, 0.03, 0.34, C.cream, 2.02, 0.69, 1.92).rotation.set(0, 0.4, 0.25); box(0.26, 0.03, 0.34, "#efe6d0", 1.8, 0.66, 1.84).rotation.set(0, 0.4, -0.25);
+  { const bb = mesh(new THREE.SphereGeometry(0.62, 8, 6), "#d9a441", -0.55, 0.34, 2.25, statics); bb.scale.set(0.95, 0.58, 1); }
+  mesh(new THREE.SphereGeometry(0.42, 8, 6), "#c99236", -0.25, 0.44, 2.3, statics).scale.set(0.6, 0.72, 1);
+  box(0.26, 0.03, 0.34, C.cream, -0.75, 0.69, 2.15).rotation.set(0, 1.2, 0.25); box(0.26, 0.03, 0.34, "#efe6d0", -0.8, 0.66, 2.38).rotation.set(0, 1.2, -0.25);
   box(0.42, 0.1, 0.3, C.books[3], 2.75, 0.05, 0.4); box(0.38, 0.09, 0.28, C.books[4], 2.74, 0.145, 0.41).rotation.y = 0.2; box(0.34, 0.08, 0.26, C.books[0], 2.76, 0.23, 0.39).rotation.y = -0.15;
   for (const s of [-1, 1]) box(0.14, 0.05, 0.3, "#5a6a8a", 1.05 + s * 0.11, 0.025, 2.05).rotation.y = s * 0.12;
   // dust in the window light (daytime only)
@@ -286,7 +340,7 @@ void main(){
   lamp.castShadow = true; lamp.shadow.mapSize.set(512, 512); lamp.shadow.bias = -0.002; lamp.shadow.normalBias = 0.03; lamp.shadow.camera.near = 0.1;
 
   /* mug + steam */
-  const MUG = new V3(1.42, DESK_Y, -2.25);
+  const MUG = new V3(1.92, DESK_Y, -2.62);
   const mug = cyl(0.13, 0.12, 0.26, C.mug, MUG.x, MUG.y + 0.13, MUG.z, scene);
   const handle = mesh(new THREE.TorusGeometry(0.07, 0.025, 6, 10), C.mug, MUG.x + 0.15, MUG.y + 0.14, MUG.z, scene);
   const coffee = cyl(0.11, 0.11, 0.02, C.coffee, MUG.x, MUG.y + 0.2, MUG.z, scene);
@@ -294,7 +348,7 @@ void main(){
   for (let i = 0; i < 9; i++) { const s = fx(new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 0.05), basic("#ffffff", { transparent: true, depthWrite: false }))); s.userData.t = Math.random(); s.userData.k = i * 1.7; scene.add(s); steam.push(s); }
 
   /* wristwatch on a little cushion, tilted toward the viewer: the visitor's real time */
-  const watch = new THREE.Group(); watch.position.set(0.92, DESK_Y + 0.27, -1.84); watch.rotation.set(0.75, AZ0, 0, "YXZ"); scene.add(watch);
+  const watch = new THREE.Group(); watch.position.set(0.6, DESK_Y + 0.15, -1.8); watch.rotation.set(0.75, AZ0, 0, "YXZ"); watch.scale.setScalar(0.55); scene.add(watch); // small now: the desk has more on it
   box(0.24, 0.03, 1.0, C.strap, 0, -0.02, 0, watch); box(0.5, 0.32, 0.62, "#7c4a5a", 0, -0.2, 0.02, watch);
   cyl(0.3, 0.3, 0.08, C.gold, 0, 0, 0, watch, 20); cyl(0.26, 0.26, 0.09, C.cream, 0, 0.005, 0, watch, 20);
   for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2, q = i % 3 === 0; const mk = box(q ? 0.035 : 0.022, 0.01, q ? 0.06 : 0.04, q ? C.ink : "#8b7a62", Math.sin(a) * 0.21, 0.05, -Math.cos(a) * 0.21, watch); mk.rotation.y = -a; mk.castShadow = false; }
@@ -474,7 +528,7 @@ void main(){
   addB(X1 - (L0 - span), CELL.h * FLOORS, Z1 - Z0, (X1 + L0 - span) / 2, -0.2 - (CELL.h * FLOORS) / 2, (Z0 + Z1) / 2, faces());
   addB(span, CELL.h, Z1 - Z0, L0 - span / 2, CELL.h / 2 - 0.2, (Z0 + Z1) / 2, faces());
   addB(span + 0.4, 0.3, Z1 - Z0 + 0.4, L0 - span / 2, CELL.h - 0.05, (Z0 + Z1) / 2, faces());
-  addB(240, 0.2, 240, -10, -0.4 - CELL.h * FLOORS, 4, bm("#0c1022", "#9cb8d2"));
+  addB(700, 0.2, 700, -10, -0.4 - CELL.h * FLOORS, 4, bm("#0b1d36", "#3d89c2")); // the sea; land is laid on it by pixelWorld.js
   // Everything else on the building is collected per material and merged, so the facade costs one draw call per colour.
   // Like the blocks above, these are unlit: each material holds a night and a day colour and fades in from the sky.
   const GROUND = -0.3 - CELL.h * FLOORS; // top of the ground slab
@@ -528,6 +582,9 @@ void main(){
   // the first frame hides it until the camera leaves the room.
   const street = buildStreet({ scene, grad, G: GROUND, front: Z1, right: X1 });
   street.root.visible = true;
+  await pause();
+  const world = buildWorld({ scene, grad, G: GROUND }); // the places around the block: Bangladesh and the UAE
+  world.root.visible = true;
 
   await pause();
   // ~300 static boxes → one vertex-coloured mesh: the whole room costs a handful of draw calls
@@ -578,16 +635,24 @@ void main(){
 
   /* ---------- camera & framing ---------- */
   const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, NEAR, FAR); cam.layers.enable(FX);
-  const WIDE = new V3(-12.5, -13.9, 0);
-  let W = Math.max(1, width), H = Math.max(1, height), S = 4, lw = 1, lh = 1, portrait = false, VH = 11.2, coarse = 0;
-  function resize(w = W, h = H) {
-    W = Math.max(1, w); H = Math.max(1, h); portrait = W / H < 0.8;
-    S = clamp(Math.round(Math.min(H / 230, W / 300)), 2, 5) + coarse;
-    lw = Math.ceil(W / S); lh = Math.ceil(H / S);
-    renderer.setSize(lw, lh, false); ui.size({ w: lw * S, h: lh * S });
+  const WIDE = new V3(-16, -13.9, -12); // aimed a little behind the block, so the map around it fits
+  let DPR = dpr || 1, W = Math.max(1, width), H = Math.max(1, height), S = 4, lw = 1, lh = 1, portrait = false, VH = 10.3, coarse = 0, textR = textRight, textB = textBottom, FXL = 0.74, FYP = 0.3;
+  function resize(w = W, h = H, d = DPR) {
+    W = Math.max(1, w); H = Math.max(1, h); DPR = d || 1; portrait = W / H < 0.8;
+    // S is the size of one art pixel in *device* pixels: about 270 rows (or 290 columns on a phone), so pixels stay
+    // crisp integers on any screen density and there are enough of them to tell a mug from a phone
+    const wd = W * DPR, hd = H * DPR;
+    S = clamp(Math.round(Math.min(hd / 270, wd / (portrait ? 290 : 400))), 2, 9) + coarse;
+    lw = Math.ceil(wd / S); lh = Math.ceil(hd / S);
+    renderer.setSize(lw, lh, false); ui.size({ w: (lw * S) / DPR, h: (lh * S) / DPR });
     makeSky(lw, lh); scene.background = bgTex; if (ENV) paintSky(reduced ? 0 : performance.now() / 1000);
     rtC.setSize(lw, lh); rtN.setSize(lw, lh); post.uniforms.res.value.set(lw, lh);
-    VH = portrait ? Math.max(10.5, 9.4 / (W / H)) : 11.2;
+    // landscape: the room (about 9.2 units wide) sits centred in the space right of the tagline, as large as the height
+    // allows (its top may go under the header); where that space is narrow it zooms out rather than overlap the text
+    // (seen from this camera the room reaches 5.1 units above its target and 4.2 below, 4.7 left and 4.2 right)
+    // portrait: the room fits in the space under the tagline, its floor just above the caption
+    if (portrait) { const avail = Math.max(0.28, 1 - textB - 0.1); VH = Math.max(9.4 / avail, (9.1 * H) / (W * 0.96)); FYP = 0.075 + 4.3 / VH; }
+    else { const free = Math.max(0.3, 0.975 - (textR + 0.025)); VH = Math.max(10, (9.2 * H) / (W * free)); FXL = clamp(textR + 0.025 + free / 2 + (0.28 * H) / (VH * W), 0.6, 0.8); }
     dirty = true;
   }
   const ptr = { x: 0, y: 0, tx: 0, ty: 0, inside: false, last: 0 };
@@ -598,19 +663,20 @@ void main(){
     return {
       target: ROOM.clone().lerp(WIDE, a).lerp(street.focus, b),
       az: AZ0 + ptr.x * degToRad(8) * (1 - a), el: EL0 + degToRad(ptr.y * 5 * (1 - a) + a * 6 - b * 3),
-      zoom: lerp(lerp(1, portrait ? 0.2 : 0.225, a), portrait ? 0.72 : 0.6, b),
-      fx: lerp(portrait ? 0.5 : 0.74, 0.5, a), fy: lerp(portrait ? 0.3 : 0.5, 0.5, a), near: NEAR,
+      zoom: lerp(lerp(1, portrait ? 0.18 : 0.17, a), portrait ? 0.72 : 0.6, b),
+      fx: lerp(portrait ? 0.5 : FXL, 0.5, a), fy: lerp(portrait ? FYP : 0.5, 0.5, a), near: NEAR,
     };
   };
   // the near plane slides up to the screen so the camera flies through tiny Taif instead of being blocked
-  const shotScreen = () => ({ target: screen.position.clone(), az: 0, el: degToRad(3), zoom: VH / (0.9 * 1.06), fx: 0.5, fy: 0.5, near: 59.75 });
-  const shotWatch = () => ({ target: watch.localToWorld(new V3(0, 0.05, 0)), az: AZ0, el: degToRad(42), zoom: VH / (portrait ? 1.4 : 2.0), fx: 0.5, fy: 0.58, near: NEAR });
+  const shotScreen = () => ({ target: screen.position.clone(), az: 0, el: degToRad(3), zoom: VH / (0.9 * 1.06), fx: 0.5, fy: 0.5, near: CAMD - 0.25 });
+  const shotWatch = () => ({ target: watch.localToWorld(new V3(0, 0.05, 0)), az: AZ0, el: degToRad(42), zoom: VH / (portrait ? 0.8 : 1.15), fx: 0.5, fy: 0.58, near: NEAR });
+  const shotPhone = () => ({ target: phone.localToWorld(new V3(0, 0.02, 0)), az: phone.rotation.y, el: degToRad(64), zoom: VH / (portrait ? 0.9 : 0.95), fx: 0.5, fy: portrait ? 0.56 : 0.5, near: CAMD - 8 });
   // close-up on a parked car: swing slowly round its front (never round to the road side, where traffic would cut in);
   // the near plane sits 10 units in front so lamp posts and the hedge on the camera side don't block it
   let focusCar = null, carT0 = 0, carScroll = 0;
   const shotCar = (t) => ({
     target: street.cars[focusCar].position.clone().add(_w.set(0, 1.25, 0)), az: degToRad(22) + Math.sin((t - carT0) * 0.25) * 0.36, el: degToRad(portrait ? 26 : 19),
-    zoom: Math.min(VH / 6.4, (VH * W) / H / 9.5), fx: 0.5, fy: portrait ? 0.4 : 0.56, near: 50,
+    zoom: Math.min(VH / 6.4, (VH * W) / H / 9.5), fx: 0.5, fy: portrait ? 0.4 : 0.56, near: CAMD - 10,
   });
   const mixShot = (a, b, t) => ({ target: a.target.clone().lerp(b.target, t), az: lerp(a.az, b.az, t), el: lerp(a.el, b.el, t), zoom: Math.exp(lerp(Math.log(a.zoom), Math.log(b.zoom), t)), fx: lerp(a.fx, b.fx, t), fy: lerp(a.fy, b.fy, t), near: lerp(a.near, b.near, Math.min(1, t * 2.2)) });
   function placeCam(s) {
@@ -618,7 +684,7 @@ void main(){
     const h = VH / 2 / s.zoom, w = (h * W) / H;
     cam.left = -s.fx * 2 * w; cam.right = (1 - s.fx) * 2 * w; cam.bottom = -s.fy * 2 * h; cam.top = (1 - s.fy) * 2 * h;
     cam.near = s.near; post.uniforms.span.value = FAR - s.near; cam.updateProjectionMatrix();
-    cam.position.set(s.target.x + Math.sin(s.az) * Math.cos(s.el) * 60, s.target.y + Math.sin(s.el) * 60, s.target.z + Math.cos(s.az) * Math.cos(s.el) * 60);
+    cam.position.set(s.target.x + Math.sin(s.az) * Math.cos(s.el) * CAMD, s.target.y + Math.sin(s.el) * CAMD, s.target.z + Math.cos(s.az) * Math.cos(s.el) * CAMD);
     cam.lookAt(s.target); cam.updateMatrixWorld();
     // snap translation to the texel grid so a moving target never shimmers
     const tx = (cam.top - cam.bottom) / lh, r = _a.set(1, 0, 0).applyQuaternion(cam.quaternion), u = _b.set(0, 1, 0).applyQuaternion(cam.quaternion);
@@ -629,13 +695,13 @@ void main(){
   /* ---------- picking & easter eggs (coordinates are NDC on the canvas: x right, y up, both -1..1) ---------- */
   const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
   const clickables = [["screen", [screen]], ["watch", [watch]], ["mug", [mug, handle, coffee]], ["lamp", [shade, bulb, la1, la2]], ["plant", [plant]], ["me", [me]],
-    ["trophy", [pTrophy]], ["degree", [pDegree]], ["frames", shots], ["phone", [phone]], ["cat", [cat]], ["duck", [duck]], ["lab", [pLab]], ["photo", [photo]]];
+    ["trophy", [pTrophy]], ["degree", [pDegree]], ["frames", shots], ["phone", [phone]], ["cat", [cat]], ["duck", [duck]], ["photo", [photo]], ["pc", [pPC]], ["loq", [loq.g]], ["asus", [asus.g]], ["hp", [hp.g]], ["retro", [pRetro]]];
   const owns = (o) => clickables.some(([, objs]) => objs.some((c) => { for (let p = o; p; p = p.parent) if (p === c) return true; return false; }));
   function pick(nx, ny) {
     ndc.set(nx, ny); ray.setFromCamera(ndc, cam);
     let best = null, bd = Infinity;
     for (const [name, objs] of clickables) for (const o of objs) { const h = ray.intersectObject(o, true)[0]; if (h && h.distance < bd) { bd = h.distance; best = name; } }
-    const first = ray.intersectObjects(scene.children.filter((o) => o !== bld), true)[0]; // a nearer wall wins
+    const first = ray.intersectObjects(scene.children.filter((o) => o !== bld && o !== street.root && o !== world.root), true)[0]; // a nearer wall wins (the street and the map are never in front of the room)
     if (best && first && first.distance < bd - 0.01 && !owns(first.object)) best = null;
     return best;
   }
@@ -643,28 +709,30 @@ void main(){
   function pickStreet(nx, ny) {
     ndc.set(nx, ny); ray.setFromCamera(ndc, cam);
     let best = null, bd = Infinity;
-    for (const [name, objs] of street.picks) for (const o of objs) { const h = ray.intersectObject(o, true)[0]; if (h && h.distance < bd) { bd = h.distance; best = name; } }
+    for (const [name, objs] of [...street.picks, ...world.picks]) for (const o of objs) { const h = ray.intersectObject(o, true)[0]; if (h && h.distance < bd) { bd = h.distance; best = name; } }
     return best;
   }
   // a small sparkle marks each thing that can be clicked until it has been
   const ANCHORS = {
-    screen: new V3(MON.x + 0.62, MON.y + 0.42, MON.z + 0.1), watch: new V3(1.15, DESK_Y + 0.62, -1.8), mug: new V3(MUG.x, MUG.y + 0.5, MUG.z), lamp: new V3(LAMP_HEAD.x + 0.2, LAMP_HEAD.y + 0.28, LAMP_HEAD.z),
-    plant: new V3(2.45, 1.55, -2.35), me: new V3(0.32, 2.5, -1.1), trophy: new V3(-2.78, TROPHY_Y + 0.62, 0), degree: new V3(0.24, 4.06, -2.9), frames: new V3(-2.9, 3.62, 1.55), phone: new V3(1.86, DESK_Y + 0.3, -1.9),
-    cat: new V3(2.3, WY0 + 0.86, -2.7), duck: new V3(1.56, DESK_Y + 0.42, -1.8), lab: new V3(LAB.x + 0.3, 1.62, LAB.z), photo: new V3(-2.9, 3.3, -0.4),
+    screen: new V3(MON.x + 0.62, MON.y + 0.42, MON.z + 0.1), watch: new V3(0.72, DESK_Y + 0.4, -1.75), mug: new V3(MUG.x, MUG.y + 0.5, MUG.z), lamp: new V3(LAMP_HEAD.x + 0.2, LAMP_HEAD.y + 0.28, LAMP_HEAD.z),
+    plant: new V3(2.45, 1.55, -2.35), me: new V3(0.32, 2.5, -1.1), trophy: new V3(-2.78, TROPHY_Y + 0.62, 0), degree: new V3(0.24, 4.06, -2.9), frames: new V3(-2.9, 3.62, 1.55), phone: new V3(1.95, DESK_Y + 0.32, -1.85),
+    cat: new V3(2.3, WY0 + 0.86, -2.7), duck: new V3(2.03, DESK_Y + 0.42, -2.36), photo: new V3(-2.9, 3.3, -0.4), pc: new V3(PC.x + 0.3, 1.28, PC.z + 0.3), loq: new V3(1.4, DESK_Y + 0.78, -2.35),
+    asus: new V3(-2.5, 1.18, 1.95), hp: new V3(-2.5, 1.1, 2.6), retro: new V3(-2.45, 1.38, 1.05),
   };
   const sparkGeo = mergeGeometries([new THREE.BoxGeometry(0.24, 0.05, 0.01), new THREE.BoxGeometry(0.05, 0.24, 0.01)]), sparkMat = basic("#ffffff", { transparent: true, depthTest: false, depthWrite: false });
   const hints = Object.entries(ANCHORS).map(([name, p], i) => { const m = fx(new THREE.Mesh(sparkGeo, sparkMat)); m.position.copy(p); m.visible = false; m.userData = { name, i }; scene.add(m); return m; });
   const seen = new Set();
 
-  let mode = "room", modeT = 0, from = null, hovered = null, lampOn = true, growth = 0, coffeeLevel = 0.6, burst = 0, waveT = -1, wakeT = 0, sleepK = 0, phoneT = 0, catK = 0, catT = 0, duckT = 0, labT = 0;
+  let mode = "room", modeT = 0, from = null, hovered = null, lampOn = true, growth = 0, coffeeLevel = 0.6, burst = 0, waveT = -1, wakeT = 0, sleepK = 0, phoneT = 0, catK = 0, catT = 0, duckT = 0, pcT = 0, crtT = 0;
   const go = (m, extra) => { if (mode === "car" && m !== "car") setTimeout(() => { if (mode !== "car") focusCar = null; }, 1400); from = currentShot; mode = m; modeT = 0; ui.mode(m, extra); dirty = true; };
   const asleep = () => ENV.hour >= 1 && ENV.hour < 5 && wakeT <= 0;
   function click(nx, ny) {
+    if (mode === "phone") { go("room"); setTimeout(() => { if (!gone) ui.go("#booking"); }, 600); return true; } // the close-up's call to action
     if (mode === "watch" || mode === "car") { go("room"); return true; }
     if (inStreet()) { // the two parked cars open a close-up; anything else on the street just says what it is
       const n = pickStreet(nx, ny); if (!n) return false;
       if (street.cars[n]) { focusCar = n; carT0 = performance.now() / 1000; carScroll = scrollP; street.flash(n); go("car", n); }
-      else ui.toast(STREET_LABELS[n]);
+      else ui.toast(PLACE[n]);
       return true;
     }
     if (mode !== "room" || scrollP > 0.05) return false;
@@ -687,10 +755,14 @@ void main(){
     else if (n === "trophy") ui.toast(copy.trophy || "A trophy.");
     else if (n === "degree") ui.toast(copy.degree || "A degree.");
     else if (n === "frames") ui.go("#work");
-    else if (n === "phone") { phoneT = 2.4; ui.toast("Let’s talk."); setTimeout(() => { if (!gone) ui.go("#booking"); }, 900); }
+    else if (n === "phone") { phoneT = 1.2; go("phone"); }
     else if (n === "cat") { catT = 1.6; ui.toast(catK > 0.5 ? "Zzz." : "Mrrp."); }
     else if (n === "duck") { duckT = 0.7; ui.toast("Quack. It found the bug."); }
-    else if (n === "lab") { labT = 1.4; ui.toast("All systems running."); }
+    else if (n === "pc") { pcT = 2.5; ui.toast("Ryzen 5 3400G · 16 GB · GTX 1650 Super 4 GB"); }
+    else if (n === "loq") ui.toast("Lenovo LOQ · i5-13450HX · RTX 5050 · 144 Hz. The daily driver.");
+    else if (n === "asus") ui.toast("ASUS X556UF · i5-6200U · GeForce 930M. The one before.");
+    else if (n === "hp") ui.toast("HP Pavilion 14 · i5-4200U · 8 GB. Where it started.");
+    else if (n === "retro") { crtT = 3; ui.toast("PS2 Slim. Still plugged in."); }
     else if (n === "photo") ui.toast("That’s me, give or take a few pixels.");
     dirty = shadowsDirty = true; return true;
   }
@@ -742,7 +814,7 @@ void main(){
     const gx = reduced ? 0 : idle ? Math.sin(t * 0.23) * 0.35 : ptr.tx, gy = reduced ? 0 : idle ? Math.sin(t * 0.31 + 1) * 0.25 : ptr.ty;
     const k = 1 - Math.exp(-6 * dt); ptr.x += (gx - ptr.x) * k; ptr.y += (gy - ptr.y) * k;
 
-    const target = mode === "dive" ? shotScreen() : mode === "watch" ? shotWatch() : mode === "car" ? shotCar(t) : shotRoom();
+    const target = mode === "dive" ? shotScreen() : mode === "watch" ? shotWatch() : mode === "phone" ? shotPhone() : mode === "car" ? shotCar(t) : shotRoom();
     if (from) {
       modeT = Math.min(1, modeT + dt / (reduced ? 0.01 : 1.3)); currentShot = mixShot(from, target, ease(modeT));
       if (modeT >= 1) { from = null; if (mode === "dive") { mode = "site"; ui.dive(); } }
@@ -757,8 +829,9 @@ void main(){
     if (mode !== "site") placeCam(currentShot);
 
     const reveal = clamp((scrollP - 0.03) / 0.2, 0, 1);
-    bld.visible = street.root.visible = reveal > 0; for (const m of bMats) m.color.copy(ENV.sky).lerp(m.userData.c, reveal);
+    bld.visible = street.root.visible = world.root.visible = reveal > 0; for (const m of bMats) m.color.copy(ENV.sky).lerp(m.userData.c, reveal);
     if (!reduced && mode !== "site" && scrollP < 0.75) paintSky(t);
+    if (reveal > 0) world.update(t, ENV);
     if (reveal > 0) street.update(t, ENV, dt, mode === "car" || (from && focusCar) ? focusCar : null);
     updateRain(rainIn, ENV.rain && !reduced, 1, t); updateRain(rainOut, ENV.rain && !reduced, reveal, t);
     setV(tex, 0.7, 0.3 - (Math.sin(t * 0.12) * 0.5 + 0.5) * 0.3);
@@ -773,21 +846,18 @@ void main(){
     const lit = ENV.lamp > 0 && lampOn; lamp.intensity = lit ? 7 * Math.max(0.35, ENV.lamp) : 0; bulb.material.color.set(lit ? "#ffe7b0" : "#6b5a4a");
     const fl = ENV.lamp > 0.3 || ENV.night; bulbs.visible = fl; fairy.intensity = fl ? 2.2 : 0; nook.intensity = fl ? 4 : 0; nookShade.material.color.set(fl ? "#ffd9a0" : "#b9a78c");
     if (fl && !reduced) { for (let i = 0; i < NB; i++) bulbs.setColorAt(i, _c.copy(bulbCols[i % 3]).multiplyScalar(0.55 + 0.45 * (0.5 + 0.5 * Math.sin(t * 2.2 + i * 2.4)))); bulbs.instanceColor.needsUpdate = true; }
-    if (!reduced) { plant.rotation.z = Math.sin(t * 0.9) * 0.025; pcLight.material.color.setHSL((t * 0.04) % 1, 0.75, 0.62); }
+    if (!reduced) { plant.rotation.z = Math.sin(t * 0.9) * 0.025; pcLight.material.color.setHSL((t * (pcT > 0 ? 0.5 : 0.04)) % 1, 0.75, 0.62); pcPower.material.color.copy(pcLight.material.color); }
     // the cat: tail swish (fast when clicked), a slow look around, a blink every few seconds; head down and eyes shut while it sleeps
-    catK += ((asleep() ? 1 : 0) - catK) * (reduced ? 1 : Math.min(1, dt * 2)); catT = Math.max(0, catT - dt); duckT = Math.max(0, duckT - dt); labT = Math.max(0, labT - dt);
+    catK += ((asleep() ? 1 : 0) - catK) * (reduced ? 1 : Math.min(1, dt * 2)); catT = Math.max(0, catT - dt); duckT = Math.max(0, duckT - dt); pcT = Math.max(0, pcT - dt); crtT = Math.max(0, crtT - dt);
     const swish = reduced ? 0 : Math.sin(t * (catT > 0 ? 8 : 1.7)) * (catT > 0 ? 0.45 : 0.25) * (1 - catK);
     tail.forEach((sg, i) => { sg.rotation.y = (i === 0 ? -1.25 : 0.42) + swish * (0.3 + i * 0.2); sg.rotation.x = i === 0 ? 0.25 : -0.12 * (1 - catK); });
     catHead.rotation.set(0.55 * catK, (reduced || catT > 0 ? 0 : Math.sin(t * 0.37) * 0.55) * (1 - catK), 0); catHead.position.set(0, lerp(0.5, 0.24, catK), lerp(0.1, 0.22, catK));
     const shut = catK > 0.5 || (!reduced && t % 4.3 < 0.13); catEyes.forEach((e) => (e.scale.y = shut ? 0.15 : 1));
     { const q = duckT > 0 ? Math.sin(duckT * 26) * duckT * 0.35 : 0; duck.scale.set(1 + q, 1 - q, 1 + q); }
-    if (scrollP < 0.3) { // lab lights: each blinks on its own rhythm; all flicker together when clicked
-      for (let i = 0; i < LEDS.length; i++) {
-        const on = reduced || (labT > 0 ? Math.floor(t * 16 + i) % 2 === 0 : Math.sin(t * (2.1 + (i % 4) * 1.7) + i * 1.9) > -0.3);
-        leds.setColorAt(i, _c.set(on ? (i === 4 ? "#59d0ff" : i % 5 === 2 ? "#ffb347" : "#5dff8a") : "#1d3326"));
-      }
-      leds.instanceColor.needsUpdate = true;
+    if (scrollP < 0.3 && !reduced) { // screens: the LOQ scrolls code, the CRT runs its game (faster after a click), the phone clock ticks
+      loqTex.offset.y = -((t * 0.035) % 1); crtScreen.material.map = CRT[Math.floor(t * (crtT > 0 ? 9 : 3)) % 2];
     }
+    if (d.getMinutes() !== phoneMin) { phoneMin = d.getMinutes(); phoneTex.userData.repaint(); }
     { // dust in the window light, only on a sunny day and only in the room
       const k = clamp((ENV.sunI - 2.6) / 1.6, 0, 1) * (1 - clamp(scrollP * 8, 0, 1)) * (reduced ? 0 : 1); motes.visible = k > 0.01;
       if (motes.visible) {
@@ -797,7 +867,7 @@ void main(){
       }
     }
     lantern.material.color.set(ENV.lamp > 0.3 ? "#ffcf6a" : "#a08a6a");
-    phoneScreen.material.color.set(phoneT > 0 ? (Math.floor(phoneT * 6) % 2 ? "#9fd0ff" : "#e6f4ff") : "#1b2030"); phone.rotation.z = phoneT > 0 && !reduced ? Math.sin(t * 40) * 0.05 : 0;
+    phoneScreen.material.color.set(phoneT > 0 && Math.floor(phoneT * 6) % 2 ? "#cfe4ff" : "#ffffff"); phone.rotation.z = phoneT > 0 && !reduced ? Math.sin(t * 40) * 0.05 : 0;
     me.visible = !(mode === "dive" && modeT > 0.18) && mode !== "site"; // step out of the way of the dive
     const min = d.getMinutes() + sec / 60, hr = (d.getHours() % 12) + min / 60;
     hS.rotation.y = (-sec / 60) * Math.PI * 2; hM.rotation.y = (-min / 60) * Math.PI * 2; hH.rotation.y = (-hr / 12) * Math.PI * 2;
@@ -860,6 +930,7 @@ void main(){
 
   return {
     resize,
+    layout(r, b) { if (Math.abs(r - textR) < 0.003 && Math.abs(b - textB) < 0.003) return; textR = r; textB = b; resize(); }, // where the tagline ends: right edge and bottom, as fractions of the stage
     setScroll(p) {
       const q = reduced ? 0 : clamp(p, 0, 1); if (q === scrollP) return; scrollP = q; dirty = true; if (hovered) { hovered = null; ui.hover(null); }
       if (mode === "car" && Math.abs(q - carScroll) > 0.015) go("room"); // scrolling away ends the close-up
@@ -869,14 +940,14 @@ void main(){
     pointer(tx, ty, nx, ny, overUi) {
       ptr.tx = tx; ptr.ty = ty; ptr.inside = true; ptr.last = performance.now();
       const name = overUi || mode !== "room" ? null : scrollP < 0.05 ? pick(nx, ny) : inStreet() ? pickStreet(nx, ny) : null;
-      if (name !== hovered) { hovered = name; ui.hover(name, STREET_LABELS[name]); } // street things carry their own label
+      if (name !== hovered) { hovered = name; ui.hover(name, PLACE[name]); } // street things carry their own label
     },
     leave() { ptr.inside = false; ptr.tx = ptr.ty = 0; if (hovered) { hovered = null; ui.hover(null); } },
     click,
     probe(id, nx, ny) { ui.probe(id, inStreet() ? pickStreet(nx, ny) : pick(nx, ny)); }, // automated tests
     /* after the dive has landed: snap back to the room, no flight */
     reset() { mode = "room"; from = null; ui.mode("room"); currentShot = shotRoom(); dirty = true; },
-    leaveWatch() { if (mode === "watch" || mode === "car") go("room"); },
+    leaveWatch() { if (mode === "watch" || mode === "car" || mode === "phone") go("room"); },
     dispose() {
       gone = true; stopFrame(raf); clearInterval(envTimer);
       scene.traverse((o) => { o.geometry?.dispose(); [].concat(o.material || []).forEach((m) => { m.map?.dispose(); m.dispose(); }); });

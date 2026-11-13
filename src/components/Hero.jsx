@@ -14,7 +14,7 @@ const SCREEN = "/hero-screen.webp"; // screenshot of #about: on the monitor, and
 const PORTRAIT = "/taif-portrait-480.webp"; // the About photo, hung on the room's wall as a pixel portrait
 const FRAMES = ["proctorless", "autohub-premium", "luxeglow-spa", "solar-panel"].map((id) => `/projects/shots/${id}-800.webp`);
 const COPY = { trophy: "Winner, Algorithm Project Showcase · TechFest", degree: "B.Sc. in Computer Science, 2026" };
-const LABELS = { screen: "Step inside", watch: "Your time", mug: "Coffee", lamp: "Lamp", plant: "Plant", me: "Say hi", trophy: "Trophy", degree: "Degree", frames: "See my work", phone: "Call me", cat: "Cat", duck: "Rubber duck", lab: "Home lab", photo: "That’s me" };
+const LABELS = { screen: "Step inside", watch: "Your time", mug: "Coffee", lamp: "Lamp", plant: "Plant", me: "Say hi", trophy: "Trophy", degree: "Degree", frames: "See my work", phone: "My phone", cat: "Cat", duck: "Rubber duck", photo: "That’s me", pc: "My PC", loq: "Lenovo LOQ", asus: "ASUS X556UF", hp: "HP Pavilion 14", retro: "PS2 Slim" };
 const CARS = { jeep: ["2005 Jeep Liberty", "Sold as the Cherokee outside North America."], crv: ["1999 Honda CR-V", "The first generation."] };
 const greet = (h) => (h >= 5 && h < 12 ? "Good morning" : h >= 12 && h < 17 ? "Good afternoon" : h >= 17 && h < 23 ? "Good evening" : "You’re up late");
 
@@ -129,9 +129,17 @@ export default function Hero({ reduced }) {
       dive: land,
       ready: () => setReady(true),
       probe: (id, name) => { probes.get(id)?.(name); probes.delete(id); },
+      fail: (msg) => { if (location.search.includes("roomdebug")) console.error("room failed:", msg); }, // the worker couldn't build the room
     };
 
-    const options = () => ({ width: st.clientWidth, height: st.clientHeight, reduced, query: location.search, screenSrc: SCREEN, portraitSrc: PORTRAIT, frames: FRAMES, copy: COPY });
+    // the right edge of the tagline's actual text (nowrap lines can run past their box), as a fraction of the stage
+    const textRight = () => {
+      const r = document.createRange(); let right = 0;
+      for (const el of hud.current.querySelectorAll(".lv-display > span, .lv-hero-intro, .lv-ctas, .lv-facts")) { r.selectNodeContents(el); right = Math.max(right, r.getBoundingClientRect().right); }
+      return Math.min(0.7, (right - st.getBoundingClientRect().left) / Math.max(1, st.clientWidth));
+    };
+    const textBottom = () => Math.min(0.72, (hud.current.getBoundingClientRect().bottom - st.getBoundingClientRect().top) / Math.max(1, st.clientHeight));
+    const options = () => ({ width: st.clientWidth, height: st.clientHeight, dpr: window.devicePixelRatio || 1, textRight: textRight(), textBottom: textBottom(), reduced, query: location.search, screenSrc: SCREEN, portraitSrc: PORTRAIT, frames: FRAMES, copy: COPY });
     const up = () => {
       sync(); room("setActive", !document.hidden);
       if (location.search.includes("roomdebug")) window.__room = { // for automated click tests
@@ -160,7 +168,7 @@ export default function Hero({ reduced }) {
           mainRoom = r; room = (method, ...a) => r[method]?.(...a);
           up();
         })
-        .catch(() => {}); // no WebGL after all: the hero stays tagline-on-sky
+        .catch((e) => { if (location.search.includes("roomdebug")) console.error("room failed:", e); }); // no WebGL after all: the hero stays tagline-on-sky
     };
     // The room is an enhancement on top of a finished hero: start it only once the page has loaded and is idle.
     const later = () => { if (gpuIsHardware()) idle = window.requestIdleCallback ? requestIdleCallback(start, { timeout: 2000 }) : setTimeout(start, 200); };
@@ -179,7 +187,8 @@ export default function Hero({ reduced }) {
     const onKey = (e) => { if (e.key === "Escape") room?.("leaveWatch"); };
     const onVis = () => room?.("setActive", !document.hidden && inView);
     let inView = true;
-    const ro = new ResizeObserver(() => room?.("resize", st.clientWidth, st.clientHeight));
+    const ro = new ResizeObserver(() => { room?.("layout", textRight(), textBottom()); room?.("resize", st.clientWidth, st.clientHeight, window.devicePixelRatio || 1); });
+    document.fonts?.ready.then(() => room?.("layout", textRight(), textBottom())); // the display font changes the tagline's width
     // the strip of hero left under the fixed header doesn't count: the room pauses once that is all that shows
     const io = new IntersectionObserver(([e]) => { inView = e.isIntersecting; onVis(); }, { rootMargin: "-96px 0px 0px 0px" });
     ro.observe(st); io.observe(s);
@@ -240,6 +249,9 @@ export default function Hero({ reduced }) {
         <p className={`lv-toast${toast ? " is-on" : ""}`} role="status">{toast?.text}</p>
         {mode === "watch" && (
           <div className="lv-watchcap"><b>{watch}</b><span>Your time, right now. {touch ? "Tap" : "Click"} to go back.</span></div>
+        )}
+        {mode === "phone" && (
+          <div className="lv-watchcap lv-carcap"><b>POCO M4 Pro</b><span>My phone. Got a project? {touch ? "Tap" : "Click"} to message me.</span></div>
         )}
         {mode === "car" && CARS[car] && (
           <div className="lv-watchcap lv-carcap"><b>{CARS[car][0]}</b><span>{CARS[car][1]} {touch ? "Tap" : "Click"} to go back.</span></div>
