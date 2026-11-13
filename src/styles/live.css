@@ -421,7 +421,7 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
 :root { --hero-bg: #0e1326; --hero-fg: #f1ede4; }
 .lv-hero {
   --hx: max(var(--gutter), (100% - 1440px) / 2);
-  position: relative; height: 260vh;
+  position: relative; height: 340vh;
   background: var(--hero-bg); color: var(--hero-fg);
   transition: background-color 0.6s linear;
 }
@@ -479,7 +479,7 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
 .lv-hero .lv-ctas { animation: lv-fade 0.9s var(--ease-out) 0.5s both; }
 
 @media (max-aspect-ratio: 4/5) {
-  .lv-hero { height: 220vh; }
+  .lv-hero { height: 300vh; }
   .lv-hud { top: clamp(84px, 12vh, 112px); bottom: auto; right: var(--hx); max-width: none; }
   .lv-hero .lv-display { font-size: clamp(2.1rem, 9.4vw, 4rem); }
   .lv-display > span { white-space: normal; text-wrap: balance; }

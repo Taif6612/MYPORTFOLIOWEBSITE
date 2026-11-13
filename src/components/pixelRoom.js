@@ -13,6 +13,7 @@
    Sky, light and the wristwatch follow the visitor's clock. */
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import { buildStreet, STREET_LABELS } from "./pixelStreet.js";
 
 const V3 = THREE.Vector3;
 const { lerp, clamp, degToRad } = THREE.MathUtils;
@@ -310,7 +311,7 @@ void main(){
     m.userData = { n, win, len, box3, seed: Array.from({ length: n }, () => [Math.random(), Math.random(), Math.random()]) };
     scene.add(m); return m;
   };
-  const rainIn = rainSystem(26, true, 0.35), rainOut = rainSystem(520, false, 1.4, [[-34, 10], [-30, 12], [-6, 14]]);
+  const rainIn = rainSystem(26, true, 0.35), rainOut = rainSystem(900, false, 1.4, [[-44, 20], [-30, 12], [-6, 40]]);
 
   // the room is the open top-right corner of a block one room deep; it fades in as the camera pulls back
   const CELL = { w: 6.3, h: 5.8 }, COLS = 5, FLOORS = 4;
@@ -324,18 +325,59 @@ void main(){
   addB(span, CELL.h, Z1 - Z0, L0 - span / 2, CELL.h / 2 - 0.2, (Z0 + Z1) / 2, faces());
   addB(span + 0.4, 0.3, Z1 - Z0 + 0.4, L0 - span / 2, CELL.h - 0.05, (Z0 + Z1) / 2, faces());
   addB(240, 0.2, 240, -10, -0.4 - CELL.h * FLOORS, 4, bm("#0c1022", "#9cb8d2"));
-  const winCols = { warm: "#ffcf87", tv: "#86a9e0", dark: "#1a1d30" };
-  const winMats = { warm: bm(winCols.warm, "#9cc3e6"), tv: bm(winCols.tv, "#9cc3e6"), dark: bm(winCols.dark, "#5b7fa6") }, winGeo = new THREE.PlaneGeometry(1.1, 1.6);
-  const addWin = (x, y, z, ry) => {
-    const r = Math.random(), m = new THREE.Mesh(winGeo, winMats[r < 0.42 ? "warm" : r < 0.52 ? "tv" : "dark"]);
-    m.position.set(x, y, z); m.rotation.y = ry; bld.add(m);
-  };
+  // Everything else on the building is collected per material and merged, so the facade costs one draw call per colour.
+  // Like the blocks above, these are unlit: each material holds a night and a day colour and fades in from the sky.
+  const GROUND = -0.3 - CELL.h * FLOORS; // top of the ground slab
+  const buckets = new Map();
+  const bAdd = (mat, g) => { if (!buckets.has(mat)) buckets.set(mat, []); buckets.get(mat).push(g); };
+  const bBox = (mat, w, h, d, x, y, z) => bAdd(mat, new THREE.BoxGeometry(w, h, d).translate(x, y, z));
+  const win = { warm: bm("#ffcf87", "#9cc3e6"), tv: bm("#86a9e0", "#9cc3e6"), dark: bm("#1a1d30", "#5b7fa6") };
+  const trim = bm("#1f1f38", "#8e8068"), pale = bm("#4a4f6e", "#d9dbe0"), door = bm("#1a1422", "#5a3d2a"), tank = bm("#23233f", "#5d6b7c");
+  const awn = [bm("#7a2a2a", "#c8463c"), bm("#2a5a4a", "#3f9a7a"), bm("#7a5a1e", "#e0a83a")], cloth = [bm("#6a3340", "#d2553a"), bm("#2f4f6b", "#3e6e8e"), bm("#77734a", "#e0d4bc")];
+  const pickWin = () => { const r = Math.random(); return win[r < 0.42 ? "warm" : r < 0.52 ? "tv" : "dark"]; };
+  const colX = (c) => (c === 0 ? 0 : L0 - (c - 1) * CELL.w - CELL.w / 2);
   for (let f = -FLOORS; f <= 0; f++) for (let c = 0; c < COLS; c++) {
-    if (f === 0 && c === 0) continue;
-    const y = f * CELL.h + CELL.h * 0.5 - 0.2, x0 = c === 0 ? 0 : L0 - (c - 1) * CELL.w - CELL.w / 2;
-    addWin(x0 - 1.4, y, Z1 + 0.02, 0); addWin(x0 + 1.4, y, Z1 + 0.02, 0);
-    if (c === 0) { addWin(X1 + 0.02, y, 1.4, Math.PI / 2); addWin(X1 + 0.02, y, -1.4, Math.PI / 2); }
+    if (f === 0 && c === 0) continue; // our room
+    const y = f * CELL.h + CELL.h * 0.5 - 0.2, x0 = colX(c);
+    if (c === 0) for (const z of [1.4, -1.4]) { bBox(pickWin(), 0.04, 1.6, 1.1, X1 + 0.02, y, z); bBox(trim, 0.14, 0.1, 1.3, X1 + 0.07, y - 0.86, z); }
+    if (f === -FLOORS) continue; // street level is shop fronts, below
+    for (const dx of [-1.4, 1.4]) {
+      const x = x0 + dx, k = (c * 7 + (f + FLOORS) * 5 + (dx > 0 ? 3 : 0)) % 6;
+      bBox(pickWin(), 1.1, 1.6, 0.04, x, y, Z1 + 0.02); bBox(trim, 1.3, 0.1, 0.14, x, y - 0.86, Z1 + 0.07);
+      if (k === 1 || k === 4) bBox(pale, 0.9, 0.6, 0.5, x + 0.15, y - 1.35, Z1 + 0.27); // air conditioner
+      if (k === 2) { // a balcony with washing on the rail
+        bBox(trim, 1.9, 0.14, 1.0, x, y - 0.95, Z1 + 0.5); bBox(trim, 1.9, 0.7, 0.08, x, y - 0.55, Z1 + 0.98);
+        bBox(trim, 0.08, 0.7, 1.0, x - 0.92, y - 0.55, Z1 + 0.5); bBox(trim, 0.08, 0.7, 1.0, x + 0.92, y - 0.55, Z1 + 0.5);
+        for (let i = 0; i < 3; i++) bBox(cloth[i], 0.36, 0.5, 0.05, x - 0.5 + i * 0.5, y - 0.1, Z1 + 1.0);
+      }
+    }
   }
+  const BW = X1 - (L0 - span), BX = (X1 + L0 - span) / 2; // facade width and centre
+  for (let f = -FLOORS + 1; f <= 0; f++) bBox(trim, BW, 0.14, 0.1, BX, f * CELL.h - 0.2, Z1 + 0.05); // a band at every floor
+  // street level: shop fronts with awnings and signs, and the entrance in the middle
+  const SY = GROUND + 0.1;
+  for (let c = 0; c < COLS; c++) {
+    const x0 = c === 0 ? -0.1 : colX(c);
+    if (c === 2) {
+      bBox(door, 2.4, 3.6, 0.1, x0, SY + 1.8, Z1 + 0.05); bBox(win.warm, 0.9, 2.6, 0.12, x0 - 0.5, SY + 1.7, Z1 + 0.06); bBox(win.warm, 0.9, 2.6, 0.12, x0 + 0.5, SY + 1.7, Z1 + 0.06);
+      bBox(awn[0], 3.6, 0.3, 1.6, x0, SY + 4.0, Z1 + 0.8); bBox(trim, 3.0, 0.3, 0.8, x0, SY + 0.15, Z1 + 0.4); continue;
+    }
+    bBox(win.warm, 4.6, 3.0, 0.06, x0, SY + 1.9, Z1 + 0.03); bBox(trim, 0.14, 3.0, 0.1, x0, SY + 1.9, Z1 + 0.06); bBox(trim, 5.0, 0.4, 0.12, x0, SY + 0.2, Z1 + 0.06);
+    bBox(awn[c % 3], 5.0, 0.3, 1.3, x0, SY + 3.7, Z1 + 0.65); bBox(pale, 4.8, 0.7, 0.12, x0, SY + 4.5, Z1 + 0.06);
+  }
+  // roof: parapet, water tanks, the stair head, an aerial
+  const RY = CELL.h + 0.1, RX = L0 - span / 2;
+  bBox(trim, span, 0.5, 0.2, RX, RY + 0.25, Z1 + 0.1); bBox(trim, span, 0.5, 0.2, RX, RY + 0.25, Z0 - 0.1); bBox(trim, 0.2, 0.5, Z1 - Z0, L0 - span - 0.1, RY + 0.25, (Z0 + Z1) / 2);
+  for (const [x, z] of [[-22, 0.2], [-18.8, -0.8]]) bAdd(tank, new THREE.CylinderGeometry(1.2, 1.2, 2.0, 10).translate(x, RY + 1.5, z));
+  bBox(trim, 5.6, 0.5, 2.6, -20.4, RY + 0.25, -0.3);
+  bBox(pale, 3.4, 2.6, 3.0, -9, RY + 1.3, -1.2); bBox(door, 1.0, 1.9, 0.08, -9, RY + 0.95, 0.32); bBox(trim, 3.7, 0.2, 3.3, -9, RY + 2.7, -1.2);
+  bBox(trim, 0.1, 4.2, 0.1, -13.5, RY + 2.1, -2.2); bBox(trim, 1.4, 0.08, 0.08, -13.5, RY + 3.6, -2.2); bBox(trim, 1.0, 0.08, 0.08, -13.5, RY + 3.1, -2.2);
+  for (const [mat, geos] of buckets) bld.add(new THREE.Mesh(mergeGeometries(geos), mat));
+
+  // The street below (pixelStreet.js). Left visible for now so start-up compiles its shaders;
+  // the first frame hides it until the camera leaves the room.
+  const street = buildStreet({ scene, grad, G: GROUND, front: Z1, right: X1 });
+  street.root.visible = true;
 
   await pause();
   // ~300 static boxes → one vertex-coloured mesh: the whole room costs a handful of draw calls
@@ -386,7 +428,7 @@ void main(){
 
   /* ---------- camera & framing ---------- */
   const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, NEAR, FAR); cam.layers.enable(FX);
-  const BUILD = new V3(-12.5, -8, 0);
+  const WIDE = new V3(-12.5, -13.9, 0);
   let W = Math.max(1, width), H = Math.max(1, height), S = 4, lw = 1, lh = 1, portrait = false, VH = 11.2, coarse = 0;
   function resize(w = W, h = H) {
     W = Math.max(1, w); H = Math.max(1, h); portrait = W / H < 0.8;
@@ -399,9 +441,15 @@ void main(){
   }
   const ptr = { x: 0, y: 0, tx: 0, ty: 0, inside: false, last: 0 };
   let scrollP = 0;
+  // scroll: 0 = the room · 0.58 = the whole block with its street · 0.66 to 1 = down to the two cars parked outside
   const shotRoom = () => {
-    const e = ease(scrollP);
-    return { target: ROOM.clone().lerp(BUILD, e), az: AZ0 + ptr.x * degToRad(8) * (1 - e), el: EL0 + degToRad(ptr.y * 5 * (1 - e) + e * 6), zoom: lerp(1, portrait ? 0.24 : 0.27, e), fx: lerp(portrait ? 0.5 : 0.74, 0.5, e), fy: lerp(portrait ? 0.3 : 0.5, 0.5, e), near: NEAR };
+    const a = ease(clamp(scrollP / 0.58, 0, 1)), b = ease(clamp((scrollP - 0.66) / 0.34, 0, 1));
+    return {
+      target: ROOM.clone().lerp(WIDE, a).lerp(street.focus, b),
+      az: AZ0 + ptr.x * degToRad(8) * (1 - a), el: EL0 + degToRad(ptr.y * 5 * (1 - a) + a * 6 - b * 3),
+      zoom: lerp(lerp(1, portrait ? 0.2 : 0.225, a), portrait ? 0.72 : 0.6, b),
+      fx: lerp(portrait ? 0.5 : 0.74, 0.5, a), fy: lerp(portrait ? 0.3 : 0.5, 0.5, a), near: NEAR,
+    };
   };
   // the near plane slides up to the screen so the camera flies through tiny Taif instead of being blocked
   const shotScreen = () => ({ target: screen.position.clone(), az: 0, el: degToRad(3), zoom: VH / (0.9 * 1.06), fx: 0.5, fy: 0.5, near: 59.75 });
@@ -433,6 +481,13 @@ void main(){
     if (best && first && first.distance < bd - 0.01 && !owns(first.object)) best = null;
     return best;
   }
+  const inStreet = () => mode === "room" && scrollP > 0.5;
+  function pickStreet(nx, ny) {
+    ndc.set(nx, ny); ray.setFromCamera(ndc, cam);
+    let best = null, bd = Infinity;
+    for (const [name, objs] of street.picks) for (const o of objs) { const h = ray.intersectObject(o, true)[0]; if (h && h.distance < bd) { bd = h.distance; best = name; } }
+    return best;
+  }
   // a small sparkle marks each thing that can be clicked until it has been
   const ANCHORS = {
     screen: new V3(MON.x + 0.62, MON.y + 0.42, MON.z + 0.1), watch: new V3(1.15, DESK_Y + 0.62, -1.8), mug: new V3(MUG.x, MUG.y + 0.5, MUG.z), lamp: new V3(LAMP_HEAD.x + 0.2, LAMP_HEAD.y + 0.28, LAMP_HEAD.z),
@@ -447,6 +502,7 @@ void main(){
   const asleep = () => ENV.hour >= 1 && ENV.hour < 5 && wakeT <= 0;
   function click(nx, ny) {
     if (mode === "watch") { go("room"); return true; }
+    if (inStreet()) { const n = pickStreet(nx, ny); if (n) ui.toast(STREET_LABELS[n]); return !!n; } // tap a vehicle to name it
     if (mode !== "room" || scrollP > 0.05) return false;
     const n = pick(nx, ny); if (!n) return false;
     seen.add(n);
@@ -532,8 +588,9 @@ void main(){
     lastSec = sec; dirty = false;
     if (mode !== "site") placeCam(currentShot);
 
-    const reveal = clamp((scrollP - 0.04) / 0.3, 0, 1);
-    bld.visible = reveal > 0; for (const m of bMats) m.color.copy(ENV.sky).lerp(m.userData.c, reveal);
+    const reveal = clamp((scrollP - 0.03) / 0.2, 0, 1);
+    bld.visible = street.root.visible = reveal > 0; for (const m of bMats) m.color.copy(ENV.sky).lerp(m.userData.c, reveal);
+    if (reveal > 0) street.update(t, ENV);
     updateRain(rainIn, ENV.rain && !reduced, 1, t); updateRain(rainOut, ENV.rain && !reduced, reveal, t);
     setV(tex, 0.7, 0.3 - (Math.sin(t * 0.12) * 0.5 + 0.5) * 0.3);
     outTex.offset.x = Math.round((0.1 + ptr.x * 0.06) * OUT) / OUT;
@@ -586,10 +643,10 @@ void main(){
   // Warm-up. ANGLE (Chrome on Windows) only finishes a shader at its first draw, so the first full frame
   // used to block for ~150 ms. Draw one object per shader variant, each in its own task, into the same
   // targets the real frame uses (a private layer hides everything else; lights join it so the variant matches).
-  const WARM = 2, lights = [hemi, sky, lamp, fairy, monLight, nook], reps = new Map();
+  const WARM = 2, lights = [hemi, sky, lamp, fairy, monLight, nook, street.light], reps = new Map();
   scene.traverse((o) => {
     const m = o.material; if (!m || Array.isArray(m) || !o.visible) return;
-    const key = [o.type, !!o.isInstancedMesh, m.type, m.vertexColors, !!m.map, m.side, m.transparent].join();
+    const key = [o.type, !!o.isInstancedMesh, o.receiveShadow, m.type, m.vertexColors, !!m.map, m.side, m.transparent].join();
     if (!reps.has(key)) reps.set(key, o);
   });
   lights.forEach((l) => l.layers.enable(WARM));
@@ -611,17 +668,17 @@ void main(){
 
   return {
     resize,
-    setScroll(p) { const q = reduced ? 0 : clamp(p, 0, 1); if (q === scrollP) return; scrollP = q; dirty = true; if (q > 0.05 && hovered) { hovered = null; ui.hover(null); } },
+    setScroll(p) { const q = reduced ? 0 : clamp(p, 0, 1); if (q === scrollP) return; scrollP = q; dirty = true; if (hovered) { hovered = null; ui.hover(null); } },
     setActive(v) { active = v; },
     /* pointer over the stage: tx,ty steer the camera (-1..1 across the stage); nx,ny are NDC on the canvas for picking */
     pointer(tx, ty, nx, ny, overUi) {
       ptr.tx = tx; ptr.ty = ty; ptr.inside = true; ptr.last = performance.now();
-      const name = !overUi && mode === "room" && scrollP < 0.05 ? pick(nx, ny) : null;
-      if (name !== hovered) { hovered = name; ui.hover(name); }
+      const name = overUi || mode !== "room" ? null : scrollP < 0.05 ? pick(nx, ny) : inStreet() ? pickStreet(nx, ny) : null;
+      if (name !== hovered) { hovered = name; ui.hover(name, STREET_LABELS[name]); } // street things carry their own label
     },
     leave() { ptr.inside = false; ptr.tx = ptr.ty = 0; if (hovered) { hovered = null; ui.hover(null); } },
     click,
-    probe(id, nx, ny) { ui.probe(id, pick(nx, ny)); }, // automated tests
+    probe(id, nx, ny) { ui.probe(id, inStreet() ? pickStreet(nx, ny) : pick(nx, ny)); }, // automated tests
     /* after the dive has landed: snap back to the room, no flight */
     reset() { mode = "room"; from = null; ui.mode("room"); currentShot = shotRoom(); dirty = true; },
     leaveWatch() { if (mode === "watch") go("room"); },

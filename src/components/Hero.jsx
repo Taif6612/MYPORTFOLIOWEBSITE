@@ -77,9 +77,9 @@ export default function Hero({ reduced }) {
       const r = s.getBoundingClientRect();
       const p = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height - st.offsetHeight)));
       room?.("setScroll", p);
-      hud.current.style.opacity = String(Math.min(1, Math.max(0, 1 - p * 3.5)));
-      st.style.setProperty("--hint", String(Math.max(0, 1 - p * 6)));
-      root.classList.toggle("on-hero", r.bottom > 72);
+      hud.current.style.opacity = String(Math.min(1, Math.max(0, 1 - p * 5)));
+      st.style.setProperty("--hint", String(Math.max(0, 1 - p * 9)));
+      root.classList.toggle("on-hero", r.bottom > 72 && p < 0.72); // down at street level the header gets its solid background back
     };
     // NDC on the canvas (x right, y up): what the room picks with
     const ndc = (x, y) => { const c = canvas.getBoundingClientRect(); return [((x - c.left) / c.width) * 2 - 1, 1 - ((y - c.top) / c.height) * 2]; };
@@ -118,7 +118,7 @@ export default function Hero({ reduced }) {
       mode: (m) => { modeNow = m; setMode(m); },
       toast: (text) => setToast({ text, n: performance.now() }),
       watch: (ms) => { const t = new Date(ms).toLocaleTimeString([], { ...hm, second: "2-digit" }); setWatch((w) => (w === t ? w : t)); },
-      hover: (name) => { st.style.cursor = name ? "pointer" : ""; const el = tip.current; if (name) el.textContent = LABELS[name] || ""; el.classList.toggle("is-on", !!name); },
+      hover: (name, label) => { st.style.cursor = name ? "pointer" : ""; const el = tip.current; if (name) el.textContent = label || LABELS[name] || ""; el.classList.toggle("is-on", !!name); },
       go: (hash) => document.querySelector(hash)?.scrollIntoView({ behavior: reduced ? "auto" : "smooth" }),
       dive: land,
       ready: () => setReady(true),
