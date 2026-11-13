@@ -49,7 +49,7 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
 .lv-head {
   position: fixed; inset: 0 0 auto; z-index: 40;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 1rem var(--gutter);
+  padding: 0.6rem var(--gutter); /* the nav pill carries its own 0.35rem + border: the bar stays the height it was */
   background: color-mix(in srgb, var(--paper) 82%, transparent);
   backdrop-filter: saturate(1.4) blur(12px);
   border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
@@ -470,6 +470,15 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
 .lv-head { transition: background-color 0.3s, border-color 0.3s, color 0.3s; }
 .on-hero .lv-head { background: transparent; border-color: transparent; backdrop-filter: none; color: var(--hero-fg); }
 .on-hero .lv-head .lv-btn { background: var(--hero-fg); color: var(--hero-bg) !important; }
+/* over the hero the links sit in a frosted-glass pill tinted by the sky (its padding is always there, so nothing jumps
+   when the header turns solid again) */
+.lv-head nav { padding: 0.35rem 0.4rem 0.35rem 1.15rem; border-radius: 999px; border: 1px solid transparent; transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s; }
+.on-hero .lv-head nav {
+  background: color-mix(in srgb, var(--hero-bg) 40%, rgb(255 255 255 / 0.16));
+  -webkit-backdrop-filter: blur(14px) saturate(1.5); backdrop-filter: blur(14px) saturate(1.5);
+  border-color: rgb(255 255 255 / 0.34);
+  box-shadow: 0 8px 28px rgb(0 0 0 / 0.14), inset 0 1px 0 rgb(255 255 255 / 0.35);
+}
 
 /* entrance */
 @keyframes lv-rise { from { opacity: 0; transform: translateY(0.4em); } }

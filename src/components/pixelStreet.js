@@ -92,6 +92,14 @@ export function buildStreet({ scene, grad, G, front, right }) {
   S.box(XR - XL, 0.24, 9, "#3c6b3b", (XL + XR) / 2, G + 0.12, NB1 + 7.5); S.box(XR - XL, 0.9, 0.5, "#2f5a33", (XL + XR) / 2, G + 0.6, NB1 + 3.3);
   for (let x = XL + 5; x < XR; x += 13) { S.box(0.9, 0.5, 0.9, "#d9a441", x, G + 0.45, NB1 + 6 + (x % 3)); S.box(0.7, 0.4, 0.7, "#c0644f", x + 4.5, G + 0.4, NB1 + 8.5 - (x % 2)); }
 
+  // ...and it's a proper park: a path, trees, benches, a pond and a playground (nothing tall near the two cars)
+  S.box(XR - XL, 0.02, 0.8, "#c9b48a", (XL + XR) / 2, G + 0.25, NB1 + 6.4);
+  for (const x of [-63, -56, -48.5, -41, -33, 9, 17, 26, 35, 43]) tree(x, NB1 + 9.6, 0.75);
+  for (const x of [-59, -44, -30, 13, 30]) { S.box(1.5, 0.16, 0.5, "#7a5a3c", x, G + 0.66, NB1 + 5.4); for (const s2 of [-1, 1]) S.box(0.14, 0.42, 0.5, POST, x + s2 * 0.62, G + 0.45, NB1 + 5.4); }
+  S.box(5.2, 0.06, 2.6, "#5aa0d0", -51.5, G + 0.27, NB1 + 8.2);
+  { const X = -37, Z = NB1 + 8.2; for (const dx of [-1.1, 1.1]) S.box(0.12, 1.9, 0.12, "#c8463c", X + dx, G + 1.2, Z); S.box(2.4, 0.12, 0.12, "#c8463c", X, G + 2.15, Z); for (const dx of [-0.45, 0.45]) S.box(0.36, 0.06, 0.24, "#2f6fb0", X + dx, G + 0.85, Z); // swings
+    S.box(0.12, 1.5, 0.12, "#e0c040", X + 2.4, G + 1.0, Z - 0.4); S.box(0.12, 1.5, 0.12, "#e0c040", X + 2.4, G + 1.0, Z + 0.4); S.geo(new THREE.BoxGeometry(2.2, 0.08, 0.7).rotateZ(-0.6), "#3f9a5a", X + 3.3, G + 1.1, Z); } // slide
+
   // a tea stall on the pavement, and a bus-stop sign
   S.box(2.6, 2.2, 1.5, "#7a4f33", -31, G + 1.4, front + 0.9); S.box(3.0, 0.14, 2.3, "#e2a13a", -31, G + 2.8, front + 1.3); S.box(2.6, 0.12, 0.5, "#caa47b", -31, G + 1.5, front + 1.75);
   S.box(0.4, 0.5, 0.4, "#3e6e8e", -32.6, G + 0.55, front + 2.5); S.box(0.4, 0.5, 0.4, "#c0644f", -29.5, G + 0.55, front + 2.6);

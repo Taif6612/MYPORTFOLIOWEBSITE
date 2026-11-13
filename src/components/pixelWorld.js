@@ -20,6 +20,7 @@ export const WORLD_LABELS = {
   alnoor: "Al Noor Mosque, Sharjah", jebeljais: "Jebel Jais, Ras Al Khaimah", ajman: "Ajman Museum, Ajman", dhow: "A dhow off Umm Al Quwain", bidyah: "Al Bidyah Mosque, Fujairah",
   parliament: "Jatiya Sangsad Bhaban, Dhaka", minar: "Shaheed Minar, Dhaka", bridge: "Shah Amanat Bridge, Chattogram", port: "Chattogram Port", coxs: "Cox’s Bazar, past Chakaria",
   bandarban: "Bandarban, above the clouds", tea: "Sreemangal tea gardens", waterfall: "Madhabkunda waterfall",
+  launch: "A river launch", marina: "A marina in Abu Dhabi",
 };
 
 const SAND = "#e2c79b", WHITE = "#f2f1ec", GOLD = "#d6ae4f", GREEN = "#3f7a3c", LEAF = "#4f9a46";
@@ -244,6 +245,57 @@ export function buildWorld({ scene, grad, G }) {
     pick("waterfall", 5, 7.5, 3, X, Y + 3.8, Z + 0.6);
   }
   for (const [x, z] of [[-40, -16], [-62, -26], [-36, -32], [-80, -30], [-66, 4], [-84, -2]]) { S.box(0.22, 3, 0.22, "#7a5c3c", x, Y + 1.5, z); for (let i = 0; i < 6; i++) geo(new THREE.BoxGeometry(1.4, 0.1, 0.3).translate(0.65, 0, 0).rotateZ(-0.45).rotateY(i), "#3f8a3a", x, Y + 3, z); } // coconut palms
+
+  /* ---------- neighbourhoods: homes, parks and boats, so no ground is left bare ---------- */
+  const rnd = (a, b, c) => { let h = Math.imul((a * 73856093) ^ (b * 19349663) ^ (c * 83492791), 2654435761); h ^= h >>> 15; return (h >>> 0) / 4294967296; };
+  // an apartment block with windows on its two camera-facing walls (lit ones glow at night). Bangladesh style: pastel
+  // render, balconies, water tanks on the roof. Gulf style: glass, white floor bands, a plant room on top.
+  const block = (x, z, w, d, floors, c, gulf = false) => {
+    const FH = 1.35, h = floors * FH + 0.4, win = gulf ? "#5a86ad" : "#2d3546";
+    S.box(w, h, d, c, x, Y + h / 2, z);
+    const nx = Math.max(1, Math.floor((w - 0.3) / 0.95)), nz = Math.max(1, Math.floor((d - 0.3) / 0.95));
+    for (let f = 0; f < floors; f++) {
+      const y = Y + 0.95 + f * FH;
+      for (let i = 0; i < nx; i++) { const xx = x - w / 2 + (w / nx) * (i + 0.5); S.box(0.48, 0.6, 0.06, win, xx, y, z + d / 2 + 0.02); if (rnd(x | 0, f, i) < 0.45) N.box(0.48, 0.6, 0.07, "#ffd890", xx, y, z + d / 2 + 0.03); if (!gulf && f > 0 && (f + i) % 3 === 0) S.box(0.8, 0.08, 0.4, "#ece6da", xx, y - 0.45, z + d / 2 + 0.2); }
+      for (let i = 0; i < nz; i++) { const zz = z - d / 2 + (d / nz) * (i + 0.5); S.box(0.06, 0.6, 0.48, win, x + w / 2 + 0.02, y, zz); if (rnd(z | 0, f, i + 9) < 0.45) N.box(0.07, 0.6, 0.48, "#ffd890", x + w / 2 + 0.03, y, zz); }
+      if (gulf && f % 2 === 1) S.box(w + 0.06, 0.1, d + 0.06, "#f2f1ec", x, Y + 0.3 + f * FH, z);
+    }
+    if (gulf) S.box(w * 0.55, 0.6, d * 0.55, "#d8dde3", x, Y + h + 0.3, z);
+    else { S.box(w + 0.1, 0.25, d + 0.1, "#d9d2c4", x, Y + h + 0.12, z); for (const s of [-1, 1]) S.cyl(0.3, 0.55, rnd(x | 0, z | 0, s + 2) < 0.5 ? "#2f5fb8" : "#1d1e22", x + s * w * 0.22, Y + h + 0.52, z - d * 0.2, "y", 8); }
+  };
+  const tree = (x, z, k = 1) => { S.box(0.28 * k, 1.4 * k, 0.28 * k, "#6a4c32", x, Y + 0.7 * k, z); S.box(1.7 * k, 1.4 * k, 1.7 * k, rnd(x | 0, z | 0, 5) < 0.5 ? "#2f6b3a" : "#3f8448", x, Y + 1.9 * k, z); };
+  const villa = (x, z, c = WHITE) => { S.box(3, 1.7, 2.6, c, x, Y + 0.85, z); S.box(1.6, 0.9, 1.4, c, x - 0.5, Y + 2.15, z - 0.4); S.box(3.1, 0.12, 2.7, "#c9b48a", x, Y + 1.76, z); S.box(0.06, 0.7, 0.9, "#5a86ad", x + 1.52, Y + 0.9, z + 0.4); land(x - 1.2, x + 1.2, z + 1.6, z + 2.9, "#5ab0d8", 0.06); palm(x + 1.9, z + 2.2, 2.2); };
+  const park = (x0, x1, z0, z1, pond) => {
+    land(x0, x1, z0, z1, "#4f8a45", 0.05); S.box(x1 - x0, 0.03, 0.7, "#c9b48a", (x0 + x1) / 2, Y + 0.08, (z0 + z1) / 2);
+    if (pond) land(pond[0] - 1.6, pond[0] + 1.6, pond[1] - 1.1, pond[1] + 1.1, "#5aa0d0", 0.07);
+    for (let x = x0 + 1.4; x < x1 - 1; x += 3.1) for (const z of [z0 + 1.2, z1 - 1.2]) if (!pond || Math.hypot(x - pond[0], z - pond[1]) > 2.6) tree(x, z, 0.85);
+  };
+  // Bangladesh: the corner past the bridge (low homes, a pond park), a row facing the park, blocks either side of the port
+  park(-96, -84, -40, -25, [-90, -33]);
+  [[-92, -19, 3.4, 3.2, 3, "#e8c9a0"], [-87.5, -13.5, 3.4, 3, 3, "#bfe0d0"], [-92.5, -8, 3, 3, 2, "#f0b8b0"], [-87, -6.5, 3, 3, 3, "#f3e3b0"]].forEach((b) => block(...b));
+  [[-58, -7.6, 3.6, 3, 3, "#f1d9b5"], [-53.5, -7.6, 3.4, 3, 4, "#cfe3e8"], [-46.5, -7.6, 3.8, 3, 3, "#f0c7c0"], [-42, -7.6, 3.2, 3, 3, "#e7e0a8"]] /* low: the Parliament stands behind them */.forEach((b) => block(...b));
+  [[-35, -27, 4, 4, 6, "#e9d3b0"], [-35.2, -20, 4.2, 4, 8, "#cfe0d6"], [-34.8, -12.6, 4.4, 4, 7, "#f2c9b8"]].forEach((b) => block(...b));
+  [[-0.8, -33, 4, 4, 6, "#f0dcc0"], [-0.8, -25.4, 4.4, 4, 8, "#c9dbe9"], [-0.6, -17.6, 4, 4, 7, "#e8c8d0"]].forEach((b) => block(...b));
+  park(-9.5, -4, -36, -12); for (const [x, z] of [[-6.8, -28], [-6.8, -20]]) { S.box(1.4, 0.18, 0.5, "#7a5a3c", x, Y + 0.45, z); S.box(0.15, 0.4, 0.5, "#3a3d4c", x - 0.6, Y + 0.25, z); S.box(0.15, 0.4, 0.5, "#3a3d4c", x + 0.6, Y + 0.25, z); }
+  { // the river launch (double-decker, white with its blue and red bands) and two sampans off the home shore
+    const X = -52, Z = -49.6; S.box(8, 1.0, 2.2, WHITE, X, Y + 0.5, Z); S.box(8.04, 0.22, 2.24, "#2f6fb0", X, Y + 0.85, Z); S.box(8.04, 0.18, 2.24, "#c8463c", X, Y + 0.2, Z);
+    S.box(6.4, 0.9, 2.0, WHITE, X - 0.3, Y + 1.45, Z); S.box(6.6, 0.12, 2.2, "#2f6fb0", X - 0.3, Y + 1.95, Z); S.box(4.4, 0.8, 1.8, WHITE, X - 0.8, Y + 2.4, Z); S.box(4.6, 0.12, 2.0, "#c8463c", X - 0.8, Y + 2.85, Z); S.cyl(0.25, 0.8, "#1d1e22", X + 1.6, Y + 3.2, Z, "y", 8);
+    for (let i = 0; i < 6; i++) { S.box(0.5, 0.4, 0.04, "#2d3546", X - 3 + i * 1.05, Y + 1.5, Z + 1.01); N.box(0.5, 0.4, 0.05, "#ffe2a8", X - 3 + i * 1.05, Y + 1.5, Z + 1.02); }
+    for (const [x, z, r] of [[-63, -47.6, 0.3], [-39, -50.8, -0.5]]) geo(new THREE.BoxGeometry(2.6, 0.45, 0.9).rotateY(r), "#6a4a2e", x, Y + 0.22, z), geo(new THREE.BoxGeometry(1.0, 0.5, 0.8).rotateY(r), "#c9a56a", x - 0.2, Y + 0.65, z);
+    pick("launch", 8, 3, 2.4, X, Y + 1.5, Z);
+  }
+  // Dubai: a marina cluster of glass towers on the right, villas with pools along the front, a lawn of palms behind the fort
+  [[50, -27, 3.2, 3.2, 11, "#cfd6de"], [54.5, -20, 3, 3, 9, "#e6dcc8"], [48.5, -14, 3.4, 3, 12, "#a9bfd2"], [54, -8, 3, 3, 8, "#e9e4da"], [50, -36, 3.2, 3, 7, "#dcd3c2"]].forEach(([x, z, w, d, f, c]) => block(x, z, w, d, f, c, true));
+  for (let x = 21; x < 57; x += 5.6) villa(x, 8.5, (x | 0) % 2 ? WHITE : "#efe3cc");
+  land(40, 47, -44, -33, "#6aa64e", 0.05); for (const [x, z] of [[41.5, -42], [45, -42], [41.5, -35], [45, -35], [43.2, -38.5]]) palm(x, z, 2.4);
+  // Abu Dhabi: the island runs on to the right, with townhouses and a marina full of yachts
+  land(12, 36, -77, -53, SAND);
+  [[17, -60, 4, 3, 3, "#efe6d6"], [23, -66, 4, 3, 4, "#e6dccb"], [29.5, -61, 3.6, 3, 3, "#f2ece0"], [18, -70, 3.6, 3, 4, "#e9dfcc"], [30, -70, 3.4, 3, 5, "#dfe6ec"]].forEach(([x, z, w, d, f, c]) => block(x, z, w, d, f, c, true));
+  for (const [x, z] of [[14, -56], [21, -56], [27, -56], [34, -64], [25, -74]]) palm(x, z, 2.3);
+  S.box(14, 0.3, 0.9, "#b9a07a", 22, Y + 0.15, -52.2); for (const x of [16.5, 21, 25.5, 30]) S.box(0.6, 0.3, 2.4, "#b9a07a", x, Y + 0.15, -51);
+  const yacht = (x, z, r) => { geo(new THREE.BoxGeometry(2.8, 0.5, 1.0).rotateY(r), WHITE, x, Y + 0.25, z); geo(new THREE.BoxGeometry(1.2, 0.45, 0.8).rotateY(r), "#e8eef4", x - 0.2, Y + 0.72, z); geo(new THREE.BoxGeometry(1.0, 0.12, 0.82).rotateY(r), "#2d3546", x - 0.2, Y + 0.6, z); };
+  yacht(18.7, -49.8, 0.1); yacht(23.3, -49.6, -0.05); yacht(27.8, -50, 0.12); yacht(33, -48.5, 0.6);
+  pick("marina", 18, 2, 5, 25, Y + 0.6, -50.5);
 
   S.mesh(lit); const night = N.mesh(glowMat);
   const burjTip = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), new THREE.MeshBasicMaterial({ color: "#ff4a3a" })); burjTip.position.set(26, Y + 39.5, -20); root.add(burjTip);

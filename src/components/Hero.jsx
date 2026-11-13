@@ -37,19 +37,10 @@ function gpuIsHardware() {
   }
 }
 
-/* Can a worker draw the room? Needs a transferable canvas and WebGL on OffscreenCanvas
-   (Safari before 17 has the canvas but not the WebGL). `?roommain` forces the fallback. */
-function workerCanRender() {
-  if (location.search.includes("roommain")) return false;
-  try {
-    if (typeof Worker === "undefined" || !("transferControlToOffscreen" in HTMLCanvasElement.prototype)) return false;
-    const gl = new OffscreenCanvas(1, 1).getContext("webgl2");
-    gl?.getExtension("WEBGL_lose_context")?.loseContext();
-    return !!gl;
-  } catch {
-    return false;
-  }
-}
+/* Could a worker draw the room? A feature test only, no WebGL context: the worker checks the
+   GPU itself and asks for the main-thread fallback if it has no WebGL (Safari before 17 has the
+   transferable canvas but not WebGL on it). `?roommain` forces the fallback. */
+const workerMaybe = () => !location.search.includes("roommain") && typeof Worker !== "undefined" && typeof OffscreenCanvas !== "undefined" && "transferControlToOffscreen" in HTMLCanvasElement.prototype;
 
 export default function Hero({ reduced }) {
   const sec = useRef(null), stage = useRef(null), cv = useRef(null), hud = useRef(null), dive = useRef(null), tip = useRef(null);
@@ -61,6 +52,7 @@ export default function Hero({ reduced }) {
   const [watch, setWatch] = useState("");
   const [toast, setToast] = useState(null);
   const [touch, setTouch] = useState(false);
+  const [epoch, setEpoch] = useState(0); // a new canvas element after a worker gave its one back unused
 
   useEffect(() => {
     if (!toast) return;
@@ -70,7 +62,8 @@ export default function Hero({ reduced }) {
 
   useEffect(() => {
     setTouch(window.matchMedia("(hover: none)").matches);
-    const root = document.documentElement, s = sec.current, st = stage.current, canvas = cv.current;
+    const root = document.documentElement, s = sec.current, st = stage.current;
+    let canvas = cv.current;
     const hm = { hour: "numeric", minute: "2-digit" };
     const ac = new AbortController(), probes = new Map();
     // `room(method, ...args)` reaches the room wherever it runs; null until it exists
@@ -149,17 +142,29 @@ export default function Hero({ reduced }) {
     };
     const start = () => {
       if (dead) return;
-      if (workerCanRender()) {
+      if (workerMaybe()) {
         try { worker = new Worker(new URL("./pixelRoom.worker.js", import.meta.url), { type: "module" }); } catch { worker = null; }
       }
       if (worker) {
-        worker.onmessage = ({ data }) => ui[data.ui]?.(...data.a);
+        worker.onmessage = ({ data }) => {
+          if (data.ui === "gpu") { worker.terminate(); worker = null; room = null; if (data.a[0] === "none") mainThread(true); return; } // "software": keep the plain hero
+          ui[data.ui]?.(...data.a);
+        };
         const off = canvas.transferControlToOffscreen(); // from here the canvas belongs to the worker
         worker.postMessage({ init: { ...options(), canvas: off } }, [off]);
         room = (method, ...a) => worker.postMessage({ call: method, a });
         up();
         return;
       }
+      mainThread(false);
+    };
+    // The same module on the main thread. If a worker had the canvas, render a fresh element first (a transferred canvas can't come back).
+    const mainThread = (fresh) => {
+      if (dead || !gpuIsHardware()) return;
+      if (fresh) { setEpoch((e) => e + 1); requestAnimationFrame(() => requestAnimationFrame(() => { canvas = cv.current; build(); })); } else build();
+    };
+    const build = () => {
+      if (dead) return;
       import("./pixelRoom.js")
         .then(({ createPixelRoom }) => (dead ? null : createPixelRoom({ ...options(), canvas, ui, signal: ac.signal })))
         .then((r) => {
@@ -171,7 +176,7 @@ export default function Hero({ reduced }) {
         .catch((e) => { if (location.search.includes("roomdebug")) console.error("room failed:", e); }); // no WebGL after all: the hero stays tagline-on-sky
     };
     // The room is an enhancement on top of a finished hero: start it only once the page has loaded and is idle.
-    const later = () => { if (gpuIsHardware()) idle = window.requestIdleCallback ? requestIdleCallback(start, { timeout: 2000 }) : setTimeout(start, 200); };
+    const later = () => { if (!location.search.includes("noroom")) idle = window.requestIdleCallback ? requestIdleCallback(start, { timeout: 2000 }) : setTimeout(start, 200); };
     if (document.readyState === "complete") later(); else window.addEventListener("load", later, { once: true });
 
     // pointer: coalesced to one message a frame
@@ -221,7 +226,7 @@ export default function Hero({ reduced }) {
     <section id="hero" className="lv-hero" ref={sec} aria-labelledby="hero-title">
       <div className="lv-stage" ref={stage} data-mode={mode}>
         {/* keyed: a canvas handed to a worker can't be reused, so a new run gets a new element */}
-        <canvas key={reduced ? "still" : "live"} ref={cv} className={`lv-room${ready ? " is-on" : ""}`} aria-hidden="true" />
+        <canvas key={(reduced ? "still" : "live") + epoch} ref={cv} className={`lv-room${ready ? " is-on" : ""}`} aria-hidden="true" />
         <div className="lv-hud" ref={hud}>
           <p className="lv-hero-intro">I’m Taif, a full-stack engineer. I design it, build it, and keep it running.</p>
           <h1 id="hero-title" className="lv-display">
