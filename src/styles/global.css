@@ -18,8 +18,9 @@
   --signal-wash: rgba(232, 80, 30, 0.1);
 
   /* ---- Type ------------------------------------------------------------ */
-  --font-display: "Bricolage Grotesque", system-ui, sans-serif;
-  --font-body: "Instrument Sans", system-ui, sans-serif;
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-pixel: "Silkscreen", ui-monospace, monospace; /* small labels: the pixel room's own voice */
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   /* ---- Scale (fluid) --------------------------------------------------- */

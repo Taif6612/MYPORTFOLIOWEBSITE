@@ -1,7 +1,7 @@
 /* =========================================================================
    LIVE DECK — homepage world.
-   Warm paper, deep ink, one signal orange. Bricolage Grotesque display,
-   Instrument Sans body, JetBrains Mono only for URLs and data.
+   Warm paper, deep ink, one signal orange. Space Grotesk display,
+   Inter body, Silkscreen (pixel) for small labels, JetBrains Mono only for URLs and email.
    Scenes read --p (0..1) set by useScenes in App.jsx.
    ========================================================================= */
 
@@ -95,13 +95,13 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
 .lv-site h3 { font-size: var(--step-1); font-weight: 700; }
 .lv-site-meta .lv-muted { font-size: var(--step--1); white-space: nowrap; }
 .lv-site-sum { margin-top: 0.5rem; color: var(--ink-2); font-size: var(--step--1); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-.lv-tags { margin-top: 0.6rem; font-family: var(--font-mono); font-size: 0.72rem; color: var(--signal-deep); }
+.lv-tags { margin-top: 0.6rem; font-family: var(--font-pixel); font-size: 0.72rem; line-height: 1.6; color: var(--signal-deep); }
 
 /* ---- DEPTH ------------------------------------------------------------- */
 .lv-depth { padding-block: clamp(5rem, 12vw, 10rem) 2rem; }
 .lv-timeline { list-style: none; margin-top: 3rem; }
 .lv-timeline li { display: grid; grid-template-columns: 12rem 1fr; gap: 2rem; padding-block: 2rem; border-top: 1px solid var(--line); }
-.lv-when { font-family: var(--font-mono); font-size: 0.8rem; color: var(--stone); padding-top: 0.4rem; }
+.lv-when { font-family: var(--font-pixel); font-size: 0.78rem; color: var(--stone); padding-top: 0.4rem; }
 .lv-timeline h3 { font-size: var(--step-2); font-weight: 700; }
 .lv-role { color: var(--signal-deep); font-weight: 600; margin: 0.3rem 0 0.8rem; }
 .lv-timeline p:last-child { max-width: 65ch; color: var(--ink-2); }
@@ -177,7 +177,7 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
 .lv-portrait { position: relative; margin: 0; }
 .lv-portrait img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 18px 18px 120px 18px; box-shadow: var(--shadow); }
 .lv-portrait::after { content: ""; position: absolute; inset: 1.2rem -1.2rem 2.2rem 1.2rem; border: 2px solid var(--signal); border-radius: 18px 18px 120px 18px; z-index: -1; }
-.lv-portrait figcaption { margin-top: 1.6rem; font-family: var(--font-mono); font-size: 0.75rem; color: var(--stone); }
+.lv-portrait figcaption { margin-top: 1.6rem; font-family: var(--font-pixel); font-size: 0.72rem; line-height: 1.6; color: var(--stone); }
 .lv-about-more { margin-top: 1.25rem; color: var(--ink-2); max-width: 55ch; }
 
 /* Live previews */
@@ -432,33 +432,35 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
 .lv-hud > * { transition: opacity 0.3s var(--ease-out); }
 .lv-stage:not([data-mode="room"]) :is(.lv-hud > *, .lv-room-cap, .lv-room-hint, .lv-tip) { opacity: 0; pointer-events: none; }
 .lv-room-cap, .lv-room-hint { transition: opacity 0.3s var(--ease-out); }
-.lv-hero-intro { font-size: clamp(1rem, 0.8rem + 0.4vw, 1.2rem); line-height: 1.45; max-width: 34ch; margin-bottom: 1.1rem; text-wrap: pretty; }
-.lv-hero .lv-display { font-size: clamp(2.5rem, 5vw, 5.75rem); font-weight: 800; line-height: 0.92; letter-spacing: -0.04em; text-wrap: initial; }
+.lv-hero-intro { font-family: var(--font-pixel); font-size: clamp(0.82rem, 0.72rem + 0.25vw, 0.95rem); line-height: 1.75; max-width: 40ch; margin-bottom: 1.25rem; text-wrap: pretty; }
+.lv-hero .lv-display { font-size: clamp(2.5rem, 4.55vw, 5.4rem); font-weight: 700; line-height: 0.95; letter-spacing: -0.035em; text-wrap: initial; }
 .lv-display > span { display: block; white-space: nowrap; }
 .lv-hero .lv-ctas { margin-top: 1.75rem; }
+.lv-facts { display: flex; flex-wrap: wrap; gap: 0.35rem 1.2rem; margin: 1.4rem 0 0; padding: 0; list-style: none; font: 0.7rem/1.6 var(--font-pixel); opacity: 0.88; animation: lv-fade 0.9s var(--ease-out) 0.65s both; }
+.lv-facts li::before { content: ""; display: inline-block; width: 0.5em; height: 0.5em; margin-right: 0.55em; background: var(--signal); vertical-align: 0.05em; }
 .lv-hero .lv-btn { background: var(--hero-fg); color: var(--hero-bg) !important; }
 .lv-hero .lv-btn:hover { background: var(--signal); color: #fff !important; }
 .lv-hero .lv-btn--ghost { background: transparent; color: var(--hero-fg) !important; box-shadow: inset 0 0 0 1.5px var(--hero-fg); }
 .lv-hero .lv-btn--ghost:hover { background: var(--hero-fg); color: var(--hero-bg) !important; }
-.lv-room-cap { position: absolute; z-index: 2; right: var(--hx); bottom: 26px; text-align: right; font-size: var(--step--1); line-height: 1.5; opacity: calc(var(--hint, 1) * 0.8); animation: lv-fade 0.9s var(--ease-out) both; }
-.lv-room-hint { position: absolute; z-index: 2; left: 50%; bottom: 26px; transform: translateX(-50%); font-size: var(--step--1); opacity: calc(var(--hint, 1) * 0.65); animation: lv-fade 0.9s var(--ease-out) 0.4s both; }
+.lv-room-cap { position: absolute; z-index: 2; right: var(--hx); bottom: 26px; text-align: right; font: 0.72rem/1.7 var(--font-pixel); opacity: calc(var(--hint, 1) * 0.8); animation: lv-fade 0.9s var(--ease-out) both; }
+.lv-room-hint { position: absolute; z-index: 2; left: 50%; bottom: 26px; transform: translateX(-50%); font: 0.72rem/1.7 var(--font-pixel); opacity: calc(var(--hint, 1) * 0.65); animation: lv-fade 0.9s var(--ease-out) 0.4s both; }
 .lv-toast {
   position: absolute; z-index: 3; left: 50%; top: 18%; transform: translate(-50%, 8px);
   padding: 0.5em 1em; border-radius: 999px; background: var(--hero-fg); color: var(--hero-bg);
-  font-size: var(--step--1); font-weight: 600; opacity: 0; pointer-events: none;
+  font: 0.8rem/1.4 var(--font-pixel); opacity: 0; pointer-events: none;
   transition: opacity 0.25s var(--ease-out), transform 0.25s var(--ease-out);
 }
 .lv-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
 /* name tag that follows the cursor over anything clickable in the room */
 .lv-tip {
   position: absolute; z-index: 3; left: 0; top: 0; padding: 0.3em 0.65em; border-radius: 4px;
-  background: var(--hero-fg); color: var(--hero-bg); font: 600 0.75rem/1.2 var(--font-mono); white-space: nowrap;
+  background: var(--hero-fg); color: var(--hero-bg); font: 400 0.75rem/1.2 var(--font-pixel); white-space: nowrap;
   opacity: 0; pointer-events: none; transition: opacity 0.15s var(--ease-out);
 }
 .lv-tip.is-on { opacity: 1; }
 .lv-watchcap { position: absolute; z-index: 3; left: 50%; bottom: 12%; transform: translateX(-50%); text-align: center; pointer-events: none; animation: lv-fade 0.5s var(--ease-out) 0.6s both; }
-.lv-watchcap b { display: block; font: 800 clamp(2.25rem, 5vw, 4.5rem)/1 var(--font-display); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
-.lv-watchcap span { font-size: var(--step--1); opacity: 0.8; }
+.lv-watchcap b { display: block; font: 700 clamp(2.25rem, 5vw, 4.5rem)/1 var(--font-display); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.lv-watchcap span { font: 0.72rem/1.7 var(--font-pixel); opacity: 0.85; }
 .lv-dive { position: fixed; inset: 0; z-index: 80; display: none; background: var(--paper); transition: opacity 0.45s var(--ease-out); }
 .lv-dive canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
 .lv-dive.is-on { display: block; }
@@ -492,3 +494,10 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
   .lv-hero *, .lv-dive { animation: none !important; transition: none !important; }
 }
 .lv-cursor.is-off { opacity: 0; }
+/* car close-up caption: sits over tarmac, so it carries its own dark backing whatever the sky */
+.lv-carcap { bottom: 5%; padding: 0.75em 1.25em 0.85em; border-radius: 14px; background: rgb(14 16 22 / 0.78); color: #f1ede4; }
+/* the small captions sit over the painted skyline: give them a plate in the sky's own colour */
+.lv-room-cap, .lv-room-hint { padding: 0.45em 0.8em; border-radius: 8px; background: color-mix(in srgb, var(--hero-bg) 78%, transparent); }
+.lv-room-cap { bottom: 18px; }
+.lv-room-hint { bottom: 18px; }
+.lv-stage.is-out :is(.lv-room-cap, .lv-room-hint) { visibility: hidden; }

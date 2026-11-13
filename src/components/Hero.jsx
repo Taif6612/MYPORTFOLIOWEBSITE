@@ -11,9 +11,11 @@ import { useEffect, useRef, useState } from "react";
    the inline script in index.html so there is no flash before the room arrives). */
 
 const SCREEN = "/hero-screen.webp"; // screenshot of #about: on the monitor, and what the dive resolves into
+const PORTRAIT = "/taif-portrait-480.webp"; // the About photo, hung on the room's wall as a pixel portrait
 const FRAMES = ["proctorless", "autohub-premium", "luxeglow-spa", "solar-panel"].map((id) => `/projects/shots/${id}-800.webp`);
 const COPY = { trophy: "Winner, Algorithm Project Showcase · TechFest", degree: "B.Sc. in Computer Science, 2026" };
-const LABELS = { screen: "Step inside", watch: "Your time", mug: "Coffee", lamp: "Lamp", plant: "Plant", me: "Say hi", trophy: "Trophy", degree: "Degree", frames: "See my work", phone: "Call me" };
+const LABELS = { screen: "Step inside", watch: "Your time", mug: "Coffee", lamp: "Lamp", plant: "Plant", me: "Say hi", trophy: "Trophy", degree: "Degree", frames: "See my work", phone: "Call me", cat: "Cat", duck: "Rubber duck", lab: "Home lab", photo: "That’s me" };
+const CARS = { jeep: ["2005 Jeep Liberty", "Sold as the Cherokee outside North America."], crv: ["1999 Honda CR-V", "The first generation."] };
 const greet = (h) => (h >= 5 && h < 12 ? "Good morning" : h >= 12 && h < 17 ? "Good afternoon" : h >= 17 && h < 23 ? "Good evening" : "You’re up late");
 
 /* WebGL present AND hardware-accelerated. Under software rasterizers (SwiftShader /
@@ -53,6 +55,7 @@ export default function Hero({ reduced }) {
   const sec = useRef(null), stage = useRef(null), cv = useRef(null), hud = useRef(null), dive = useRef(null), tip = useRef(null);
   const [ready, setReady] = useState(false);
   const [mode, setMode] = useState("room");
+  const [car, setCar] = useState(null);
   const [time, setTime] = useState("");
   const [hello, setHello] = useState("");
   const [watch, setWatch] = useState("");
@@ -79,6 +82,9 @@ export default function Hero({ reduced }) {
       room?.("setScroll", p);
       hud.current.style.opacity = String(Math.min(1, Math.max(0, 1 - p * 5)));
       st.style.setProperty("--hint", String(Math.max(0, 1 - p * 9)));
+      // faded-out text must stop catching the pointer (and focus): over the street it would swallow hovers and clicks
+      hud.current.style.visibility = p >= 0.2 ? "hidden" : "";
+      st.classList.toggle("is-out", p >= 0.12);
       root.classList.toggle("on-hero", r.bottom > 72 && p < 0.72); // down at street level the header gets its solid background back
     };
     // NDC on the canvas (x right, y up): what the room picks with
@@ -115,7 +121,7 @@ export default function Hero({ reduced }) {
     const ui = {
       env: ({ bg, fg, time: ms }) => { const d = new Date(ms); root.style.setProperty("--hero-bg", bg); root.style.setProperty("--hero-fg", fg); setTime(d.toLocaleTimeString([], hm)); setHello(greet(d.getHours())); },
       size: ({ w, h }) => { canvas.style.width = `${w}px`; canvas.style.height = `${h}px`; },
-      mode: (m) => { modeNow = m; setMode(m); },
+      mode: (m, extra) => { modeNow = m; setMode(m); if (m === "car") setCar(extra); },
       toast: (text) => setToast({ text, n: performance.now() }),
       watch: (ms) => { const t = new Date(ms).toLocaleTimeString([], { ...hm, second: "2-digit" }); setWatch((w) => (w === t ? w : t)); },
       hover: (name, label) => { st.style.cursor = name ? "pointer" : ""; const el = tip.current; if (name) el.textContent = label || LABELS[name] || ""; el.classList.toggle("is-on", !!name); },
@@ -125,7 +131,7 @@ export default function Hero({ reduced }) {
       probe: (id, name) => { probes.get(id)?.(name); probes.delete(id); },
     };
 
-    const options = () => ({ width: st.clientWidth, height: st.clientHeight, reduced, query: location.search, screenSrc: SCREEN, frames: FRAMES, copy: COPY });
+    const options = () => ({ width: st.clientWidth, height: st.clientHeight, reduced, query: location.search, screenSrc: SCREEN, portraitSrc: PORTRAIT, frames: FRAMES, copy: COPY });
     const up = () => {
       sync(); room("setActive", !document.hidden);
       if (location.search.includes("roomdebug")) window.__room = { // for automated click tests
@@ -174,7 +180,8 @@ export default function Hero({ reduced }) {
     const onVis = () => room?.("setActive", !document.hidden && inView);
     let inView = true;
     const ro = new ResizeObserver(() => room?.("resize", st.clientWidth, st.clientHeight));
-    const io = new IntersectionObserver(([e]) => { inView = e.isIntersecting; onVis(); });
+    // the strip of hero left under the fixed header doesn't count: the room pauses once that is all that shows
+    const io = new IntersectionObserver(([e]) => { inView = e.isIntersecting; onVis(); }, { rootMargin: "-96px 0px 0px 0px" });
     ro.observe(st); io.observe(s);
     st.addEventListener("pointermove", onMove, { passive: true });
     st.addEventListener("pointerleave", onLeave);
@@ -217,6 +224,11 @@ export default function Hero({ reduced }) {
             <a className="lv-btn" href="#booking">Book a project</a>
             <a className="lv-btn lv-btn--ghost" href="#work">See the work</a>
           </div>
+          <ul className="lv-facts" aria-label="At a glance">
+            <li>10 live builds</li>
+            <li>2 IEEE papers</li>
+            <li>Clients in Australia &amp; the UK</li>
+          </ul>
         </div>
         {ready && (
           <>
@@ -228,6 +240,9 @@ export default function Hero({ reduced }) {
         <p className={`lv-toast${toast ? " is-on" : ""}`} role="status">{toast?.text}</p>
         {mode === "watch" && (
           <div className="lv-watchcap"><b>{watch}</b><span>Your time, right now. {touch ? "Tap" : "Click"} to go back.</span></div>
+        )}
+        {mode === "car" && CARS[car] && (
+          <div className="lv-watchcap lv-carcap"><b>{CARS[car][0]}</b><span>{CARS[car][1]} {touch ? "Tap" : "Click"} to go back.</span></div>
         )}
       </div>
       <div className="lv-dive" ref={dive} aria-hidden="true"><canvas /></div>

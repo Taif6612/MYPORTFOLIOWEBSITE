@@ -1,7 +1,7 @@
 /* The street under the pixel room: what the camera finds when the hero pulls back
    and then drops to ground level. Roads and pavements, lamps and trees, people
    walking, traffic (a bus, CNGs, cars), and two cars parked in front of the building:
-   a Jeep Cherokee Liberty and a Honda CR-V.
+   a 2005 Jeep Liberty and a 1999 Honda CR-V (click either for a close-up).
 
    Built with the same rules as the room (pixelRoom.js): no DOM, everything static is
    merged into a few vertex-coloured meshes, crowds are instanced, and nothing here is
@@ -9,7 +9,7 @@
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
-export const STREET_LABELS = { crv: "Honda CR-V", jeep: "Jeep Cherokee Liberty", bus: "City bus", cng: "CNG" };
+export const STREET_LABELS = { crv: "1999 Honda CR-V", jeep: "2005 Jeep Liberty", bus: "City bus", cng: "CNG" };
 
 const TYRE = "#15161b", HUB = "#b4b8c2", GLASS = "#1f2c3a", DARK = "#26272d", CHROME = "#c9ccd3", LAMP = "#f6efd8", TAIL = "#c8261f";
 const WARM = "#ffd98a", HEAD = "#fff3c4", RED = "#ff4a3a"; // glow colours (night only)
@@ -29,6 +29,7 @@ export function buildStreet({ scene, grad, G, front, right }) {
   const kit = () => {
     const geos = [];
     const add = (g, c, x = 0, y = 0, z = 0) => {
+      if (g.index) { const u = g.toNonIndexed(); g.dispose(); g = u; } // extruded profiles come unindexed; everything in a kit must match
       g.translate(x, y, z); _c.set(c);
       const n = g.attributes.position.count, a = new Float32Array(n * 3);
       for (let i = 0; i < n; i++) { a[i * 3] = _c.r; a[i * 3 + 1] = _c.g; a[i * 3 + 2] = _c.b; }
@@ -102,37 +103,93 @@ export function buildStreet({ scene, grad, G, front, right }) {
   /* ---------- vehicles: each is drawn facing +x, wheels on y = 0 ---------- */
   const wheels = (b, xs, zh, r, w = 0.44) => { for (const x of xs) for (const s of [-1, 1]) { b.cyl(r, w, TYRE, x, r, s * zh, "z", 10); b.cyl(r * 0.5, w + 0.06, HUB, x, r, s * zh, "z", 8); } };
 
-  // Jeep Cherokee Liberty (KJ): upright and boxy, round headlamps, seven-slot grille, flared arches, roof rails, spare wheel on the tailgate
-  const jeep = (b, g, c = "#a3271f") => {
-    b.box(6.6, 1.15, 2.9, c, 0, 1.125, 0); b.box(3.9, 1.15, 2.7, c, -0.75, 2.275, 0);
-    b.box(3.5, 0.72, 2.74, GLASS, -0.75, 2.36, 0); b.box(0.16, 0.76, 2.76, c, -0.35, 2.36, 0); b.box(0.16, 0.76, 2.76, c, -1.75, 2.36, 0);
-    b.box(0.1, 0.8, 2.3, GLASS, 1.22, 2.34, 0); b.box(0.1, 0.72, 2.2, GLASS, -2.72, 2.38, 0);
-    b.box(1.75, 0.5, 3.08, DARK, 2.1, 1.0, 0); b.box(1.75, 0.5, 3.08, DARK, -2.1, 1.0, 0);
-    b.box(0.34, 0.46, 2.96, DARK, 3.42, 0.85, 0); b.box(0.3, 0.42, 2.96, DARK, -3.4, 0.84, 0);
-    for (let i = -3; i <= 3; i++) b.box(0.08, 0.52, 0.11, "#101114", 3.32, 1.42, i * 0.2);
-    for (const s of [-1, 1]) {
-      b.cyl(0.27, 0.1, LAMP, 3.32, 1.42, s * 1.05, "x", 10); b.box(0.08, 0.14, 0.26, "#e8912c", 3.32, 1.02, s * 1.1);
-      b.box(0.1, 0.5, 0.3, TAIL, -3.31, 1.5, s * 1.28); b.box(3.2, 0.08, 0.1, DARK, -0.8, 2.9, s * 1.12); b.box(0.22, 0.2, 0.18, DARK, 1.0, 2.0, s * 1.5);
-      g.cyl(0.27, 0.12, HEAD, 3.34, 1.42, s * 1.05, "x", 10); g.box(0.12, 0.5, 0.3, RED, -3.33, 1.5, s * 1.28);
-    }
-    b.cyl(0.64, 0.42, TYRE, -3.68, 1.72, 0.2, "x", 12); b.cyl(0.3, 0.46, c, -3.7, 1.72, 0.2, "x", 8);
-    wheels(b, [2.1, -2.1], 1.42, 0.62);
+  /* The two cars the owner drives, modelled in metres from photos and scaled up 1.5x by park():
+     side profiles extruded across the width (so hood, windscreen and arches have their real lines),
+     then lamps, grille, cladding and trim laid on as thin boxes. */
+  const M = 1.5; // metres → street units
+  const profile = (pts, w) => new THREE.ExtrudeGeometry(new THREE.Shape(pts.map(([x, y]) => new THREE.Vector2(x, y))), { depth: w, bevelEnabled: false, curveSegments: 1 }).translate(0, 0, -w / 2);
+  // lower body outline: `top` runs front-bottom → over the top → rear-bottom; the sill (height yb) gets an arch of radius R over each axle
+  const shell = (top, yb, axles, R) => {
+    const pts = [...top];
+    for (const ax of [...axles].sort((a, b) => a - b)) for (let i = 0; i <= 8; i++) { const a = Math.PI - (i / 8) * Math.PI; pts.push([ax + R * Math.cos(a), yb + R * Math.sin(a)]); }
+    return pts;
   };
-  // Honda CR-V: raked windscreen, smooth roof, dark lower cladding, tall tail lamps running up beside the rear window
-  const crv = (b, g, c = "#e6e9ee") => {
-    b.box(7.0, 1.05, 2.95, c, 0, 0.975, 0); b.box(7.08, 0.3, 3.0, "#2d2f35", 0, 0.6, 0); b.box(4.5, 1.15, 2.75, c, -1.0, 2.075, 0);
-    b.geo(new THREE.BoxGeometry(1.5, 0.1, 2.5).rotateZ(-Math.PI / 4), GLASS, 1.78, 2.07, 0); b.box(0.55, 0.5, 2.7, c, 1.5, 1.75, 0);
-    b.box(4.0, 0.6, 2.79, GLASS, -1.05, 2.22, 0); b.box(0.14, 0.62, 2.8, c, -0.6, 2.22, 0); b.box(0.14, 0.62, 2.8, c, -2.0, 2.22, 0);
-    b.geo(new THREE.BoxGeometry(1.1, 0.3, 2.8).rotateZ(0.45), c, -2.78, 2.02, 0);
-    b.box(0.1, 0.62, 2.0, GLASS, -3.27, 2.25, 0); b.box(0.08, 0.12, 1.5, CHROME, -3.53, 1.42, 0); b.box(0.06, 0.26, 0.75, "#f1efe6", -3.54, 1.1, 0); b.box(0.2, 0.3, 2.9, "#2d2f35", -3.5, 0.62, 0);
-    b.box(0.1, 0.3, 1.1, "#17181c", 3.5, 1.3, 0); b.box(0.12, 0.08, 1.2, CHROME, 3.52, 1.38, 0); b.box(0.13, 0.14, 0.16, CHROME, 3.53, 1.28, 0); b.box(0.1, 0.25, 2.0, "#17181c", 3.5, 0.75, 0);
-    b.box(0.32, 0.12, 0.08, c, -2.7, 2.71, 0);
+  const rbox = (b, len, h, d, ang, c, x, y, z) => b.geo(new THREE.BoxGeometry(len, h, d).rotateZ(ang), c, x, y, z);
+  // tyre + rim + the dark gaps between spokes (or steel-wheel vents) + hub, both sides
+  const rim = (b, x, r, z, w, rr, n, rimC, gapC, gap = [0.065, 0.11]) => {
     for (const s of [-1, 1]) {
-      b.box(0.12, 1.3, 0.3, TAIL, -3.3, 2.0, s * 1.28); b.box(0.12, 0.3, 0.5, TAIL, -3.52, 1.3, s * 1.15);
-      b.box(0.32, 0.22, 0.85, LAMP, 3.38, 1.32, s * 0.98); b.box(0.22, 0.18, 0.18, c, 1.05, 1.9, s * 1.52);
-      g.box(0.34, 0.22, 0.85, HEAD, 3.4, 1.32, s * 0.98); g.box(0.14, 1.3, 0.3, RED, -3.32, 2.0, s * 1.28);
+      b.cyl(r, w, TYRE, x, r, s * z, "z", 14); b.cyl(rr, w + 0.014, rimC, x, r, s * z, "z", 12);
+      for (let i = 0; i < n; i++) b.geo(new THREE.BoxGeometry(gap[0], gap[1], 0.012).translate(0, rr * 0.56, 0).rotateZ(((i + 0.5) / n) * Math.PI * 2), gapC, x, r, s * (z + w / 2 + 0.01));
+      b.cyl(0.05, w + 0.03, "#8d939b", x, r, s * z, "z", 8);
     }
-    wheels(b, [2.25, -2.25], 1.44, 0.58);
+  };
+
+  // 2005 Jeep Liberty (KJ), Stone White, Sport trim: upright and square, round headlamps either side of the
+  // seven-slot grille, grey bumpers and squared-off grey fender flares, black roof rails, spare wheel on the tailgate.
+  const jeep = (b, g) => {
+    const W = "#eceee9", GR = "#6b6e72", BLK = "#17181b", AX = [1.415, -1.235], R = 0.43, YB = 0.42;
+    b.geo(profile(shell([[2.215, YB], [2.215, 1.0], [2.19, 1.065], [2.1, 1.1], [0.88, 1.15], [-2.17, 1.18], [-2.215, 1.15], [-2.215, YB]], YB, AX, R), 1.78), W);
+    b.geo(profile([[0.9, 1.14], [0.26, 1.72], [-2.1, 1.74], [-2.18, 1.7], [-2.2, 1.17]], 1.58), GLASS);
+    b.box(2.43, 0.065, 1.62, W, -0.915, 1.742, 0); // roof
+    for (const ax of AX) b.box(2 * R - 0.04, R, 1.6, "#0d0e10", ax, YB + R / 2, 0); // wheel wells
+    for (const s of [-1, 1]) {
+      const zs = s * 0.8;
+      rbox(b, 0.86, 0.085, 0.03, Math.atan2(0.58, -0.64), W, 0.58, 1.43, zs); // A pillar
+      b.box(0.11, 0.56, 0.03, BLK, -0.1, 1.44, zs); b.box(0.08, 0.56, 0.03, BLK, -1.1, 1.45, zs); b.box(0.34, 0.56, 0.03, W, -2.0, 1.45, zs); // B, C, D pillars
+      b.box(3.08, 0.035, 0.03, BLK, -0.65, 1.165, zs); // black sill under the glass
+      // squared-off grey flares, front and rear
+      for (const ax of AX) {
+        const f = new THREE.Shape([[-0.6, -0.04], [-0.52, 0.4], [-0.32, 0.53], [0.32, 0.53], [0.52, 0.4], [0.6, -0.04], [R, -0.04], ...Array.from({ length: 9 }, (_, i) => [R * Math.cos((i / 8) * Math.PI), R * Math.sin((i / 8) * Math.PI)]), [-R, -0.04]].map(([x, y]) => new THREE.Vector2(x, y)));
+        b.geo(new THREE.ExtrudeGeometry(f, { depth: 0.07, bevelEnabled: false, curveSegments: 1 }).translate(0, 0, s > 0 ? 0 : -0.07), GR, ax, YB, s * 0.89);
+      }
+      b.box(1.47, 0.22, 0.04, GR, 0.09, 0.53, s * 0.9); b.box(0.29, 0.22, 0.04, GR, -1.96, 0.53, s * 0.9); // rocker cladding
+      b.box(0.14, 0.13, 0.17, BLK, 0.8, 1.24, s * 0.98); b.box(0.04, 0.1, 0.06, BLK, 0.8, 1.2, s * 0.9); // mirrors
+      b.box(0.11, 0.03, 0.02, BLK, 0.1, 1.04, s * 0.895); b.box(0.11, 0.03, 0.02, BLK, -0.98, 1.04, s * 0.895); // door handles
+      b.box(2.1, 0.04, 0.05, "#2b2d31", -0.95, 1.83, s * 0.7); for (const x of [0.05, -1.95]) b.box(0.07, 0.06, 0.05, "#2b2d31", x, 1.795, s * 0.7); // roof rails
+      // round headlamps (dark bezel, clear lens), amber turn lamps in the bumper, tall tail lamps wrapping the corners
+      b.cyl(0.118, 0.03, "#2a2c30", 2.222, 0.86, s * 0.55, "x", 12); b.cyl(0.095, 0.03, "#e7ecf1", 2.234, 0.86, s * 0.55, "x", 12);
+      g.cyl(0.095, 0.03, HEAD, 2.24, 0.86, s * 0.55, "x", 12);
+      b.box(0.02, 0.07, 0.2, "#f0a02a", 2.322, 0.645, s * 0.66);
+      b.box(0.02, 0.36, 0.14, TAIL, -2.218, 1.0, s * 0.8); b.box(0.1, 0.36, 0.02, TAIL, -2.17, 1.0, s * 0.892); b.box(0.022, 0.08, 0.12, "#ece6da", -2.219, 0.86, s * 0.8);
+      g.box(0.02, 0.36, 0.14, RED, -2.226, 1.0, s * 0.8);
+    }
+    for (let i = -3; i <= 3; i++) b.box(0.02, 0.22, 0.072, "#121316", 2.222, 0.85, i * 0.105); // the seven slots
+    b.box(0.24, 0.3, 1.86, GR, 2.2, 0.55, 0); b.box(0.02, 0.09, 0.8, "#1a1b1e", 2.322, 0.49, 0); // front bumper, lower opening
+    b.box(0.2, 0.28, 1.84, GR, -2.2, 0.55, 0); // rear bumper
+    b.cyl(0.365, 0.22, TYRE, -2.36, 0.98, 0.15, "x", 14); b.cyl(0.21, 0.24, "#c3c7cc", -2.36, 0.98, 0.15, "x", 12); b.cyl(0.06, 0.26, "#3a3d42", -2.36, 0.98, 0.15, "x", 8); // spare
+    rim(b, AX[0], 0.365, 0.78, 0.235, 0.22, 6, "#c3c7cc", "#3a3d42", [0.05, 0.07]); rim(b, AX[1], 0.365, 0.78, 0.235, 0.22, 6, "#c3c7cc", "#3a3d42", [0.05, 0.07]);
+    b.box(4.4, 0.004, 1.95, "#1b1c21", 0, 0.016, 0); // contact shadow
+  };
+
+  // 1999 Honda CR-V (RD1, first generation), red: rectangular headlamps with amber corners, black grille with
+  // the chrome H, charcoal bumpers, lower cladding and door strip, black B/C pillars, black roof rails, five-spoke alloys.
+  const crv = (b, g) => {
+    const RD = "#9a1119", CH = "#4a4d52", BLK = "#16171a", AX = [1.385, -1.235], R = 0.4, YB = 0.36;
+    b.geo(profile(shell([[2.235, YB], [2.235, 0.86], [2.17, 0.93], [1.0, 1.04], [0.92, 1.06], [-2.17, 1.1], [-2.235, 1.06], [-2.235, YB]], YB, AX, R), 1.7), RD);
+    b.geo(profile([[0.95, 1.05], [0.18, 1.6], [-2.08, 1.62], [-2.2, 1.55], [-2.22, 1.08]], 1.56), GLASS);
+    b.box(2.32, 0.065, 1.6, RD, -0.94, 1.632, 0); // roof
+    for (const ax of AX) b.box(2 * R - 0.04, R, 1.52, "#0d0e10", ax, YB + R / 2, 0);
+    for (const s of [-1, 1]) {
+      const zs = s * 0.79;
+      rbox(b, 0.94, 0.075, 0.03, Math.atan2(0.55, -0.77), RD, 0.565, 1.33, zs);
+      b.box(0.1, 0.52, 0.03, BLK, -0.05, 1.34, zs); b.box(0.08, 0.52, 0.03, BLK, -1.05, 1.35, zs); b.box(0.32, 0.5, 0.03, RD, -2.02, 1.34, zs);
+      b.box(3.1, 0.03, 0.03, BLK, -0.6, 1.07, zs);
+      for (const ax of AX) b.geo(new THREE.TorusGeometry(R + 0.02, 0.035, 4, 12, Math.PI), "#2a2b2f", ax, YB, s * 0.85); // arch trim
+      b.box(1.82, 0.16, 0.04, CH, 0.075, 0.44, s * 0.85); b.box(0.44, 0.16, 0.04, CH, -1.86, 0.44, s * 0.85); b.box(0.27, 0.16, 0.04, CH, 1.92, 0.44, s * 0.85); // lower cladding
+      b.box(1.75, 0.06, 0.03, CH, 0.075, 0.64, s * 0.86); // door strip
+      b.box(0.12, 0.1, 0.15, BLK, 0.85, 1.13, s * 0.92); b.box(0.1, 0.03, 0.02, BLK, 0.12, 0.98, s * 0.855); b.box(0.1, 0.03, 0.02, BLK, -0.95, 0.98, s * 0.855);
+      b.box(2.0, 0.035, 0.05, BLK, -1.0, 1.7, s * 0.7); for (const x of [-0.1, -1.0, -1.95]) b.box(0.06, 0.05, 0.05, BLK, x, 1.675, s * 0.7);
+      // lamps: clear rectangular headlamps with amber corners that wrap round the side; tail lamps up the rear corners
+      b.box(0.02, 0.15, 0.36, "#dfe6ee", 2.24, 0.8, s * 0.6); b.box(0.02, 0.13, 0.08, "#e98a2a", 2.236, 0.79, s * 0.82); b.box(0.14, 0.12, 0.02, "#e98a2a", 2.17, 0.79, s * 0.852);
+      g.box(0.02, 0.15, 0.36, HEAD, 2.25, 0.8, s * 0.6);
+      b.box(0.02, 0.42, 0.18, TAIL, -2.237, 0.88, s * 0.74); b.box(0.022, 0.08, 0.16, "#e8e4dc", -2.238, 0.73, s * 0.74); b.box(0.1, 0.4, 0.02, TAIL, -2.19, 0.88, s * 0.852);
+      g.box(0.02, 0.42, 0.18, RED, -2.245, 0.88, s * 0.74);
+    }
+    b.box(0.02, 0.12, 0.72, BLK, 2.245, 0.8, 0); b.box(0.02, 0.07, 0.09, CHROME, 2.258, 0.8, 0); // grille and the H
+    b.box(0.22, 0.4, 1.76, CH, 2.17, 0.52, 0); b.box(0.02, 0.1, 0.9, BLK, 2.282, 0.45, 0); // front bumper, intake
+    b.box(0.2, 0.36, 1.76, CH, -2.18, 0.52, 0); b.box(0.02, 0.11, 0.3, "#e8e2cf", -2.24, 0.78, 0); // rear bumper, plate
+    rim(b, AX[0], 0.335, 0.75, 0.205, 0.215, 5, "#c7cbd2", "#2a2c31"); rim(b, AX[1], 0.335, 0.75, 0.205, 0.215, 5, "#c7cbd2", "#2a2c31");
+    b.box(4.3, 0.004, 1.9, "#1b1c21", 0, 0.016, 0);
   };
   const sedan = (c) => (b, g) => {
     b.box(6.8, 0.9, 2.8, c, 0, 0.85, 0); b.box(3.3, 0.8, 2.6, c, -0.3, 1.7, 0); b.box(2.9, 0.55, 2.64, GLASS, -0.3, 1.74, 0);
@@ -167,13 +224,14 @@ export function buildStreet({ scene, grad, G, front, right }) {
 
   const vehicle = (build) => {
     const b = kit(), g = kit(), grp = new THREE.Group(); build(b, g); root.add(grp);
-    b.mesh(lit, grp); nightOnly.push(g.mesh(glowMat, grp)); return grp;
+    b.mesh(lit, grp); grp.userData.glow = g.mesh(glowMat, grp); nightOnly.push(grp.userData.glow); return grp;
   };
-  const park = (build, x, z, heading) => { const v = vehicle(build); v.position.set(x, G + 0.1, z); v.rotation.y = heading; return v; };
+  const park = (build, x, z, heading, k = 1) => { const v = vehicle(build); v.position.set(x, G + 0.1, z); v.rotation.y = heading; v.scale.setScalar(k); return v; };
+  const parked = (v) => { nightOnly.splice(nightOnly.indexOf(v.userData.glow), 1); v.userData.glow.visible = false; return v; }; // engine off: lamps only for the lock chirp
   const IN = Math.PI / 2, OUT = -Math.PI / 2; // nose toward the building / toward the road
-  // The two stars park on the camera side of the road, at the bottom of the view, so traffic passes behind them:
-  // the Jeep nose-out (grille and round lamps to the camera), the CR-V beside it tail-out (its tall tail lamps to the camera).
-  const jeepCar = park(jeep, BAYS[2], NB0 + 3.9, OUT), crvCar = park(crv, BAYS[4], NB0 + 3.9, IN); // an empty bay between them
+  // The two stars park on the camera side of the road, at the bottom of the view, so traffic passes behind them,
+  // both nose-out: grille and headlamps to the camera, the way they look in the owner's photos.
+  const jeepCar = parked(park(jeep, BAYS[2], NB0 + 3.9, OUT, M)), crvCar = parked(park(crv, BAYS[4], NB0 + 3.9, OUT, M)); // an empty bay between them
   park(sedan("#3a6ea5"), BAYS[1], BAY0 + 3.8, IN); park(van("#eceff1"), BAYS[4], BAY0 + 3.9, IN); park(sedan("#2c2f38"), BAYS[6], BAY0 + 3.8, OUT);
   const cngs = [park(cng, SX0 + 1.4, -3, OUT), park(cng, SX0 + 1.4, -8.2, OUT)]; park(sedan("#8a8f99"), SX0 + 1.6, -19, OUT); // a CNG stand on the side road
   const starLamp = new THREE.PointLight("#ffd9a0", 0, 0, 2); starLamp.position.set(BAYS[3], G + 6.4, NB0 + 5.2); scene.add(starLamp); // real light on the two stars
@@ -206,17 +264,25 @@ export function buildStreet({ scene, grad, G, front, right }) {
   for (let i = 0; i < N; i++) { torso.setColorAt(i, _c.set(SHIRTS[i % SHIRTS.length])); headM.setColorAt(i, _c.set(SKINS[i % SKINS.length])); brolly.setColorAt(i, _c.set(BROLLY[i % BROLLY.length])); }
   const base = new THREE.Matrix4(), loc = new THREE.Matrix4(), tmp = new THREE.Matrix4();
 
-  let wasNight = null;
-  function update(t, env) {
+  let wasNight = null, flashT = 0, flashCar = null;
+  const ZERO = new THREE.Matrix4().makeScale(0, 0, 0);
+  function update(t, env, dt = 0, focus = null) {
     const night = env.lamp > 0.4;
     if (night !== wasNight) { wasNight = night; nightOnly.forEach((o) => (o.visible = night)); starLamp.intensity = night ? 70 : 0; }
+    if (flashCar) { // the lock chirp: lamps blink twice
+      flashT -= dt; const glow = flashCar.userData.glow;
+      glow.visible = flashT > 0 && Math.floor(flashT * 6) % 2 === 1;
+      if (flashT <= 0) flashCar = null;
+    }
     for (const m of movers) m.v.position.x = XL + 2 + ((((m.x0 - XL - 2 + m.dir * m.speed * t) % SPAN) + SPAN) % SPAN);
     brolly.visible = env.rain;
     for (let i = 0; i < N; i++) {
       const w = walkers[i], L = w.to - w.from; let p = w.from, d = 1, sw = 0, bob = 0, sit = 0;
       if (L > 0) { const u = (t * w.speed + w.phase) % (2 * L); d = u < L ? 1 : -1; p = w.from + (u < L ? u : 2 * L - u); const ph = t * w.speed * 2.6 + w.phase; sw = Math.sin(ph) * 0.55; bob = Math.abs(Math.cos(ph)) * 0.05; }
       else { sit = 0.45; sw = 1.2; }
-      const x = w.axis === "x" ? p : w.fixed, z = w.axis === "x" ? w.fixed : p, yaw = L > 0 ? (w.axis === "x" ? (d > 0 ? 0 : Math.PI) : d > 0 ? -Math.PI / 2 : Math.PI / 2) : Math.PI / 2;
+      const x = w.axis === "x" ? p : w.fixed, z = w.axis === "x" ? w.fixed : p;
+      if (focus && w.fixed > NB0 && Math.abs(x - cars[focus].position.x) < 9) { for (const m of [torso, headM, hair, legL, legR, brolly]) m.setMatrixAt(i, ZERO); continue; }
+      const yaw = L > 0 ? (w.axis === "x" ? (d > 0 ? 0 : Math.PI) : d > 0 ? -Math.PI / 2 : Math.PI / 2) : Math.PI / 2;
       base.makeRotationY(yaw).setPosition(x, G + 0.3 + bob - sit, z);
       torso.setMatrixAt(i, tmp.multiplyMatrices(base, loc.makeTranslation(0, 1.53, 0)));
       headM.setMatrixAt(i, tmp.multiplyMatrices(base, loc.makeTranslation(0, 2.33, 0)));
@@ -228,8 +294,10 @@ export function buildStreet({ scene, grad, G, front, right }) {
     for (const m of [torso, headM, hair, legL, legR, brolly]) m.instanceMatrix.needsUpdate = true;
   }
 
+  const cars = { jeep: jeepCar, crv: crvCar };
   return {
-    root, update, light: starLamp,
+    root, update, light: starLamp, cars,
+    flash(name) { if (flashCar) flashCar.userData.glow.visible = false; flashCar = cars[name]; flashT = 0.66; },
     picks: [["jeep", [jeepCar]], ["crv", [crvCar]], ["bus", [busV]], ["cng", cngs]],
     /* where the camera ends up: the two stars in the lower part of the frame, traffic and the shop fronts behind them.
        (Aimed 6 back and 5 left of the cars: from this camera angle that keeps them centred left to right.) */

@@ -51,7 +51,7 @@ const nextFrame = (cb) => (globalThis.requestAnimationFrame ? globalThis.request
 const stopFrame = (id) => (globalThis.cancelAnimationFrame ? globalThis.cancelAnimationFrame(id) : clearTimeout(id));
 const makeCanvas = (w, h) => (typeof OffscreenCanvas !== "undefined" ? new OffscreenCanvas(w, h) : Object.assign(document.createElement("canvas"), { width: w, height: h }));
 
-export async function createPixelRoom({ canvas, width, height, reduced = false, query = "", screenSrc, frames = [], copy = {}, ui, signal }) {
+export async function createPixelRoom({ canvas, width, height, reduced = false, query = "", screenSrc, portraitSrc, frames = [], copy = {}, ui, signal }) {
   let dirty = true, shadowsDirty = true, gone = false; // first: async callbacks (texture loads) may set these mid-construction
   const Q = new URLSearchParams(query);
   const hourOverride = Q.has("h") ? +Q.get("h") : null;
@@ -217,6 +217,62 @@ void main(){
   // bin with a few failed ideas
   cyl(0.2, 0.15, 0.42, "#3b3f55", 2.6, 0.21, -1.2); box(0.14, 0.1, 0.14, C.cream, 2.56, 0.44, -1.22); box(0.1, 0.08, 0.1, C.cream, 2.66, 0.43, -1.14).rotation.y = 0.5; box(0.1, 0.08, 0.1, C.cream, 2.22, 0.04, -1.0).rotation.y = 0.3;
 
+  /* ---------- the lived-in layer: things that make it someone's room ---------- */
+  // a deep window ledge (the cat's spot), a lantern and two small pots on it, and the second curtain
+  box(WX1 - WX0 + 0.1, 0.06, 0.52, C.frame, wm, WY0 - 0.03, -2.78);
+  box(0.16, 0.04, 0.16, C.metal, 1.0, WY0 + 0.02, -2.8); box(0.12, 0.2, 0.12, "#3a2f2a", 1.0, WY0 + 0.14, -2.8); box(0.16, 0.04, 0.16, C.metal, 1.0, WY0 + 0.26, -2.8);
+  const lantern = mesh(new THREE.BoxGeometry(0.08, 0.14, 0.13), basic("#ffcf6a"), 1.0, WY0 + 0.14, -2.8, scene); lantern.castShadow = false;
+  cyl(0.07, 0.06, 0.12, C.pot, 1.32, WY0 + 0.06, -2.85); box(0.06, 0.16, 0.06, C.leaf, 1.32, WY0 + 0.2, -2.85); box(0.04, 0.06, 0.1, C.leaf2, 1.32, WY0 + 0.22, -2.82);
+  cyl(0.06, 0.05, 0.1, "#3e6e8e", 1.56, WY0 + 0.05, -2.9); box(0.12, 0.06, 0.12, C.leaf2, 1.56, WY0 + 0.13, -2.9);
+  box(0.3, 2.5, 0.12, C.curtain, WX1 + 0.17, WY0 + 0.85, -2.9); box(2.7, 0.05, 0.05, C.metal, wm, WY1 + 0.2, -2.92);
+  // calendar between the cork board and the degree
+  box(0.5, 0.62, 0.03, C.cream, -0.95, 3.5, -2.975); box(0.5, 0.14, 0.035, C.red, -0.95, 3.74, -2.972);
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 5; c++) box(0.05, 0.04, 0.02, (r * 5 + c) % 7 === 3 ? C.red : "#8b7a62", -1.13 + c * 0.09, 3.56 - r * 0.1, -2.955);
+  // a pixel portrait of the owner on the left wall (the site's own photo, drawn through the same low-res pipeline)
+  box(0.06, 1.08, 0.92, "#2a2433", -2.97, 2.6, -0.75);
+  const photo = mesh(new THREE.PlaneGeometry(0.8, 0.96), frameMat(loadTex(portraitSrc)), -2.935, 2.6, -0.75, scene); photo.rotation.y = Math.PI / 2; photo.castShadow = false;
+  { const t = photo.material.map; t.repeat.x = 0.63; t.offset.x = 0.2; setV(t, 0.75, 0.25); }
+  // home lab in the back-left corner: a small rack, a router, a mini PC and a drive, each with blinking lights
+  const LAB = new V3(-2.45, 0, -2.6);
+  box(0.06, 1.3, 0.5, C.deskDark, LAB.x - 0.42, 0.65, LAB.z); box(0.06, 1.3, 0.5, C.deskDark, LAB.x + 0.42, 0.65, LAB.z);
+  for (const y of [0.04, 0.5, 0.92, 1.3]) box(0.9, 0.05, 0.5, C.desk, LAB.x, y, LAB.z);
+  box(0.6, 0.12, 0.36, "#e8e4da", LAB.x, 0.59, LAB.z + 0.02); box(0.04, 0.22, 0.04, "#e8e4da", LAB.x - 0.24, 0.76, LAB.z - 0.1); box(0.04, 0.22, 0.04, "#e8e4da", LAB.x + 0.24, 0.76, LAB.z - 0.1); // router + aerials
+  box(0.36, 0.14, 0.36, C.metal, LAB.x - 0.16, 1.02, LAB.z); box(0.26, 0.3, 0.4, "#3b3f55", LAB.x + 0.24, 1.1, LAB.z); // mini PC, drive
+  box(0.7, 0.36, 0.42, "#2f3348", LAB.x, 0.25, LAB.z); for (let i = 0; i < 4; i++) box(0.12, 0.26, 0.02, "#474c63", LAB.x - 0.24 + i * 0.16, 0.25, LAB.z + 0.215); // a 4-bay NAS
+  const LEDS = [[-0.2, 0.6], [-0.1, 0.6], [0, 0.6], [0.1, 0.6], [-0.1, 1.03], [0.24, 1.18], [0.24, 1.08], [-0.26, 0.36], [-0.1, 0.36], [0.06, 0.36], [0.22, 0.36]];
+  const leds = new THREE.InstancedMesh(new THREE.BoxGeometry(0.035, 0.035, 0.02), new THREE.MeshBasicMaterial(), LEDS.length);
+  LEDS.forEach(([x, y], i) => { leds.setMatrixAt(i, _m4.makeTranslation(LAB.x + x, y, LAB.z + (y < 0.5 ? 0.23 : y < 0.7 ? 0.205 : 0.21))); leds.setColorAt(i, _c.set("#5dff8a")); });
+  leds.layers.set(FX); scene.add(leds);
+  const pLab = proxy(0.95, 1.35, 0.55, LAB.x, 0.67, LAB.z);
+  // desk: headphones on a stand, and a rubber duck for talking bugs through
+  cyl(0.12, 0.13, 0.03, C.metal, 1.05, DESK_Y + 0.015, -2.72); box(0.03, 0.5, 0.03, C.metal, 1.05, DESK_Y + 0.27, -2.72);
+  mesh(new THREE.TorusGeometry(0.15, 0.03, 4, 10, Math.PI), "#2b2e3d", 1.05, DESK_Y + 0.52, -2.72, statics);
+  for (const s of [-1, 1]) cyl(0.08, 0.08, 0.07, "#d2553a", 1.05 + s * 0.16, DESK_Y + 0.46, -2.72).rotation.z = Math.PI / 2;
+  const duck = new THREE.Group(); duck.position.set(1.56, DESK_Y, -1.8); duck.rotation.y = 0.75; scene.add(duck);
+  box(0.16, 0.11, 0.2, "#f2c641", 0, 0.055, 0, duck); box(0.11, 0.11, 0.11, "#f2c641", 0, 0.16, 0.05, duck); box(0.05, 0.03, 0.06, "#e8812a", 0, 0.15, 0.13, duck);
+  box(0.02, 0.02, 0.01, C.ink, -0.03, 0.19, 0.106, duck); box(0.02, 0.02, 0.01, C.ink, 0.03, 0.19, 0.106, duck); box(0.06, 0.05, 0.06, "#f2c641", 0, 0.1, -0.11, duck);
+  // the soft corner by the window: a bean bag with an open book, a stack of books, slippers by the rug
+  { const bb = mesh(new THREE.SphereGeometry(0.62, 8, 6), "#d9a441", 2.15, 0.34, 1.75, statics); bb.scale.set(1, 0.58, 0.95); }
+  mesh(new THREE.SphereGeometry(0.42, 8, 6), "#c99236", 2.3, 0.42, 1.45, statics).scale.set(1, 0.7, 0.6);
+  box(0.26, 0.03, 0.34, C.cream, 2.02, 0.69, 1.92).rotation.set(0, 0.4, 0.25); box(0.26, 0.03, 0.34, "#efe6d0", 1.8, 0.66, 1.84).rotation.set(0, 0.4, -0.25);
+  box(0.42, 0.1, 0.3, C.books[3], 2.75, 0.05, 0.4); box(0.38, 0.09, 0.28, C.books[4], 2.74, 0.145, 0.41).rotation.y = 0.2; box(0.34, 0.08, 0.26, C.books[0], 2.76, 0.23, 0.39).rotation.y = -0.15;
+  for (const s of [-1, 1]) box(0.14, 0.05, 0.3, "#5a6a8a", 1.05 + s * 0.11, 0.025, 2.05).rotation.y = s * 0.12;
+  // dust in the window light (daytime only)
+  const MOTES = 34, motes = fx(new THREE.Points(new THREE.BufferGeometry(), new THREE.PointsMaterial({ color: "#fff4d6", size: 1, sizeAttenuation: false, transparent: true, depthWrite: false })));
+  const moteSeed = Array.from({ length: MOTES }, () => [Math.random(), Math.random(), Math.random(), Math.random() * 6.28]);
+  motes.geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(MOTES * 3), 3)); scene.add(motes);
+
+  // the cat: sits on the ledge watching the street, swishes its tail, blinks, and curls up to sleep in the small hours
+  const FUR = "#1f1c27";
+  const cat = new THREE.Group(); cat.position.set(2.22, WY0, -2.8); cat.rotation.y = 0.5; scene.add(cat);
+  box(0.3, 0.2, 0.36, FUR, 0, 0.1, -0.03, cat); box(0.22, 0.26, 0.18, FUR, 0, 0.3, 0.08, cat);
+  for (const s of [-1, 1]) box(0.06, 0.22, 0.06, FUR, s * 0.06, 0.11, 0.15, cat);
+  const catHead = new THREE.Group(); catHead.position.set(0, 0.5, 0.1); cat.add(catHead);
+  box(0.22, 0.18, 0.18, FUR, 0, 0, 0, catHead); box(0.12, 0.07, 0.04, "#2a2633", 0, -0.04, 0.09, catHead);
+  for (const s of [-1, 1]) box(0.06, 0.09, 0.04, FUR, s * 0.07, 0.12, -0.02, catHead).rotation.z = -s * 0.25;
+  const catEyes = [-1, 1].map((s) => { const e = mesh(new THREE.BoxGeometry(0.04, 0.035, 0.01), basic("#e8c547"), s * 0.05, 0.015, 0.093, catHead); e.castShadow = false; return e; });
+  const tail = []; { let parent = cat, y = 0.05, z = -0.17; for (let i = 0; i < 5; i++) { const seg = new THREE.Group(); seg.position.set(0, y, z); parent.add(seg); box(0.06, 0.06, 0.13, FUR, 0, 0, -0.06, seg); tail.push(seg); parent = seg; y = 0; z = -0.12; } }
+
   /* lamp */
   const LAMP_BASE = new V3(-1.15, DESK_Y, -2.55), LAMP_HEAD = new V3(-0.78, 2.78, -2.2), ELBOW = new V3(-1.22, 2.62, -2.72);
   cyl(0.2, 0.22, 0.06, C.metal, LAMP_BASE.x, DESK_Y + 0.03, LAMP_BASE.z);
@@ -280,7 +336,6 @@ void main(){
   /* ---------- outside: stars, the view through the window, rain, the building ---------- */
   const stars = fx(new THREE.Points(new THREE.BufferGeometry(), new THREE.PointsMaterial({ color: "#e9eeff", size: 1, sizeAttenuation: false, transparent: true, depthWrite: false })));
   { const p = []; for (let i = 0; i < 260; i++) p.push(-40 + Math.random() * 60, -6 + Math.random() * 40, -30 - Math.random() * 4); stars.geometry.setAttribute("position", new THREE.Float32BufferAttribute(p, 3)); }
-  scene.add(stars);
   // The view is a tiny hand-painted canvas (sky bands, moon or sun, clouds, a skyline) on a plane just outside
   // the glass. It is repainted when the light changes and slides a few pixels with the camera for depth.
   const OUT = 40, outCv = makeCanvas(OUT, OUT), outCtx = outCv.getContext("2d");
@@ -305,6 +360,101 @@ void main(){
     });
     outTex.needsUpdate = true;
   }
+  /* The backdrop: a pixel-art sky and city painted straight into a canvas the size of the low-res frame (one texel
+     per output pixel), used as the scene background. Gradient sky with dithered bands, drifting clouds, sun or moon,
+     hills, two layers of skyline whose windows light up at night; birds by day; stars, a shooting star, blinking
+     aerials and a plane at night. Repainted ~8 times a second while the room is on screen; layers slide with the
+     pointer and the skyline sinks as the camera pulls back. */
+  const HOR = [[0, "#2c2f6a"], [5, "#30336e"], [6.5, "#ffb38a"], [8, "#f3dcc4"], [9.5, "#d4e9fb"], [15, "#d9ecfb"], [17, "#ffdcaa"], [18, "#ffae78"], [19, "#c46a8c"], [19.6, "#5a3f7a"], [21, "#2c2f6a"], [24, "#2c2f6a"]];
+  const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map((v) => (v + 0.5) / 16);
+  // painted into a plain byte buffer and uploaded as a DataTexture: a 2D canvas upload would force Chrome to read the
+  // (GPU) canvas back on every repaint, which cost ~50 ms a frame on the main-thread fallback
+  let skyCv = null, skyBuf = null, bgTex = null, skyKey = "";
+  const rng = (seed) => () => { seed = (seed + 0x6d2b79f5) | 0; let x = Math.imul(seed ^ (seed >>> 15), 1 | seed); x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x; return ((x ^ (x >>> 14)) >>> 0) / 4294967296; };
+  const hash = (a, b, c) => { let h = Math.imul(a, 374761393) + Math.imul(b, 668265263) + Math.imul(c, 2147483647); h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
+  function makeSky(w, h) {
+    bgTex?.dispose();
+    skyCv = { width: w, height: h }; skyBuf = new Uint8Array(w * h * 4);
+    bgTex = new THREE.DataTexture(skyBuf, w, h); bgTex.colorSpace = THREE.SRGBColorSpace; bgTex.repeat.y = -1; bgTex.offset.y = 1; // rows are painted top-down
+    skyKey = "";
+    // skylines in pixels for this size: [x, width, height, rooftop kind]; lower on the left, where the tagline sits
+    const city = (seed, minH, maxH, leftK) => { const r = rng(seed), out = []; for (let x = -24; x < w + 24; ) { const bw = 5 + Math.floor(r() * 12), u = clamp(x / w, 0, 1), cap = lerp(leftK, 1, clamp((u - 0.36) / 0.3, 0, 1)); out.push([x, bw, Math.round(h * lerp(minH, maxH, r()) * cap), Math.floor(r() * 5)]); x += bw + (r() < 0.25 ? 1 : 0); } return out; };
+    skyCv.far = city(7, 0.1, 0.23, 0.32); skyCv.near = city(11, 0.05, 0.28, 0.24);
+    skyCv.hills = Array.from({ length: w + 48 }, (_, i) => Math.round(h * (0.27 + Math.sin(i * 0.031 + 1.3) * 0.035 + Math.sin(i * 0.083) * 0.015) * lerp(0.4, 1, clamp((i / w - 0.3) / 0.35, 0, 1))));
+    const rs = rng(3); skyCv.stars = Array.from({ length: Math.round((w * h) / 260) }, () => [Math.floor(rs() * w), Math.floor(rs() * h * 0.62), rs()]);
+  }
+  function paintSky(t) {
+    if (!skyCv) return;
+    const w = skyCv.width, h = skyCv.height, d = skyBuf, night = ENV.night, dayK = clamp(1 - ENV.stars * 1.4, 0, 1);
+    const px = Math.round(ptr.x * 2), pn = Math.round(ptr.x * 5), sink = Math.round(clamp((scrollP - 0.02) / 0.25, 0, 1) * h * 0.45);
+    const key = [Math.floor(t * 8), px, pn, sink, w, h, ENV.hour.toFixed(2)].join();
+    if (key === skyKey) return; skyKey = key;
+    let ci = 0; while (ENV.hour >= HOR[ci + 1][0]) ci++;
+    const hor = col(HOR[ci][1], HOR[ci + 1][1], (ENV.hour - HOR[ci][0]) / (HOR[ci + 1][0] - HOR[ci][0])), top = ENV.sky;
+    const rgb = (c) => { const x = c.getHex(); return [(x >> 16) & 255, (x >> 8) & 255, x & 255]; }; // sRGB bytes (Color is linear inside)
+    const set = (x, y, c) => { if (x < 0 || y < 0 || x >= w || y >= h) return; const i = (y * w + x) * 4; d[i] = c[0]; d[i + 1] = c[1]; d[i + 2] = c[2]; d[i + 3] = 255; };
+    const rect = (x0, y0, rw, rh, c) => { for (let y = Math.max(0, y0); y < Math.min(h, y0 + rh); y++) for (let x = Math.max(0, x0); x < Math.min(w, x0 + rw); x++) set(x, y, c); };
+    const disc = (cx, cy, r, c) => { for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) if (x * x + y * y <= r * r + r * 0.6) set(cx + x, cy + y, c); };
+    // sky: 7 bands from the clock's sky colour down to the horizon colour, with ordered dithering at each step
+    const B = 7, bands = Array.from({ length: B + 1 }, (_, k) => rgb(top.clone().lerp(hor, Math.pow(k / B, 1.35))));
+    for (let y = 0; y < h; y++) { const v = (y / (h * 0.78)) * B; for (let x = 0; x < w; x++) { const k = Math.min(B, Math.floor(v + BAYER[(y & 3) * 4 + (x & 3)] - 0.5 + 0.5)); const c = bands[Math.max(0, k)]; const i = (y * w + x) * 4; d[i] = c[0]; d[i + 1] = c[1]; d[i + 2] = c[2]; d[i + 3] = 255; } }
+    // stars (some twinkle), a shooting star every ~23 s, a plane crossing slowly with a blinking light
+    if (ENV.stars > 0.3) {
+      const sc = rgb(_c.set("#eef1ff")), dim = rgb(top.clone().lerp(_c.set("#eef1ff"), 0.45));
+      for (const [x, y, r] of skyCv.stars) set((x - px + w) % w, y, r < 0.25 && Math.sin(t * (2 + r * 9) + r * 40) > 0.4 ? dim : sc);
+      const st = (t % 23) / 0.9; if (st < 1) for (let k = 0; k < 7; k++) set(Math.round(w * 0.7 - st * w * 0.25) + k, Math.round(h * 0.08 + st * h * 0.12) - Math.round(k * 0.5), k < 2 ? sc : dim);
+      const pxp = Math.round(((t * 3) % (w + 40)) - 20), pyp = Math.round(h * 0.14); set(pxp, pyp, rgb(_c.set("#c9cfe0"))); if (Math.floor(t * 1.2) % 2) set(pxp + 1, pyp, [255, 80, 70]);
+    }
+    // sun (big and low at the ends of the day) or crescent moon, each with a dithered halo
+    // kept clear of the tagline: upper middle on wide screens (a low sun slips behind the room), right of the text on phones
+    const eK = clamp(ENV.elev / 40, 0, 1), bodyX = Math.round(w * (portrait ? 0.84 : night ? 0.42 : lerp(0.57, 0.42, eK))) - px, bodyY = Math.round(h * (portrait ? 0.47 : night ? 0.2 : lerp(0.62, 0.17, eK)));
+    const R = Math.max(3, Math.round(h * (portrait ? 0.022 : night ? 0.03 : lerp(0.07, 0.04, eK))));
+    for (const [rr, a] of portrait ? [[R + 3, 0.25]] : [[R + 7, 0.12], [R + 4, 0.25]]) { const hc = rgb(top.clone().lerp(hor, 0.5).lerp(ENV.disc, a)); for (let y = -rr; y <= rr; y++) for (let x = -rr; x <= rr; x++) if (x * x + y * y <= rr * rr && ((x + y) & 1) === 0) set(bodyX + x, bodyY + y, hc); }
+    disc(bodyX, bodyY, R, rgb(ENV.disc));
+    if (night) { const bx = Math.ceil(R * 0.55), by = -Math.ceil(R * 0.35), bite = bands[Math.min(B, Math.round((bodyY / (h * 0.78)) * B))]; // bite out the crescent
+      for (let y = -R; y <= R; y++) for (let x = -R; x <= R; x++) if (x * x + y * y <= R * R + R * 0.6 && (x - bx) ** 2 + (y - by) ** 2 <= R * R + R * 0.6) set(bodyX + x, bodyY + y, bite); }
+    // clouds: three tones (shade under, body, lit top), drifting left at different speeds
+    const warm = clamp(1 - Math.abs(ENV.elev - 9) / 14, 0, 1) * dayK;
+    const body = top.clone().lerp(hor, 0.5).lerp(_c.set(night ? "#4a5486" : "#ffffff"), night ? 0.35 : 0.72);
+    if (portrait) body.lerp(top, 0.45); // on phones the clouds sit behind the tagline: keep them quiet
+    const cBody = rgb(body), cLit = rgb(body.clone().lerp(warm > 0.3 ? ENV.disc : _c.set(night ? "#aab4e6" : "#ffffff"), night ? 0.35 : 0.6)), cShade = rgb(body.clone().lerp(top, 0.45).lerp(_c.set(night ? "#000000" : "#6a6a9a"), night ? 0.2 : 0.18));
+    for (const [x0, yf, s, v] of [[0.08, 0.13, 1.0, 1.2], [0.55, 0.08, 1.3, 0.8], [0.32, 0.3, 0.8, 1.6], [0.86, 0.24, 1.1, 1.0], [0.68, 0.4, 0.7, 1.9]]) {
+      const r = Math.max(3, Math.round(h * (portrait ? 0.022 : 0.035) * s)), span = w + r * 10, cx = Math.round((((x0 * span - t * v - px) % span) + span) % span) - r * 5, cy = Math.round(h * (portrait ? 0.52 + yf * 0.35 : yf)); // phones: below the tagline, round the room
+      const puffs = [[-3.2, 0.4, 0.75], [-1.6, -0.3, 1.0], [0, -0.75, 1.25], [1.7, -0.25, 1.0], [3.1, 0.35, 0.8]];
+      const rim = Math.max(1, Math.round(r * 0.28));
+      for (const [dx, dy, k] of puffs) disc(cx + Math.round(dx * r) - 1, cy + Math.round(dy * r) - rim, Math.round(r * k), cLit);
+      for (const [dx, dy, k] of puffs) disc(cx + Math.round(dx * r), cy + Math.round(dy * r) + rim, Math.round(r * k), cShade);
+      for (const [dx, dy, k] of puffs) disc(cx + Math.round(dx * r), cy + Math.round(dy * r), Math.round(r * k), cBody);
+      rect(cx - Math.round(3.6 * r), cy + Math.round(0.45 * r), Math.round(7.4 * r), 2, cShade);
+    }
+    // birds by day: two loose flocks flapping across
+    if (dayK > 0.6 && !ENV.rain) for (let f = 0; f < 2; f++) for (let b = 0; b < 3; b++) {
+      const bx = Math.round(((t * (6 + f * 3) + f * w * 0.6 + b * 7) % (w + 60)) - 30) - px, by = Math.round(h * (portrait ? 0.5 + f * 0.05 : 0.22 + f * 0.1)) + ((b * 5) % 4), up = Math.floor(t * 4 + b) % 2;
+      const bc = rgb(top.clone().lerp(_c.set("#2a2e48"), 0.7)); set(bx, by, bc); set(bx - 1, by - up, bc); set(bx + 1, by - up, bc); set(bx - 2, by - 1 + up, bc); set(bx + 2, by - 1 + up, bc);
+    }
+    if (sink >= h) { bgTex.needsUpdate = true; return; }
+    // hills, then the far and near skylines (lit windows at night, a few blinking aerials)
+    const sil = night ? new THREE.Color("#141842") : new THREE.Color("#6f86a6").lerp(_c.set("#6a3f6e"), warm);
+    const hillC = rgb(hor.clone().lerp(top, 0.4).lerp(sil, night ? 0.35 : 0.3));
+    for (let x = 0; x < w; x++) for (let y = h - skyCv.hills[(x + px + 24) % skyCv.hills.length] + sink; y < h; y++) set(x, y, hillC);
+    const layer = (bs, base, lift, shift, litK, lampC) => {
+      const winOn = rgb(_c.set(lampC)), winTv = rgb(_c.set("#9fc6ff")), winDay = rgb(base.clone().lerp(_c.set("#ffffff"), 0.22)), bc = rgb(base);
+      bs.forEach(([x, bw, bh, kind], n) => {
+        const X = x - shift, Y = h - bh - lift + sink; rect(X, Y, bw, bh + lift, bc);
+        if (kind === 0) rect(X + 1, Y - 2, bw - 2, 2, bc); // stepped top
+        if (kind === 1) { rect(X + Math.floor(bw / 2), Y - 5, 1, 5, bc); if (night && Math.floor(t * 1.1 + n) % 3 === 0) set(X + Math.floor(bw / 2), Y - 6, [255, 70, 60]); } // aerial
+        if (kind === 2) rect(X + 1, Y - 3, 3, 3, bc); // water tank
+        for (let j = 2; j < bh - 2; j += 3) for (let i = 1; i < bw - 1; i += 2) {
+          const r = hash(n * 31 + x, i, j), flick = hash(n, i + j, Math.floor(t / 5)) < 0.04;
+          if (night ? r < litK !== flick : r < 0.3) set(X + i, Y + j, night ? (r < 0.04 ? winTv : winOn) : winDay);
+        }
+      });
+    };
+    const far = hor.clone().lerp(top, 0.25).lerp(sil, night ? 0.6 : 0.45), near = far.clone().lerp(sil.clone().multiplyScalar(night ? 0.45 : 0.62), 0.6);
+    layer(skyCv.far, far, 0, px, 0.1, "#c99a5c"); layer(skyCv.near, near, 0, pn, 0.18, "#ffcf87");
+    bgTex.needsUpdate = true;
+  }
+
   const rainSystem = (n, win, len, box3) => {
     const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.BufferAttribute(new Float32Array(n * 6), 3));
     const m = fx(new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: "#a7bbec", transparent: true, depthWrite: false })));
@@ -412,7 +562,7 @@ void main(){
     ENV = { hour: h, sky: col(A[1], B[1], t), sunI: lerp(A[3], B[3], t), elev: lerp(A[4], B[4], t), lamp: lerp(A[5], B[5], t), hI: lerp(A[8], B[8], t), stars: lerp(A[9], B[9], t), disc: col(A[10], B[10], t) };
     ENV.night = ENV.stars > 0.5;
     ENV.rain = Q.has("rain") ? Q.get("rain") !== "0" : ENV.stars > 0.7;
-    scene.background = ENV.sky;
+    scene.background = bgTex || ENV.sky; skyKey = ""; paintSky(reduced ? 0 : performance.now() / 1000);
     const el = degToRad(ENV.elev);
     sky.position.set(1.5 - Math.cos(el) * 6, 1.5 + Math.sin(el) * 20, -3 - Math.cos(el) * 20); sky.color.copy(col(A[2], B[2], t)); sky.intensity = ENV.sunI;
     hemi.color.copy(col(A[6], B[6], t)); hemi.groundColor.copy(col(A[7], B[7], t)); hemi.intensity = ENV.hI;
@@ -435,6 +585,7 @@ void main(){
     S = clamp(Math.round(Math.min(H / 230, W / 300)), 2, 5) + coarse;
     lw = Math.ceil(W / S); lh = Math.ceil(H / S);
     renderer.setSize(lw, lh, false); ui.size({ w: lw * S, h: lh * S });
+    makeSky(lw, lh); scene.background = bgTex; if (ENV) paintSky(reduced ? 0 : performance.now() / 1000);
     rtC.setSize(lw, lh); rtN.setSize(lw, lh); post.uniforms.res.value.set(lw, lh);
     VH = portrait ? Math.max(10.5, 9.4 / (W / H)) : 11.2;
     dirty = true;
@@ -454,6 +605,13 @@ void main(){
   // the near plane slides up to the screen so the camera flies through tiny Taif instead of being blocked
   const shotScreen = () => ({ target: screen.position.clone(), az: 0, el: degToRad(3), zoom: VH / (0.9 * 1.06), fx: 0.5, fy: 0.5, near: 59.75 });
   const shotWatch = () => ({ target: watch.localToWorld(new V3(0, 0.05, 0)), az: AZ0, el: degToRad(42), zoom: VH / (portrait ? 1.4 : 2.0), fx: 0.5, fy: 0.58, near: NEAR });
+  // close-up on a parked car: swing slowly round its front (never round to the road side, where traffic would cut in);
+  // the near plane sits 10 units in front so lamp posts and the hedge on the camera side don't block it
+  let focusCar = null, carT0 = 0, carScroll = 0;
+  const shotCar = (t) => ({
+    target: street.cars[focusCar].position.clone().add(_w.set(0, 1.25, 0)), az: degToRad(22) + Math.sin((t - carT0) * 0.25) * 0.36, el: degToRad(portrait ? 26 : 19),
+    zoom: Math.min(VH / 6.4, (VH * W) / H / 9.5), fx: 0.5, fy: portrait ? 0.4 : 0.56, near: 50,
+  });
   const mixShot = (a, b, t) => ({ target: a.target.clone().lerp(b.target, t), az: lerp(a.az, b.az, t), el: lerp(a.el, b.el, t), zoom: Math.exp(lerp(Math.log(a.zoom), Math.log(b.zoom), t)), fx: lerp(a.fx, b.fx, t), fy: lerp(a.fy, b.fy, t), near: lerp(a.near, b.near, Math.min(1, t * 2.2)) });
   function placeCam(s) {
     // zoom is folded into the frustum: three.js scales an ortho frustum by .zoom but not its off-centre offset
@@ -471,7 +629,7 @@ void main(){
   /* ---------- picking & easter eggs (coordinates are NDC on the canvas: x right, y up, both -1..1) ---------- */
   const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
   const clickables = [["screen", [screen]], ["watch", [watch]], ["mug", [mug, handle, coffee]], ["lamp", [shade, bulb, la1, la2]], ["plant", [plant]], ["me", [me]],
-    ["trophy", [pTrophy]], ["degree", [pDegree]], ["frames", shots], ["phone", [phone]]];
+    ["trophy", [pTrophy]], ["degree", [pDegree]], ["frames", shots], ["phone", [phone]], ["cat", [cat]], ["duck", [duck]], ["lab", [pLab]], ["photo", [photo]]];
   const owns = (o) => clickables.some(([, objs]) => objs.some((c) => { for (let p = o; p; p = p.parent) if (p === c) return true; return false; }));
   function pick(nx, ny) {
     ndc.set(nx, ny); ray.setFromCamera(ndc, cam);
@@ -492,17 +650,23 @@ void main(){
   const ANCHORS = {
     screen: new V3(MON.x + 0.62, MON.y + 0.42, MON.z + 0.1), watch: new V3(1.15, DESK_Y + 0.62, -1.8), mug: new V3(MUG.x, MUG.y + 0.5, MUG.z), lamp: new V3(LAMP_HEAD.x + 0.2, LAMP_HEAD.y + 0.28, LAMP_HEAD.z),
     plant: new V3(2.45, 1.55, -2.35), me: new V3(0.32, 2.5, -1.1), trophy: new V3(-2.78, TROPHY_Y + 0.62, 0), degree: new V3(0.24, 4.06, -2.9), frames: new V3(-2.9, 3.62, 1.55), phone: new V3(1.86, DESK_Y + 0.3, -1.9),
+    cat: new V3(2.3, WY0 + 0.86, -2.7), duck: new V3(1.56, DESK_Y + 0.42, -1.8), lab: new V3(LAB.x + 0.3, 1.62, LAB.z), photo: new V3(-2.9, 3.3, -0.4),
   };
   const sparkGeo = mergeGeometries([new THREE.BoxGeometry(0.24, 0.05, 0.01), new THREE.BoxGeometry(0.05, 0.24, 0.01)]), sparkMat = basic("#ffffff", { transparent: true, depthTest: false, depthWrite: false });
   const hints = Object.entries(ANCHORS).map(([name, p], i) => { const m = fx(new THREE.Mesh(sparkGeo, sparkMat)); m.position.copy(p); m.visible = false; m.userData = { name, i }; scene.add(m); return m; });
   const seen = new Set();
 
-  let mode = "room", modeT = 0, from = null, hovered = null, lampOn = true, growth = 0, coffeeLevel = 0.6, burst = 0, waveT = -1, wakeT = 0, sleepK = 0, phoneT = 0;
-  const go = (m) => { from = currentShot; mode = m; modeT = 0; ui.mode(m); dirty = true; };
+  let mode = "room", modeT = 0, from = null, hovered = null, lampOn = true, growth = 0, coffeeLevel = 0.6, burst = 0, waveT = -1, wakeT = 0, sleepK = 0, phoneT = 0, catK = 0, catT = 0, duckT = 0, labT = 0;
+  const go = (m, extra) => { if (mode === "car" && m !== "car") setTimeout(() => { if (mode !== "car") focusCar = null; }, 1400); from = currentShot; mode = m; modeT = 0; ui.mode(m, extra); dirty = true; };
   const asleep = () => ENV.hour >= 1 && ENV.hour < 5 && wakeT <= 0;
   function click(nx, ny) {
-    if (mode === "watch") { go("room"); return true; }
-    if (inStreet()) { const n = pickStreet(nx, ny); if (n) ui.toast(STREET_LABELS[n]); return !!n; } // tap a vehicle to name it
+    if (mode === "watch" || mode === "car") { go("room"); return true; }
+    if (inStreet()) { // the two parked cars open a close-up; anything else on the street just says what it is
+      const n = pickStreet(nx, ny); if (!n) return false;
+      if (street.cars[n]) { focusCar = n; carT0 = performance.now() / 1000; carScroll = scrollP; street.flash(n); go("car", n); }
+      else ui.toast(STREET_LABELS[n]);
+      return true;
+    }
     if (mode !== "room" || scrollP > 0.05) return false;
     const n = pick(nx, ny); if (!n) return false;
     seen.add(n);
@@ -524,6 +688,10 @@ void main(){
     else if (n === "degree") ui.toast(copy.degree || "A degree.");
     else if (n === "frames") ui.go("#work");
     else if (n === "phone") { phoneT = 2.4; ui.toast("Let’s talk."); setTimeout(() => { if (!gone) ui.go("#booking"); }, 900); }
+    else if (n === "cat") { catT = 1.6; ui.toast(catK > 0.5 ? "Zzz." : "Mrrp."); }
+    else if (n === "duck") { duckT = 0.7; ui.toast("Quack. It found the bug."); }
+    else if (n === "lab") { labT = 1.4; ui.toast("All systems running."); }
+    else if (n === "photo") ui.toast("That’s me, give or take a few pixels.");
     dirty = shadowsDirty = true; return true;
   }
 
@@ -574,7 +742,7 @@ void main(){
     const gx = reduced ? 0 : idle ? Math.sin(t * 0.23) * 0.35 : ptr.tx, gy = reduced ? 0 : idle ? Math.sin(t * 0.31 + 1) * 0.25 : ptr.ty;
     const k = 1 - Math.exp(-6 * dt); ptr.x += (gx - ptr.x) * k; ptr.y += (gy - ptr.y) * k;
 
-    const target = mode === "dive" ? shotScreen() : mode === "watch" ? shotWatch() : shotRoom();
+    const target = mode === "dive" ? shotScreen() : mode === "watch" ? shotWatch() : mode === "car" ? shotCar(t) : shotRoom();
     if (from) {
       modeT = Math.min(1, modeT + dt / (reduced ? 0.01 : 1.3)); currentShot = mixShot(from, target, ease(modeT));
       if (modeT >= 1) { from = null; if (mode === "dive") { mode = "site"; ui.dive(); } }
@@ -590,7 +758,8 @@ void main(){
 
     const reveal = clamp((scrollP - 0.03) / 0.2, 0, 1);
     bld.visible = street.root.visible = reveal > 0; for (const m of bMats) m.color.copy(ENV.sky).lerp(m.userData.c, reveal);
-    if (reveal > 0) street.update(t, ENV);
+    if (!reduced && mode !== "site" && scrollP < 0.75) paintSky(t);
+    if (reveal > 0) street.update(t, ENV, dt, mode === "car" || (from && focusCar) ? focusCar : null);
     updateRain(rainIn, ENV.rain && !reduced, 1, t); updateRain(rainOut, ENV.rain && !reduced, reveal, t);
     setV(tex, 0.7, 0.3 - (Math.sin(t * 0.12) * 0.5 + 0.5) * 0.3);
     outTex.offset.x = Math.round((0.1 + ptr.x * 0.06) * OUT) / OUT;
@@ -605,6 +774,29 @@ void main(){
     const fl = ENV.lamp > 0.3 || ENV.night; bulbs.visible = fl; fairy.intensity = fl ? 2.2 : 0; nook.intensity = fl ? 4 : 0; nookShade.material.color.set(fl ? "#ffd9a0" : "#b9a78c");
     if (fl && !reduced) { for (let i = 0; i < NB; i++) bulbs.setColorAt(i, _c.copy(bulbCols[i % 3]).multiplyScalar(0.55 + 0.45 * (0.5 + 0.5 * Math.sin(t * 2.2 + i * 2.4)))); bulbs.instanceColor.needsUpdate = true; }
     if (!reduced) { plant.rotation.z = Math.sin(t * 0.9) * 0.025; pcLight.material.color.setHSL((t * 0.04) % 1, 0.75, 0.62); }
+    // the cat: tail swish (fast when clicked), a slow look around, a blink every few seconds; head down and eyes shut while it sleeps
+    catK += ((asleep() ? 1 : 0) - catK) * (reduced ? 1 : Math.min(1, dt * 2)); catT = Math.max(0, catT - dt); duckT = Math.max(0, duckT - dt); labT = Math.max(0, labT - dt);
+    const swish = reduced ? 0 : Math.sin(t * (catT > 0 ? 8 : 1.7)) * (catT > 0 ? 0.45 : 0.25) * (1 - catK);
+    tail.forEach((sg, i) => { sg.rotation.y = (i === 0 ? -1.25 : 0.42) + swish * (0.3 + i * 0.2); sg.rotation.x = i === 0 ? 0.25 : -0.12 * (1 - catK); });
+    catHead.rotation.set(0.55 * catK, (reduced || catT > 0 ? 0 : Math.sin(t * 0.37) * 0.55) * (1 - catK), 0); catHead.position.set(0, lerp(0.5, 0.24, catK), lerp(0.1, 0.22, catK));
+    const shut = catK > 0.5 || (!reduced && t % 4.3 < 0.13); catEyes.forEach((e) => (e.scale.y = shut ? 0.15 : 1));
+    { const q = duckT > 0 ? Math.sin(duckT * 26) * duckT * 0.35 : 0; duck.scale.set(1 + q, 1 - q, 1 + q); }
+    if (scrollP < 0.3) { // lab lights: each blinks on its own rhythm; all flicker together when clicked
+      for (let i = 0; i < LEDS.length; i++) {
+        const on = reduced || (labT > 0 ? Math.floor(t * 16 + i) % 2 === 0 : Math.sin(t * (2.1 + (i % 4) * 1.7) + i * 1.9) > -0.3);
+        leds.setColorAt(i, _c.set(on ? (i === 4 ? "#59d0ff" : i % 5 === 2 ? "#ffb347" : "#5dff8a") : "#1d3326"));
+      }
+      leds.instanceColor.needsUpdate = true;
+    }
+    { // dust in the window light, only on a sunny day and only in the room
+      const k = clamp((ENV.sunI - 2.6) / 1.6, 0, 1) * (1 - clamp(scrollP * 8, 0, 1)) * (reduced ? 0 : 1); motes.visible = k > 0.01;
+      if (motes.visible) {
+        motes.material.opacity = 0.75 * k; const a = motes.geometry.attributes.position.array;
+        moteSeed.forEach(([x, y, z, ph], i) => { a[i * 3] = WX0 + 0.1 + x * (WX1 - WX0) + Math.sin(t * 0.21 + ph) * 0.12; a[i * 3 + 1] = 1.75 + ((y * 2.5 + t * 0.045) % 2.5); a[i * 3 + 2] = -2.6 + z * 1.9 + Math.cos(t * 0.17 + ph) * 0.1; });
+        motes.geometry.attributes.position.needsUpdate = true;
+      }
+    }
+    lantern.material.color.set(ENV.lamp > 0.3 ? "#ffcf6a" : "#a08a6a");
     phoneScreen.material.color.set(phoneT > 0 ? (Math.floor(phoneT * 6) % 2 ? "#9fd0ff" : "#e6f4ff") : "#1b2030"); phone.rotation.z = phoneT > 0 && !reduced ? Math.sin(t * 40) * 0.05 : 0;
     me.visible = !(mode === "dive" && modeT > 0.18) && mode !== "site"; // step out of the way of the dive
     const min = d.getMinutes() + sec / 60, hr = (d.getHours() % 12) + min / 60;
@@ -668,7 +860,10 @@ void main(){
 
   return {
     resize,
-    setScroll(p) { const q = reduced ? 0 : clamp(p, 0, 1); if (q === scrollP) return; scrollP = q; dirty = true; if (hovered) { hovered = null; ui.hover(null); } },
+    setScroll(p) {
+      const q = reduced ? 0 : clamp(p, 0, 1); if (q === scrollP) return; scrollP = q; dirty = true; if (hovered) { hovered = null; ui.hover(null); }
+      if (mode === "car" && Math.abs(q - carScroll) > 0.015) go("room"); // scrolling away ends the close-up
+    },
     setActive(v) { active = v; },
     /* pointer over the stage: tx,ty steer the camera (-1..1 across the stage); nx,ny are NDC on the canvas for picking */
     pointer(tx, ty, nx, ny, overUi) {
@@ -681,7 +876,7 @@ void main(){
     probe(id, nx, ny) { ui.probe(id, inStreet() ? pickStreet(nx, ny) : pick(nx, ny)); }, // automated tests
     /* after the dive has landed: snap back to the room, no flight */
     reset() { mode = "room"; from = null; ui.mode("room"); currentShot = shotRoom(); dirty = true; },
-    leaveWatch() { if (mode === "watch") go("room"); },
+    leaveWatch() { if (mode === "watch" || mode === "car") go("room"); },
     dispose() {
       gone = true; stopFrame(raf); clearInterval(envTimer);
       scene.traverse((o) => { o.geometry?.dispose(); [].concat(o.material || []).forEach((m) => { m.map?.dispose(); m.dispose(); }); });
