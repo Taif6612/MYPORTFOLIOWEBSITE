@@ -37,8 +37,9 @@ export const kitFor = (root) => () => {
   };
 };
 
-/* G = ground height; front / right = the building's street-facing walls (z and x). */
-export function buildStreet({ scene, grad, G, front, right }) {
+/* G = ground height; front / right = the building's street-facing walls (z and x). light: the lamp over the two cars,
+   made by the room up front (a light added later would recompile its shaders). pause yields between sections. */
+export async function buildStreet({ scene, grad, G, front, right, light, pause = async () => {} }) {
   const lit = new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: grad });
   const glowMat = new THREE.MeshBasicMaterial({ vertexColors: true });
   const hazeMat = new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.2, depthWrite: false });
@@ -106,6 +107,7 @@ export function buildStreet({ scene, grad, G, front, right }) {
   SG.box(0.22, 0.22, 0.22, WARM, -31, G + 2.55, front + 1.6); P.cyl(2.6, 0.02, "#ffcf87", -31, G + 0.34, front + 2.1, "y", 12);
   S.box(0.12, 3.6, 0.12, POST, -38.4, G + 2.1, BAY0 - 0.5); S.box(0.1, 0.9, 0.9, "#2b6cb0", -38.4, G + 3.6, BAY0 - 0.5);
 
+  await pause(); // short tasks: the room keeps animating while this builds
   /* ---------- vehicles: each is drawn facing +x, wheels on y = 0 ---------- */
   const wheels = (b, xs, zh, r, w = 0.44) => { for (const x of xs) for (const s of [-1, 1]) { b.cyl(r, w, TYRE, x, r, s * zh, "z", 10); b.cyl(r * 0.5, w + 0.06, HUB, x, r, s * zh, "z", 8); } };
 
@@ -267,12 +269,13 @@ export function buildStreet({ scene, grad, G, front, right }) {
   const park = (build, x, z, heading, k = 1) => { const v = vehicle(build); v.position.set(x, G + 0.1, z); v.rotation.y = heading; v.scale.setScalar(k); return v; };
   const parked = (v) => { nightOnly.splice(nightOnly.indexOf(v.userData.glow), 1); v.userData.glow.visible = false; return v; }; // engine off: lamps only for the lock chirp
   const IN = Math.PI / 2, OUT = -Math.PI / 2; // nose toward the building / toward the road
+  await pause();
   // The two stars park on the camera side of the road, at the bottom of the view, so traffic passes behind them,
   // both nose-out: grille and headlamps to the camera, the way they look in the owner's photos.
   const jeepCar = parked(park(jeep, BAYS[2], NB0 + 3.9, OUT, M)), crvCar = parked(park(crv, BAYS[4], NB0 + 3.9, OUT, M)); // an empty bay between them
   park(sedan("#3a6ea5"), BAYS[1], BAY0 + 3.8, IN); park(van("#eceff1"), BAYS[4], BAY0 + 3.9, IN); const bmwCar = parked(park(bmw, BAYS[6], BAY0 + 3.9, OUT, M)); // an easter egg on the building side
   const cngs = [park(cng, SX0 + 1.4, -3, OUT), park(cng, SX0 + 1.4, -8.2, OUT)]; park(sedan("#8a8f99"), SX0 + 1.6, -19, OUT); // a CNG stand on the side road
-  const starLamp = new THREE.PointLight("#ffd9a0", 0, 0, 2); starLamp.position.set(BAYS[3], G + 6.4, NB0 + 5.2); scene.add(starLamp); // real light on the two stars
+  const starLamp = light; starLamp.position.set(BAYS[3], G + 6.4, NB0 + 5.2); // real light on the two stars
   P.cyl(5.2, 0.02, "#ffcf87", BAYS[3], G + 0.14, NB0 + 4.2, "y", 16); // and its pool on the tarmac
 
   S.mesh(lit); nightOnly.push(SG.mesh(glowMat), P.mesh(hazeMat)); // all the static street: three draw calls
@@ -291,6 +294,7 @@ export function buildStreet({ scene, grad, G, front, right }) {
   const sideMovers = [[rickshaw("#2f8f5a"), 1, -30], [rickshaw("#c8463c"), -1, -6]].map(([build, dir, z0]) => { const v = vehicle(build); v.position.set(dir > 0 ? SX1 - 2.2 : SX0 + 4.2, G + 0.1, z0); v.rotation.y = dir > 0 ? -Math.PI / 2 : Math.PI / 2; return { v, dir, z0 }; });
   const rickshaws = sideMovers.map((m) => m.v);
 
+  await pause();
   /* ---------- people: instanced parts walked up and down the pavements ---------- */
   const walkers = [];
   const walker = (axis, fixed, from, to, speed, phase) => walkers.push({ axis, fixed, from, to, speed, phase });

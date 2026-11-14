@@ -55,7 +55,7 @@ const nextFrame = (cb) => (globalThis.requestAnimationFrame ? globalThis.request
 const stopFrame = (id) => (globalThis.cancelAnimationFrame ? globalThis.cancelAnimationFrame(id) : clearTimeout(id));
 const makeCanvas = (w, h) => (typeof OffscreenCanvas !== "undefined" ? new OffscreenCanvas(w, h) : Object.assign(document.createElement("canvas"), { width: w, height: h }));
 
-export async function createPixelRoom({ canvas, width, height, dpr = 1, textRight = 0.46, textBottom = 0.45, reduced = false, query = "", screenSrc, portraitSrc, frames = [], copy = {}, ui, signal }) {
+export async function createPixelRoom({ canvas, width, height, dpr = 1, textRight = 0.46, textBottom = 0.45, reduced = false, query = "", screenSrc, portraitSrc, frames = [], album = 0, copy = {}, ui, signal }) {
   let dirty = true, shadowsDirty = true, gone = false; // first: async callbacks (texture loads) may set these mid-construction
   const Q = new URLSearchParams(query);
   const hourOverride = Q.has("h") ? +Q.get("h") : null;
@@ -279,6 +279,21 @@ void main(){
   box(0.06, 1.08, 0.92, "#2a2433", -2.97, 2.6, -0.75);
   const photo = mesh(new THREE.PlaneGeometry(0.8, 0.96), frameMat(loadTex(portraitSrc)), -2.935, 2.6, -0.75, scene); photo.rotation.y = Math.PI / 2; photo.castShadow = false;
   { const t = photo.material.map; t.repeat.x = 0.63; t.offset.x = 0.2; setV(t, 0.75, 0.25); }
+  // under it, a small table of framed photos standing on their own. The glass stays dark: a photo shows only when its
+  // frame is clicked (Hero opens it; the room never loads them). No label, no sparkle.
+  const TB = { x: -2.68, y: 1.0, z: -0.78 };
+  box(0.5, 0.05, 1.5, C.desk, TB.x, TB.y, TB.z);
+  for (const dz of [-0.68, 0.68]) for (const dx of [-0.19, 0.19]) box(0.05, TB.y - 0.025, 0.05, C.deskDark, TB.x + dx, (TB.y - 0.025) / 2, TB.z + dz);
+  const glassMat = basic("#ffffff", { map: paintTex(6, 8, (set, rect) => { rect(0, 0, 6, 8, "#24222f"); set(4, 1, "#4b4862"); set(3, 2, "#4b4862"); set(2, 3, "#363447"); }) });
+  const albumFrames = [[0.24, 0.32, C.frame], [0.36, 0.27, C.gold], [0.22, 0.26, C.ink], [0.2, 0.34, C.cream], [0.24, 0.3, C.metal2]].slice(0, album).map(([w, h, col], i) => {
+    const x = TB.x + (i % 2 ? 0.07 : -0.06), y = TB.y + 0.025 + h / 2, z = TB.z - 0.56 + i * 0.28;
+    const g = new THREE.Group(); g.position.set(x, y, z); g.rotation.set(-0.12, Math.PI / 2 + (i % 2 ? -0.22 : 0.18), 0, "YXZ"); statics.add(g); // leaning back a little, each turned its own way
+    box(w + 0.05, h + 0.05, 0.03, col, 0, 0, -0.016, g); box(0.03, h * 0.8, 0.03, col, 0, -h * 0.08, -0.12, g).rotation.x = -0.35; // frame and its stand
+    g.updateMatrixWorld(true);
+    const pane = mesh(new THREE.PlaneGeometry(w, h), glassMat, 0, 0, 0, scene); pane.castShadow = false;
+    pane.position.copy(g.localToWorld(new V3(0, 0, 0.001))); pane.quaternion.copy(g.quaternion);
+    return proxy(0.16, h + 0.08, w + 0.08, x, y, z);
+  });
   // laptops: base, keyboard, touchpad, a lid on a hinge, a painted screen. Built facing +z (the user), then turned into place.
   const laptop = (x, y, z, ry, w, d, shell, deck, keys, tex, tilt = 0.3) => {
     const g = new THREE.Group(); g.position.set(x, y, z); g.rotation.y = ry; scene.add(g);
@@ -578,13 +593,11 @@ void main(){
   bBox(trim, 0.1, 4.2, 0.1, -13.5, RY + 2.1, -2.2); bBox(trim, 1.4, 0.08, 0.08, -13.5, RY + 3.6, -2.2); bBox(trim, 1.0, 0.08, 0.08, -13.5, RY + 3.1, -2.2);
   for (const [mat, geos] of buckets) bld.add(new THREE.Mesh(mergeGeometries(geos), mat));
 
-  // The street below (pixelStreet.js). Left visible for now so start-up compiles its shaders;
-  // the first frame hides it until the camera leaves the room.
-  const street = buildStreet({ scene, grad, G: GROUND, front: Z1, right: X1 });
-  street.root.visible = true;
-  await pause();
-  const world = buildWorld({ scene, grad, G: GROUND }); // the places around the block: Bangladesh and the UAE
-  world.root.visible = true;
+  // The street (pixelStreet.js) and the map round the block (pixelWorld.js) are built after the room's first frame
+  // (buildOutside, below): nobody sees them before scrolling. Their lamp is made now: a light added later would
+  // recompile every lit shader in the room. `world` stays null until both are ready.
+  const streetLamp = new THREE.PointLight("#ffd9a0", 0, 0, 2); scene.add(streetLamp);
+  let street = null, world = null;
 
   await pause();
   // ~300 static boxes → one vertex-coloured mesh: the whole room costs a handful of draw calls
@@ -661,7 +674,7 @@ void main(){
   const shotRoom = () => {
     const a = ease(clamp(scrollP / 0.58, 0, 1)), b = ease(clamp((scrollP - 0.66) / 0.34, 0, 1));
     return {
-      target: ROOM.clone().lerp(WIDE, a).lerp(street.focus, b),
+      target: ROOM.clone().lerp(WIDE, a).lerp(world ? street.focus : WIDE, b),
       az: AZ0 + ptr.x * degToRad(8) * (1 - a), el: EL0 + degToRad(ptr.y * 5 * (1 - a) + a * 6 - b * 3),
       zoom: lerp(lerp(1, portrait ? 0.18 : 0.17, a), portrait ? 0.72 : 0.6, b),
       fx: lerp(portrait ? 0.5 : FXL, 0.5, a), fy: lerp(portrait ? FYP : 0.5, 0.5, a), near: NEAR,
@@ -700,18 +713,20 @@ void main(){
   /* ---------- picking & easter eggs (coordinates are NDC on the canvas: x right, y up, both -1..1) ---------- */
   const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
   const clickables = [["screen", [screen]], ["watch", [watch]], ["mug", [mug, handle, coffee]], ["lamp", [shade, bulb, la1, la2]], ["plant", [plant]], ["me", [me]],
-    ["trophy", [pTrophy]], ["degree", [pDegree]], ["frames", shots], ["phone", [phone]], ["cat", [cat]], ["duck", [duck]], ["photo", [photo]], ["pc", [pPC]], ["loq", [loq.g]], ["asus", [asus.g]], ["hp", [hp.g]], ["retro", [pRetro]]];
+    ["trophy", [pTrophy]], ["degree", [pDegree]], ["frames", shots], ["phone", [phone]], ["cat", [cat]], ["duck", [duck]], ["photo", [photo]], ["pc", [pPC]], ["loq", [loq.g]], ["asus", [asus.g]], ["hp", [hp.g]], ["retro", [pRetro]],
+    ...albumFrames.map((p, i) => [`album${i}`, [p]])];
   const owns = (o) => clickables.some(([, objs]) => objs.some((c) => { for (let p = o; p; p = p.parent) if (p === c) return true; return false; }));
   function pick(nx, ny) {
     ndc.set(nx, ny); ray.setFromCamera(ndc, cam);
     let best = null, bd = Infinity;
     for (const [name, objs] of clickables) for (const o of objs) { const h = ray.intersectObject(o, true)[0]; if (h && h.distance < bd) { bd = h.distance; best = name; } }
-    const first = ray.intersectObjects(scene.children.filter((o) => o !== bld && o !== street.root && o !== world.root), true)[0]; // a nearer wall wins (the street and the map are never in front of the room)
+    const first = ray.intersectObjects(scene.children.filter((o) => o !== bld && o !== street?.root && o !== world?.root), true)[0]; // a nearer wall wins (the street and the map are never in front of the room)
     if (best && first && first.distance < bd - 0.01 && !owns(first.object)) best = null;
     return best;
   }
   const inStreet = () => mode === "room" && scrollP > 0.5;
   function pickStreet(nx, ny) {
+    if (!world) return null;
     ndc.set(nx, ny); ray.setFromCamera(ndc, cam);
     let best = null, bd = Infinity;
     for (const [name, objs] of [...street.picks, ...world.picks]) for (const o of objs) { const h = ray.intersectObject(o, true)[0]; if (h && h.distance < bd) { bd = h.distance; best = name; } }
@@ -769,6 +784,7 @@ void main(){
     else if (n === "hp") ui.toast("HP Pavilion 14 · i5-4200U · 8 GB. Where it started.");
     else if (n === "retro") { crtT = 3; ui.toast("PS2 Slim. Still plugged in."); }
     else if (n === "photo") ui.toast("That’s me, give or take a few pixels.");
+    else if (n.startsWith("album")) ui.album(+n.slice(5));
     dirty = shadowsDirty = true; return true;
   }
 
@@ -834,10 +850,10 @@ void main(){
     if (mode !== "site") placeCam(currentShot);
 
     const reveal = clamp((scrollP - 0.03) / 0.2, 0, 1);
-    bld.visible = street.root.visible = world.root.visible = reveal > 0; for (const m of bMats) m.color.copy(ENV.sky).lerp(m.userData.c, reveal);
+    bld.visible = reveal > 0; for (const m of bMats) m.color.copy(ENV.sky).lerp(m.userData.c, reveal);
+    if (world) street.root.visible = world.root.visible = reveal > 0;
     if (!reduced && mode !== "site" && scrollP < 0.75) paintSky(t);
-    if (reveal > 0) world.update(t, ENV);
-    if (reveal > 0) street.update(t, ENV, dt, mode === "car" || (from && focusCar) ? focusCar : null);
+    if (reveal > 0 && world) { world.update(t, ENV); street.update(t, ENV, dt, mode === "car" || (from && focusCar) ? focusCar : null); }
     updateRain(rainIn, ENV.rain && !reduced, 1, t); updateRain(rainOut, ENV.rain && !reduced, reveal, t);
     setV(tex, 0.7, 0.3 - (Math.sin(t * 0.12) * 0.5 + 0.5) * 0.3);
     outTex.offset.x = Math.round((0.1 + ptr.x * 0.06) * OUT) / OUT;
@@ -896,7 +912,7 @@ void main(){
     scene.overrideMaterial = null; scene.background = bg; cam.layers.enable(FX);
     renderer.setRenderTarget(null); renderer.render(postScene, postCam);
 
-    if (++frames_ === 1) ui.ready();
+    if (++frames_ === 1) { ui.ready(); if (!reduced) buildOutside().catch((e) => ui.fail(String(e))); } // reduced motion never leaves the room
     // slow device: count frames that arrived late for their intended pace (60 fps steering, 30 idle), then draw bigger pixels
     if (frames_ > 30 && frames_ <= 120 && dt > (steering ? 0.028 : 0.05)) slowSum++;
     if (frames_ === 120 && slowSum > 30 && coarse < 2) { coarse++; frames_ = 30; slowSum = 0; resize(); }
@@ -910,12 +926,9 @@ void main(){
   // Warm-up. ANGLE (Chrome on Windows) only finishes a shader at its first draw, so the first full frame
   // used to block for ~150 ms. Draw one object per shader variant, each in its own task, into the same
   // targets the real frame uses (a private layer hides everything else; lights join it so the variant matches).
-  const WARM = 2, lights = [hemi, sky, lamp, fairy, monLight, nook, street.light], reps = new Map();
-  scene.traverse((o) => {
-    const m = o.material; if (!m || Array.isArray(m) || !o.visible) return;
-    const key = [o.type, !!o.isInstancedMesh, o.receiveShadow, m.type, m.vertexColors, !!m.map, m.side, m.transparent].join();
-    if (!reps.has(key)) reps.set(key, o);
-  });
+  const WARM = 2, lights = [hemi, sky, lamp, fairy, monLight, nook, streetLamp], reps = new Map();
+  const variant = (o) => { const m = o.material; return !m || Array.isArray(m) || !o.visible ? null : [o.type, !!o.isInstancedMesh, o.receiveShadow, m.type, m.vertexColors, !!m.map, m.side, m.transparent].join(); };
+  scene.traverse((o) => { const key = variant(o); if (key && !reps.has(key)) reps.set(key, o); });
   lights.forEach((l) => l.layers.enable(WARM));
   renderer.shadowMap.needsUpdate = true; // the first warm-up draw also fills the shadow maps
   renderer.setRenderTarget(rtC);
@@ -931,6 +944,32 @@ void main(){
   await pause();
   renderer.setRenderTarget(null); renderer.render(postScene, postCam);
   await pause();
+
+  // After the first frame: the street and the map, built in short tasks, their shaders compiled, then one draw per new
+  // variant (colour and normal pass) so the first scroll outside doesn't stall. Frames run in between, so each warm-up
+  // draw puts the camera layers, background and target back as it found them.
+  async function buildOutside() {
+    const s = await buildStreet({ scene, grad, G: GROUND, front: Z1, right: X1, light: streetLamp, pause });
+    const w = await buildWorld({ scene, grad, G: GROUND, pause }); // the places round the block: Bangladesh and the UAE
+    for (const r of [s.root, w.root]) { if (gone) return; await renderer.compileAsync(r, cam, scene).catch(() => {}); await pause(); }
+    const fresh = new Map();
+    for (const r of [s.root, w.root]) r.traverse((o) => { const key = variant(o); if (key && !reps.has(key) && !fresh.has(key)) fresh.set(key, [o, r]); });
+    lights.forEach((l) => l.layers.enable(WARM));
+    for (const [o, r] of fresh.values()) {
+      if (gone) return;
+      const mask = cam.layers.mask, bg = scene.background;
+      r.visible = true; o.layers.enable(WARM); cam.layers.set(WARM);
+      renderer.setRenderTarget(rtC); renderer.render(scene, cam);
+      scene.background = null; scene.overrideMaterial = normalMat; renderer.setRenderTarget(rtN); renderer.render(scene, cam);
+      scene.overrideMaterial = null; scene.background = bg; o.layers.disable(WARM); cam.layers.mask = mask; r.visible = false; renderer.setRenderTarget(null);
+      await pause();
+    }
+    lights.forEach((l) => l.layers.disable(WARM));
+    if (gone) return;
+    street = s; world = w; dirty = true;
+    if (mode === "room" && !from && scrollP > 0.66) { from = currentShot; modeT = 0; } // already down at the street: glide there now it exists
+  }
+
   if (!signal?.aborted) raf = nextFrame(frame);
 
   return {

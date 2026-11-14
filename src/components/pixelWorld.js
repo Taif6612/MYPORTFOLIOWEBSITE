@@ -27,7 +27,7 @@ export const WORLD_LABELS = {
 const SAND = "#e2c79b", WHITE = "#f2f1ec", GOLD = "#d6ae4f", GREEN = "#3f7a3c", LEAF = "#4f9a46";
 const hemi = (r) => new THREE.SphereGeometry(r, 10, 5, 0, Math.PI * 2, 0, Math.PI / 2);
 
-export function buildWorld({ scene, grad, G }) {
+export async function buildWorld({ scene, grad, G, pause = async () => {} }) { // pause yields between sections
   const root = new THREE.Group(); root.visible = false; scene.add(root);
   const lit = new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: grad });
   const glowMat = new THREE.MeshBasicMaterial({ vertexColors: true });
@@ -46,6 +46,7 @@ export function buildWorld({ scene, grad, G }) {
   land(17, 58, -46, 14, SAND); land(-42, 12, -79, -52, SAND); // Dubai · Abu Dhabi island
   const palm = (x, z, h = 2.6) => { S.box(0.22, h, 0.22, "#8a6a44", x, Y + h / 2, z); for (let i = 0; i < 5; i++) geo(new THREE.BoxGeometry(1.5, 0.12, 0.34).translate(0.7, 0, 0).rotateZ(-0.35).rotateY((i / 5) * Math.PI * 2), LEAF, x, Y + h, z); };
 
+  await pause(); // short tasks: the room keeps animating while this builds
   /* ---------- Dubai ---------- */
   { // Burj Khalifa: a Y-shaped plan in setbacks, then the spire
     const X = 26, Z = -20; S.box(7.5, 1.2, 7.5, "#cdd4dc", X, Y + 0.6, Z);
@@ -94,6 +95,7 @@ export function buildWorld({ scene, grad, G }) {
     pick("alnoor", 6, 8, 6, X, Y + 4, Z + 0.5);
   }
 
+  await pause();
   /* ---------- the water between: Burj Al Arab on its islet, a dhow, a container ship ---------- */
   let sail;
   { const X = -7, Z = -49.5; S.cyl(3.0, 0.5, SAND, X, Y + 0.25, Z, "y", 14);
@@ -119,6 +121,7 @@ export function buildWorld({ scene, grad, G }) {
   };
   ship(-18, -48.5); // leaving Chattogram
 
+  await pause();
   /* ---------- Abu Dhabi, on its island ---------- */
   { // Etihad Towers: five curved glass towers of different heights
     const X = -4, Z = -58;
@@ -174,6 +177,7 @@ export function buildWorld({ scene, grad, G }) {
   for (const [x, z] of [[-30, -70], [-20, -75], [6, -60], [-38, -66], [-8, -76]]) palm(x, z, 2.2);
   for (const [x, z, r] of [[-34, -75, 4], [-22, -78, 3.5], [8, -76, 3]]) geo(new THREE.SphereGeometry(r, 8, 4, 0, Math.PI * 2, 0, Math.PI / 2).scale(1.6, 0.35, 1), "#d8bc8c", x, Y, z); // dunes
 
+  await pause();
   /* ---------- Bangladesh: Dhaka ---------- */
   { // Jatiya Sangsad Bhaban (Louis Kahn): concrete volumes with round and triangular cut-outs, standing in its lake
     const X = -50, Z = -21; land(-61, -39, -31, -11, "#4d8fbf", 0.04);
@@ -201,6 +205,7 @@ export function buildWorld({ scene, grad, G }) {
     pick("minar", 8, 6.5, 5, X, Y + 3, Z);
   }
 
+  await pause();
   /* ---------- Chattogram: the port on the shore, the Shah Amanat Bridge over the Karnaphuli ---------- */
   { // three ship-to-shore cranes and the container yard
     for (const x of [-28, -20, -12]) {
@@ -223,6 +228,7 @@ export function buildWorld({ scene, grad, G }) {
     pick("bridge", 16, 10.5, 3, X, Y + 5, Z);
   }
 
+  await pause();
   /* ---------- Cox's Bazar (past Chakaria), and the easter eggs: Bandarban, Sreemangal, Madhabkunda ---------- */
   { land(-70, -34, -44, -40.5, "#ead6a6", 0.05);
     [["#c8463c", -66], ["#e0c040", -60], ["#2f6fb0", -54], ["#3f9a5a", -48], ["#e8501e", -42]].forEach(([c, x]) => { S.box(0.1, 1.5, 0.1, "#6a5a4a", x, Y + 0.8, -42.4); geo(new THREE.ConeGeometry(1.1, 0.5, 8), c, x, Y + 1.6, -42.4); S.box(0.6, 0.15, 1.2, WHITE, x + 0.9, Y + 0.3, -41.8); });
@@ -252,6 +258,7 @@ export function buildWorld({ scene, grad, G }) {
   const coco = (x, z) => { S.box(0.22, 3, 0.22, "#7a5c3c", x, Y + 1.5, z); for (let i = 0; i < 6; i++) geo(new THREE.BoxGeometry(1.4, 0.1, 0.3).translate(0.65, 0, 0).rotateZ(-0.45).rotateY(i), "#3f8a3a", x, Y + 3, z); }; // a coconut palm
   for (const [x, z] of [[-40, -16], [-62, -26], [-36, -32], [-80, -30], [-66, 4], [-84, -2]]) coco(x, z);
 
+  await pause();
   /* ---------- neighbourhoods: homes, parks and boats, so no ground is left bare ---------- */
   const rnd = (a, b, c) => { let h = Math.imul((a * 73856093) ^ (b * 19349663) ^ (c * 83492791), 2654435761); h ^= h >>> 15; return (h >>> 0) / 4294967296; };
   // an apartment block with windows on its two camera-facing walls (lit ones glow at night). Windows are few and big, like
@@ -307,6 +314,7 @@ export function buildWorld({ scene, grad, G }) {
   yacht(18.7, -49.8, 0.1); yacht(23.3, -49.6, -0.05); yacht(27.8, -50, 0.12); yacht(33, -48.5, 0.6);
   pick("marina", 18, 2, 5, 25, Y + 0.6, -50.5);
 
+  await pause();
   /* ---------- the fill: every lot still bare gets homes, a block, a park, a pond, a mosque, a field or a market ---------- */
   // From the pulled-back camera (az 40°, el 34°) a ground point's screen x and y. A lot nearer the camera than a landmark it
   // overlaps on screen stays low enough to leave at least the top 70% of the landmark in sight; lots the block hides are skipped.
@@ -376,9 +384,10 @@ export function buildWorld({ scene, grad, G }) {
     }
   };
   land(46, 58, 14, 44, SAND); land(-96, 58, 44, 52, "#ead6a6", 0.01); // Dubai's shore past the end of the road; a beach along the front (above the sea's surface, never level with it)
-  for (const C of [5.6, 2.8]) { fill(-96, 17, -44, 48, "bd", C); fill(17, 58, -46, 44, "gulf", C); fill(-42, 36, -79, -52, "ad", C); }
+  for (const C of [5.6, 2.8]) { fill(-96, 17, -44, 48, "bd", C); await pause(); fill(17, 58, -46, 44, "gulf", C); await pause(); fill(-42, 36, -79, -52, "ad", C); await pause(); }
   for (let x = -90; x < 56; x += 7.3) { const c = AWN[Math.floor(rnd(x | 0, 1, 7) * 4)]; S.box(0.1, 1.5, 0.1, "#6a5a4a", x, Y + 0.75, 50); geo(new THREE.ConeGeometry(1.0, 0.45, 8), c, x, Y + 1.5, 50); S.box(0.6, 0.12, 1.1, WHITE, x + 0.9, Y + 0.1, 50.6); }
 
+  await pause();
   /* ---------- out at sea: Saint Martin's Island, the Sundarbans, more boats (they fill the tall phone view) ---------- */
   { // Saint Martin's Island off Cox's Bazar: coral sand, coconut palms, two resort huts, rocks along the edge
     const X = -64, Z = -58;
@@ -402,6 +411,7 @@ export function buildWorld({ scene, grad, G }) {
   sailboat(-100, -64, "#e8501e"); sailboat(-56, -84, "#2f6fb0"); sailboat(10, 58, "#e0c040"); sailboat(38, 48, "#c8463c");
   ship(-52, -70); ship(-25, 62);
 
+  await pause();
   S.mesh(lit); const night = N.mesh(glowMat);
   const burjTip = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), new THREE.MeshBasicMaterial({ color: "#ff4a3a" })); burjTip.position.set(26, Y + 39.5, -20); root.add(burjTip);
 

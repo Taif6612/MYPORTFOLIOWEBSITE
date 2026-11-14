@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from "react";
 const SCREEN = "/hero-screen.webp"; // screenshot of #about: on the monitor, and what the dive resolves into
 const PORTRAIT = "/taif-portrait-480.webp"; // the About photo, hung on the room's wall as a pixel portrait
 const FRAMES = ["proctorless", "autohub-premium", "luxeglow-spa", "solar-panel"].map((id) => `/projects/shots/${id}-800.webp`);
+const ALBUM = [1, 2, 3, 4, 5].map((n) => `/room/${n}.jpg`); // the photos on the little table: fetched only when a frame is clicked
 const COPY = { trophy: "Winner, Algorithm Project Showcase · TechFest", degree: "B.Sc. in Computer Science, 2026" };
 const LABELS = { screen: "Step inside", watch: "Your time", mug: "Coffee", lamp: "Lamp", plant: "Plant", me: "Say hi", trophy: "Trophy", degree: "Degree", frames: "See my work", phone: "My phone", cat: "Cat", duck: "Rubber duck", photo: "That’s me", pc: "My PC", loq: "Lenovo LOQ", asus: "ASUS X556UF", hp: "HP Pavilion 14", retro: "PS2 Slim" };
 const CARS = { jeep: ["2005 Jeep Liberty", "Sold as the Cherokee outside North America."], crv: ["1999 Honda CR-V", "The first generation."] };
@@ -51,6 +52,7 @@ export default function Hero({ reduced }) {
   const [hello, setHello] = useState("");
   const [watch, setWatch] = useState("");
   const [toast, setToast] = useState(null);
+  const [shown, setShown] = useState(null); // index into ALBUM while one is open
   const [touch, setTouch] = useState(false);
   const [epoch, setEpoch] = useState(0); // a new canvas element after a worker gave its one back unused
 
@@ -79,6 +81,7 @@ export default function Hero({ reduced }) {
       hud.current.style.visibility = p >= 0.2 ? "hidden" : "";
       st.classList.toggle("is-out", p >= 0.12);
       root.classList.toggle("on-hero", r.bottom > 72 && p < 0.72); // down at street level the header gets its solid background back
+      if (p > 0.04) setShown(null); // scrolling away puts the photo back
     };
     // NDC on the canvas (x right, y up): what the room picks with
     const ndc = (x, y) => { const c = canvas.getBoundingClientRect(); return [((x - c.left) / c.width) * 2 - 1, 1 - ((y - c.top) / c.height) * 2]; };
@@ -117,10 +120,11 @@ export default function Hero({ reduced }) {
       mode: (m, extra) => { modeNow = m; setMode(m); if (m === "car") setCar(extra); },
       toast: (text) => setToast({ text, n: performance.now() }),
       watch: (ms) => { const t = new Date(ms).toLocaleTimeString([], { ...hm, second: "2-digit" }); setWatch((w) => (w === t ? w : t)); },
-      hover: (name, label) => { st.style.cursor = name ? "pointer" : ""; const el = tip.current; if (name) el.textContent = label || LABELS[name] || ""; el.classList.toggle("is-on", !!name); },
+      hover: (name, label) => { st.style.cursor = name ? "pointer" : ""; const el = tip.current, text = name ? label || LABELS[name] || "" : ""; if (text) el.textContent = text; el.classList.toggle("is-on", !!text); }, // unlabelled things (the photo frames) get only the cursor
       go: (hash) => document.querySelector(hash)?.scrollIntoView({ behavior: reduced ? "auto" : "smooth" }),
       dive: land,
       ready: () => setReady(true),
+      album: (i) => setShown(i),
       probe: (id, name) => { probes.get(id)?.(name); probes.delete(id); },
       fail: (msg) => { if (location.search.includes("roomdebug")) console.error("room failed:", msg); }, // the worker couldn't build the room
     };
@@ -132,7 +136,7 @@ export default function Hero({ reduced }) {
       return Math.min(0.7, (right - st.getBoundingClientRect().left) / Math.max(1, st.clientWidth));
     };
     const textBottom = () => Math.min(0.72, (hud.current.getBoundingClientRect().bottom - st.getBoundingClientRect().top) / Math.max(1, st.clientHeight));
-    const options = () => ({ width: st.clientWidth, height: st.clientHeight, dpr: window.devicePixelRatio || 1, textRight: textRight(), textBottom: textBottom(), reduced, query: location.search, screenSrc: SCREEN, portraitSrc: PORTRAIT, frames: FRAMES, copy: COPY });
+    const options = () => ({ width: st.clientWidth, height: st.clientHeight, dpr: window.devicePixelRatio || 1, textRight: textRight(), textBottom: textBottom(), reduced, query: location.search, screenSrc: SCREEN, portraitSrc: PORTRAIT, frames: FRAMES, album: ALBUM.length, copy: COPY });
     const up = () => {
       sync(); room("setActive", !document.hidden);
       if (location.search.includes("roomdebug")) window.__room = { // for automated click tests
@@ -175,8 +179,13 @@ export default function Hero({ reduced }) {
         })
         .catch((e) => { if (location.search.includes("roomdebug")) console.error("room failed:", e); }); // no WebGL after all: the hero stays tagline-on-sky
     };
-    // The room is an enhancement on top of a finished hero: start it only once the page has loaded and is idle.
-    const later = () => { if (!location.search.includes("noroom")) idle = window.requestIdleCallback ? requestIdleCallback(start, { timeout: 2000 }) : setTimeout(start, 200); };
+    // The room is an enhancement on top of a finished hero: start it once the page has loaded. Building it in a worker
+    // costs the page nothing, so that starts straight away; the main-thread fallback also waits for idle time.
+    const later = () => {
+      if (location.search.includes("noroom")) return;
+      if (workerMaybe()) start();
+      else idle = window.requestIdleCallback ? requestIdleCallback(start, { timeout: 2000 }) : setTimeout(start, 200);
+    };
     if (document.readyState === "complete") later(); else window.addEventListener("load", later, { once: true });
 
     // pointer: coalesced to one message a frame
@@ -189,7 +198,7 @@ export default function Hero({ reduced }) {
     const onMove = (e) => { if (e.pointerType === "touch") return; ptrEvt = { x: e.clientX, y: e.clientY, ui: !!e.target.closest("a, button, h1, p") }; if (!ptrRaf) ptrRaf = requestAnimationFrame(flush); };
     const onLeave = () => { ptrEvt = null; room?.("leave"); };
     const onClick = (e) => { if (!e.target.closest("a, button")) room?.("click", ...ndc(e.clientX, e.clientY)); };
-    const onKey = (e) => { if (e.key === "Escape") room?.("leaveWatch"); };
+    const onKey = (e) => { if (e.key === "Escape") { setShown(null); room?.("leaveWatch"); } };
     const onVis = () => room?.("setActive", !document.hidden && inView);
     let inView = true;
     const ro = new ResizeObserver(() => { room?.("layout", textRight(), textBottom()); room?.("resize", st.clientWidth, st.clientHeight, window.devicePixelRatio || 1); });
@@ -257,6 +266,11 @@ export default function Hero({ reduced }) {
         )}
         {mode === "phone" && (
           <div className="lv-watchcap lv-carcap"><b>POCO M4 Pro</b><span>My phone. Got a project? {touch ? "Tap" : "Click"} to message me.</span></div>
+        )}
+        {shown != null && (
+          <button type="button" className="lv-album" onClick={() => setShown(null)} aria-label="Close photo">
+            <img src={ALBUM[shown]} alt="" />
+          </button>
         )}
         {mode === "car" && CARS[car] && (
           <div className="lv-watchcap lv-carcap"><b>{CARS[car][0]}</b><span>{CARS[car][1]} {touch ? "Tap" : "Click"} to go back.</span></div>
