@@ -55,7 +55,7 @@ const nextFrame = (cb) => (globalThis.requestAnimationFrame ? globalThis.request
 const stopFrame = (id) => (globalThis.cancelAnimationFrame ? globalThis.cancelAnimationFrame(id) : clearTimeout(id));
 const makeCanvas = (w, h) => (typeof OffscreenCanvas !== "undefined" ? new OffscreenCanvas(w, h) : Object.assign(document.createElement("canvas"), { width: w, height: h }));
 
-export async function createPixelRoom({ canvas, width, height, dpr = 1, textRight = 0.46, textBottom = 0.45, reduced = false, query = "", screenSrc, portraitSrc, frames = [], album = 0, copy = {}, ui, signal }) {
+export async function createPixelRoom({ canvas, width, height, dpr = 1, textRight = 0.46, textBottom = 0.45, reduced = false, query = "", screenSrc, portraitSrc, frames = [], album = 0, papers = 0, copy = {}, ui, signal }) {
   let dirty = true, shadowsDirty = true, gone = false; // first: async callbacks (texture loads) may set these mid-construction
   const Q = new URLSearchParams(query);
   const hourOverride = Q.has("h") ? +Q.get("h") : null;
@@ -294,6 +294,12 @@ void main(){
     pane.position.copy(g.localToWorld(new V3(0, 0, 0.001))); pane.quaternion.copy(g.quaternion);
     return proxy(0.16, h + 0.08, w + 0.08, x, y, z);
   });
+  // the two IEEE papers, framed on the left wall above the PC: a printed page with the IEEE-blue band (click: title, venue, link)
+  const paperMat = frameMat(paintTex(12, 16, (set, rect) => { rect(0, 0, 12, 16, "#f4f1ea"); rect(0, 0, 12, 2, "#00629b"); for (let r = 0; r < 6; r++) rect(1, 4 + r * 2, r ? 9 - (r % 3) : 10, 1, r ? "#aaa69e" : "#3a3d47"); }));
+  const paperFrames = [-2.5, -1.82].slice(0, papers).map((z) => {
+    box(0.05, 0.64, 0.5, C.ink, -2.97, 2.55, z);
+    const m = mesh(new THREE.PlaneGeometry(0.42, 0.56), paperMat, -2.935, 2.55, z, scene); m.rotation.y = Math.PI / 2; m.castShadow = false; return m;
+  });
   // laptops: base, keyboard, touchpad, a lid on a hinge, a painted screen. Built facing +z (the user), then turned into place.
   const laptop = (x, y, z, ry, w, d, shell, deck, keys, tex, tilt = 0.3) => {
     const g = new THREE.Group(); g.position.set(x, y, z); g.rotation.y = ry; scene.add(g);
@@ -530,7 +536,7 @@ void main(){
     m.userData = { n, win, len, box3, seed: Array.from({ length: n }, () => [Math.random(), Math.random(), Math.random()]) };
     scene.add(m); return m;
   };
-  const rainIn = rainSystem(26, true, 0.35), rainOut = rainSystem(900, false, 1.4, [[-44, 20], [-30, 12], [-6, 40]]);
+  const rainIn = rainSystem(26, true, 0.35), rainOut = rainSystem(900, false); // outside: spread over whatever the camera sees (updateRain)
 
   // the room is the open top-right corner of a block one room deep; it fades in as the camera pulls back
   const CELL = { w: 6.3, h: 5.8 }, COLS = 5, FLOORS = 4;
@@ -624,14 +630,14 @@ void main(){
   /* ---------- the visitor's local time ---------- */
   const now = () => { const d = new Date(); if (hourOverride != null) d.setHours(Math.floor(hourOverride), Math.round((hourOverride % 1) * 60)); return d; };
   const col = (a, b, t) => new THREE.Color(a).lerp(new THREE.Color(b), t);
-  let ENV;
+  let ENV, weather = null;
   function applyEnv() {
     const d = now(), h = d.getHours() + d.getMinutes() / 60;
     let i = 0; while (h >= KEYS[i + 1][0]) i++;
     const A = KEYS[i], B = KEYS[i + 1], t = (h - A[0]) / (B[0] - A[0]);
     ENV = { hour: h, sky: col(A[1], B[1], t), sunI: lerp(A[3], B[3], t), elev: lerp(A[4], B[4], t), lamp: lerp(A[5], B[5], t), hI: lerp(A[8], B[8], t), stars: lerp(A[9], B[9], t), disc: col(A[10], B[10], t) };
     ENV.night = ENV.stars > 0.5;
-    ENV.rain = Q.has("rain") ? Q.get("rain") !== "0" : ENV.stars > 0.7;
+    ENV.rain = Q.has("rain") ? Q.get("rain") !== "0" : !!weather?.rain; // it rains when it's raining in Dhaka (Hero passes /api/weather in)
     scene.background = bgTex || ENV.sky; skyKey = ""; paintSky(reduced ? 0 : performance.now() / 1000);
     const el = degToRad(ENV.elev);
     sky.position.set(1.5 - Math.cos(el) * 6, 1.5 + Math.sin(el) * 20, -3 - Math.cos(el) * 20); sky.color.copy(col(A[2], B[2], t)); sky.intensity = ENV.sunI;
@@ -714,7 +720,7 @@ void main(){
   const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
   const clickables = [["screen", [screen]], ["watch", [watch]], ["mug", [mug, handle, coffee]], ["lamp", [shade, bulb, la1, la2]], ["plant", [plant]], ["me", [me]],
     ["trophy", [pTrophy]], ["degree", [pDegree]], ["frames", shots], ["phone", [phone]], ["cat", [cat]], ["duck", [duck]], ["photo", [photo]], ["pc", [pPC]], ["loq", [loq.g]], ["asus", [asus.g]], ["hp", [hp.g]], ["retro", [pRetro]],
-    ...albumFrames.map((p, i) => [`album${i}`, [p]])];
+    ...albumFrames.map((p, i) => [`album${i}`, [p]]), ...paperFrames.map((p, i) => [`paper${i}`, [p]])];
   const owns = (o) => clickables.some(([, objs]) => objs.some((c) => { for (let p = o; p; p = p.parent) if (p === c) return true; return false; }));
   function pick(nx, ny) {
     ndc.set(nx, ny); ray.setFromCamera(ndc, cam);
@@ -738,6 +744,7 @@ void main(){
     plant: new V3(2.45, 1.55, -2.35), me: new V3(0.32, 2.5, -1.1), trophy: new V3(-2.78, TROPHY_Y + 0.62, 0), degree: new V3(0.24, 4.06, -2.9), frames: new V3(-2.9, 3.62, 1.55), phone: new V3(1.95, DESK_Y + 0.32, -1.85),
     cat: new V3(2.3, WY0 + 0.86, -2.7), duck: new V3(2.03, DESK_Y + 0.42, -2.36), photo: new V3(-2.9, 3.3, -0.4), pc: new V3(PC.x + 0.3, 1.28, PC.z + 0.3), loq: new V3(1.4, DESK_Y + 0.78, -2.35),
     asus: new V3(-2.5, 1.18, 1.95), hp: new V3(-2.5, 1.1, 2.6), retro: new V3(-2.45, 1.38, 1.05),
+    ...Object.fromEntries(paperFrames.map((m, i) => [`paper${i}`, new V3(-2.9, 2.95, m.position.z + 0.18)])),
   };
   const sparkGeo = mergeGeometries([new THREE.BoxGeometry(0.24, 0.05, 0.01), new THREE.BoxGeometry(0.05, 0.24, 0.01)]), sparkMat = basic("#ffffff", { transparent: true, depthTest: false, depthWrite: false });
   const hints = Object.entries(ANCHORS).map(([name, p], i) => { const m = fx(new THREE.Mesh(sparkGeo, sparkMat)); m.position.copy(p); m.visible = false; m.userData = { name, i }; scene.add(m); return m; });
@@ -785,6 +792,7 @@ void main(){
     else if (n === "retro") { crtT = 3; ui.toast("PS2 Slim. Still plugged in."); }
     else if (n === "photo") ui.toast("That’s me, give or take a few pixels.");
     else if (n.startsWith("album")) ui.album(+n.slice(5));
+    else if (n.startsWith("paper")) ui.paper(+n.slice(5));
     dirty = shadowsDirty = true; return true;
   }
 
@@ -810,15 +818,26 @@ void main(){
     return wave > 0 || Math.abs(sleepK - before) > 0.0005;
   }
 
+  // Outside, drops fill a slab across the camera's view, so every shot rains edge to edge, not one patch of the map.
+  // The camera is orthographic: a drop's depth doesn't move it on screen, so drops spread in depth and the
+  // buildings in front of them still hide some. Length and speed follow the view, so rain reads the same at any zoom.
+  const _r = new V3(), _u = new V3(), _f = new V3(), _o = new V3();
   function updateRain(sys, on, a, t) {
     sys.visible = on && a > 0.01; if (!sys.visible) return;
-    const { n, win, len, box3, seed } = sys.userData, arr = sys.geometry.attributes.position.array;
+    const { n, win, seed } = sys.userData, arr = sys.geometry.attributes.position.array;
     sys.material.opacity = (win ? 0.5 : 0.55) * a;
+    let len = sys.userData.len, span = 0, vw = 0;
+    if (!win) {
+      _r.set(1, 0, 0).applyQuaternion(cam.quaternion); _u.set(0, 1, 0).applyQuaternion(cam.quaternion); _f.set(0, 0, -1).applyQuaternion(cam.quaternion);
+      const vh = cam.top - cam.bottom; vw = (cam.right - cam.left) * 1.06;
+      _o.copy(cam.position).addScaledVector(_r, (cam.left + cam.right) / 2).addScaledVector(_u, (cam.top + cam.bottom) / 2).addScaledVector(_f, CAMD); // centre of the view, on the target's plane
+      span = (vh * 1.1) / Math.max(0.3, _u.y); len = vh * 0.028; // world height that covers the screen at this tilt
+    }
     for (let i = 0; i < n; i++) {
       const s = seed[i];
       if (win) _a.set(WX0 + s[0] * (WX1 - WX0), WY1 + 0.3 - ((s[1] * 2.3 + t * 6) % 2.3), -3.32); // a thin sheet just outside the glass
-      else { const [X, Yb, Z] = box3; _a.set(X[0] + s[0] * (X[1] - X[0]), Yb[1] - ((s[1] * (Yb[1] - Yb[0]) + t * 9) % (Yb[1] - Yb[0])), Z[0] + s[2] * (Z[1] - Z[0])); }
-      arr[i * 6] = _a.x; arr[i * 6 + 1] = _a.y; arr[i * 6 + 2] = _a.z; arr[i * 6 + 3] = _a.x - 0.05; arr[i * 6 + 4] = _a.y - len; arr[i * 6 + 5] = _a.z;
+      else { _a.copy(_o).addScaledVector(_r, (s[0] - 0.5) * vw).addScaledVector(_f, (s[2] - 0.5) * 60); _a.y += span / 2 - ((s[1] + t * 0.8) % 1) * span; }
+      arr[i * 6] = _a.x; arr[i * 6 + 1] = _a.y; arr[i * 6 + 2] = _a.z; arr[i * 6 + 3] = _a.x - len * 0.04; arr[i * 6 + 4] = _a.y - len; arr[i * 6 + 5] = _a.z;
     }
     sys.geometry.attributes.position.needsUpdate = true;
   }
@@ -980,6 +999,7 @@ void main(){
       if (mode === "car" && Math.abs(q - carScroll) > 0.015) go("room"); // scrolling away ends the close-up
     },
     setActive(v) { active = v; },
+    setWeather(w) { weather = w; applyEnv(); },
     /* pointer over the stage: tx,ty steer the camera (-1..1 across the stage); nx,ny are NDC on the canvas for picking */
     pointer(tx, ty, nx, ny, overUi) {
       ptr.tx = tx; ptr.ty = ty; ptr.inside = true; ptr.last = performance.now();

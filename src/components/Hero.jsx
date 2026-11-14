@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { profile } from "../data/profile.js";
 
 /* Hero = tagline in front of the pixel room. The room (pixelRoom.js) is three.js and
    never runs during first paint: after the page has loaded it starts inside a worker
@@ -15,7 +16,7 @@ const PORTRAIT = "/taif-portrait-480.webp"; // the About photo, hung on the room
 const FRAMES = ["proctorless", "autohub-premium", "luxeglow-spa", "solar-panel"].map((id) => `/projects/shots/${id}-800.webp`);
 const ALBUM = [1, 2, 3, 4, 5].map((n) => `/room/${n}.jpg`); // the photos on the little table: fetched only when a frame is clicked
 const COPY = { trophy: "Winner, Algorithm Project Showcase · TechFest", degree: "B.Sc. in Computer Science, 2026" };
-const LABELS = { screen: "Step inside", watch: "Your time", mug: "Coffee", lamp: "Lamp", plant: "Plant", me: "Say hi", trophy: "Trophy", degree: "Degree", frames: "See my work", phone: "My phone", cat: "Cat", duck: "Rubber duck", photo: "That’s me", pc: "My PC", loq: "Lenovo LOQ", asus: "ASUS X556UF", hp: "HP Pavilion 14", retro: "PS2 Slim" };
+const LABELS = { screen: "Step inside", watch: "Your time", mug: "Coffee", lamp: "Lamp", plant: "Plant", me: "Say hi", trophy: "Trophy", degree: "Degree", frames: "See my work", phone: "My phone", cat: "Cat", duck: "Rubber duck", photo: "That’s me", pc: "My PC", loq: "Lenovo LOQ", asus: "ASUS X556UF", hp: "HP Pavilion 14", retro: "PS2 Slim", paper0: "Research paper", paper1: "Research paper" };
 const CARS = { jeep: ["2005 Jeep Liberty", "Sold as the Cherokee outside North America."], crv: ["1999 Honda CR-V", "The first generation."] };
 const greet = (h) => (h >= 5 && h < 12 ? "Good morning" : h >= 12 && h < 17 ? "Good afternoon" : h >= 17 && h < 23 ? "Good evening" : "You’re up late");
 
@@ -52,7 +53,7 @@ export default function Hero({ reduced }) {
   const [hello, setHello] = useState("");
   const [watch, setWatch] = useState("");
   const [toast, setToast] = useState(null);
-  const [shown, setShown] = useState(null); // index into ALBUM while one is open
+  const [shown, setShown] = useState(null); // { img } or { paper } while a photo or a paper is open
   const [touch, setTouch] = useState(false);
   const [epoch, setEpoch] = useState(0); // a new canvas element after a worker gave its one back unused
 
@@ -124,7 +125,8 @@ export default function Hero({ reduced }) {
       go: (hash) => document.querySelector(hash)?.scrollIntoView({ behavior: reduced ? "auto" : "smooth" }),
       dive: land,
       ready: () => setReady(true),
-      album: (i) => setShown(i),
+      album: (i) => setShown({ img: ALBUM[i] }),
+      paper: (i) => setShown({ paper: profile.publications[i] }),
       probe: (id, name) => { probes.get(id)?.(name); probes.delete(id); },
       fail: (msg) => { if (location.search.includes("roomdebug")) console.error("room failed:", msg); }, // the worker couldn't build the room
     };
@@ -136,9 +138,13 @@ export default function Hero({ reduced }) {
       return Math.min(0.7, (right - st.getBoundingClientRect().left) / Math.max(1, st.clientWidth));
     };
     const textBottom = () => Math.min(0.72, (hud.current.getBoundingClientRect().bottom - st.getBoundingClientRect().top) / Math.max(1, st.clientHeight));
-    const options = () => ({ width: st.clientWidth, height: st.clientHeight, dpr: window.devicePixelRatio || 1, textRight: textRight(), textBottom: textBottom(), reduced, query: location.search, screenSrc: SCREEN, portraitSrc: PORTRAIT, frames: FRAMES, album: ALBUM.length, copy: COPY });
+    const options = () => ({ width: st.clientWidth, height: st.clientHeight, dpr: window.devicePixelRatio || 1, textRight: textRight(), textBottom: textBottom(), reduced, query: location.search, screenSrc: SCREEN, portraitSrc: PORTRAIT, frames: FRAMES, album: ALBUM.length, papers: profile.publications.length, copy: COPY });
+    // the real weather in Dhaka (api/weather.js, cached at the edge), checked again every 15 minutes; no answer means no rain
+    const weather = () => fetch("/api/weather").then((r) => (r.ok ? r.json() : null)).then((w) => w && room?.("setWeather", w)).catch(() => {});
+    let wTimer = 0;
     const up = () => {
       sync(); room("setActive", !document.hidden);
+      weather(); clearInterval(wTimer); wTimer = setInterval(weather, 15 * 60e3);
       if (location.search.includes("roomdebug")) window.__room = { // for automated click tests
         pick: (x, y) => new Promise((res) => { probes.set(++probeId, res); room("probe", probeId, ...ndc(x, y)); }),
         get mode() { return modeNow; }, worker: !!worker,
@@ -197,7 +203,7 @@ export default function Hero({ reduced }) {
     };
     const onMove = (e) => { if (e.pointerType === "touch") return; ptrEvt = { x: e.clientX, y: e.clientY, ui: !!e.target.closest("a, button, h1, p") }; if (!ptrRaf) ptrRaf = requestAnimationFrame(flush); };
     const onLeave = () => { ptrEvt = null; room?.("leave"); };
-    const onClick = (e) => { if (!e.target.closest("a, button")) room?.("click", ...ndc(e.clientX, e.clientY)); };
+    const onClick = (e) => { if (!e.target.closest("a, button, .lv-album")) room?.("click", ...ndc(e.clientX, e.clientY)); };
     const onKey = (e) => { if (e.key === "Escape") { setShown(null); room?.("leaveWatch"); } };
     const onVis = () => room?.("setActive", !document.hidden && inView);
     let inView = true;
@@ -214,7 +220,7 @@ export default function Hero({ reduced }) {
     document.addEventListener("visibilitychange", onVis);
     sync();
     return () => {
-      dead = true; ac.abort();
+      dead = true; ac.abort(); clearInterval(wTimer);
       window.removeEventListener("load", later);
       (window.cancelIdleCallback || clearTimeout)(idle);
       cancelAnimationFrame(ptrRaf);
@@ -267,10 +273,16 @@ export default function Hero({ reduced }) {
         {mode === "phone" && (
           <div className="lv-watchcap lv-carcap"><b>POCO M4 Pro</b><span>My phone. Got a project? {touch ? "Tap" : "Click"} to message me.</span></div>
         )}
-        {shown != null && (
-          <button type="button" className="lv-album" onClick={() => setShown(null)} aria-label="Close photo">
-            <img src={ALBUM[shown]} alt="" />
-          </button>
+        {shown && (
+          <div className="lv-album" onClick={() => setShown(null)}>
+            {shown.img ? <img src={shown.img} alt="" /> : (
+              <div className="lv-print">
+                <span>{shown.paper.venue}</span>
+                <b>{shown.paper.title}</b>
+                <a href={shown.paper.url} target="_blank" rel="noopener noreferrer">Read it on IEEE Xplore ↗</a>
+              </div>
+            )}
+          </div>
         )}
         {mode === "car" && CARS[car] && (
           <div className="lv-watchcap lv-carcap"><b>{CARS[car][0]}</b><span>{CARS[car][1]} {touch ? "Tap" : "Click"} to go back.</span></div>

@@ -18,7 +18,8 @@
 .lv ::selection { background: var(--signal); color: #fff; }
 .lv :focus-visible { outline: 2px solid var(--signal-deep); outline-offset: 3px; border-radius: 4px; }
 .lv a { color: inherit; text-underline-offset: 0.2em; }
-html { scrollbar-color: var(--ink-2) var(--paper-2); }
+html { scrollbar-width: none; } /* no page scrollbar: the progress bar under the header shows where you are */
+html::-webkit-scrollbar { display: none; }
 
 .lv-wrap { width: var(--wrap); margin-inline: auto; }
 .lv-muted { color: var(--stone); }
@@ -463,6 +464,10 @@ html { scrollbar-color: var(--ink-2) var(--paper-2); }
 .lv-watchcap span { font: 0.72rem/1.7 var(--font-pixel); opacity: 0.85; }
 /* a photo from the little table under the portrait, shown as a print while its frame is clicked */
 .lv-album { position: absolute; inset: 0; z-index: 4; display: grid; place-items: center; border: 0; padding: 0; background: rgb(8 8 14 / 0.6); cursor: zoom-out; animation: lv-fade 0.3s var(--ease-out) both; }
+.lv-print { display: grid; gap: 0.6rem; max-width: min(34rem, 86vw); padding: 1.5rem 1.75rem 1.4rem; background: var(--paper); color: var(--ink); border-top: 10px solid #00629b; box-shadow: 0 24px 60px rgb(0 0 0 / 0.5); transform: rotate(-1deg); text-align: left; cursor: default; }
+.lv-print span { font: 0.72rem/1.4 var(--font-pixel); color: #00629b; }
+.lv-print b { font: 600 clamp(1.15rem, 1rem + 0.8vw, 1.6rem)/1.2 var(--font-display); letter-spacing: -0.01em; }
+.lv-print a { justify-self: start; margin-top: 0.4rem; font-weight: 600; color: var(--signal-deep); }
 .lv-album img { max-width: 86vw; max-height: 72vh; width: auto; height: auto; padding: 10px 10px 30px; background: var(--paper); box-shadow: 0 24px 60px rgb(0 0 0 / 0.5); transform: rotate(-1.5deg); }
 .lv-dive { position: fixed; inset: 0; z-index: 80; display: none; background: var(--paper); transition: opacity 0.45s var(--ease-out); }
 .lv-dive canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
