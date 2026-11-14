@@ -143,9 +143,20 @@ function LivePreview({ src }) {
   );
 }
 
+/* The sites run on this page's own main thread (same origin), so only one is ever live: a new preview closes the last,
+   and leaving a card unloads its site. Going live waits until the pointer has rested on the card and the page has
+   stopped scrolling, so cards sliding under a still mouse during the rail never load. */
+let unplug = null, scrolledAt = 0;
+if (typeof window !== "undefined") addEventListener("scroll", () => (scrolledAt = performance.now()), { passive: true });
+
 function Browser({ p, eager, live }) {
   const [on, setOn] = useState(false);
-  const wake = live && canHover ? { onPointerEnter: () => setOn(true), onFocus: () => setOn(true) } : {};
+  const wait = useRef(0), off = useRef(() => setOn(false)).current;
+  const go = () => { if (unplug !== off) unplug?.(); unplug = off; setOn(true); };
+  const settle = () => { clearTimeout(wait.current); wait.current = setTimeout(() => (performance.now() - scrolledAt < 500 ? settle() : go()), 500); };
+  const leave = () => { clearTimeout(wait.current); off(); if (unplug === off) unplug = null; };
+  useEffect(() => leave, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const wake = live && canHover ? { onPointerEnter: settle, onPointerLeave: leave, onFocus: go } : {};
   return (
     <div className={`lv-browser${on ? " is-live" : ""}`} {...wake}>
       <div className="lv-chrome" aria-hidden="true">
