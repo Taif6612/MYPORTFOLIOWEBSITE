@@ -25,12 +25,17 @@
    ========================================================================= */
 
 import type { RouteRecord } from "vite-react-ssg";
+import RouteError from "./pages/RouteError";
+
+// files from an earlier deploy (an open tab, a back-button page) reload once instead of breaking: see RouteError
+const errorElement = <RouteError />;
 
 export const routes: RouteRecord[] = [
-  { path: "/", lazy: () => import("./pages/HomeRoute") },
-  { path: "/guides", lazy: () => import("./pages/GuidesIndex") },
+  { path: "/", errorElement, lazy: () => import("./pages/HomeRoute") },
+  { path: "/guides", errorElement, lazy: () => import("./pages/GuidesIndex") },
   {
     path: "/guides/tag/:tag",
+    errorElement,
     lazy: () => import("./pages/TagPage"),
     getStaticPaths: async () => {
       const { getAllTags, tagPath } = await import("./cms/content");
@@ -39,12 +44,13 @@ export const routes: RouteRecord[] = [
   },
   {
     path: "/guides/:slug",
+    errorElement,
     lazy: () => import("./pages/GuidePost"),
     getStaticPaths: async () => {
       const { allGuides, guidePath } = await import("./cms/content");
       return allGuides.map((g) => guidePath(g.slug));
     },
   },
-  { path: "/404", lazy: () => import("./pages/NotFound") },
-  { path: "*", lazy: () => import("./pages/NotFound") },
+  { path: "/404", errorElement, lazy: () => import("./pages/NotFound") },
+  { path: "*", errorElement, lazy: () => import("./pages/NotFound") },
 ];
