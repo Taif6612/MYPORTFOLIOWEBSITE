@@ -43,6 +43,9 @@ function gpuIsHardware() {
 /* Could a worker draw the room? A feature test only, no WebGL context: the worker checks the
    GPU itself and asks for the main-thread fallback if it has no WebGL (Safari before 17 has the
    transferable canvas but not WebGL on it). `?roommain` forces the fallback. */
+// lift the boot screen in index.html: the room is up, or it is not going to run
+const boot = () => window.__bootDone?.();
+
 const workerMaybe = () => !location.search.includes("roommain") && typeof Worker !== "undefined" && typeof OffscreenCanvas !== "undefined" && "transferControlToOffscreen" in HTMLCanvasElement.prototype;
 
 export default function Hero({ reduced }) {
@@ -125,12 +128,12 @@ export default function Hero({ reduced }) {
       hover: (name, label) => { st.style.cursor = name ? "pointer" : ""; const el = tip.current, text = name ? label || LABELS[name] || "" : ""; if (text) el.textContent = text; el.classList.toggle("is-on", !!text); }, // unlabelled things (the photo frames) get only the cursor
       go: (hash) => document.querySelector(hash)?.scrollIntoView({ behavior: reduced ? "auto" : "smooth" }),
       dive: land,
-      ready: () => setReady(true),
+      ready: () => { setReady(true); boot(); },
       sound: (name) => play(name),
       album: (i) => setShown({ img: ALBUM[i] }),
       paper: (i) => setShown({ paper: profile.publications[i] }),
       probe: (id, name) => { probes.get(id)?.(name); probes.delete(id); },
-      fail: (msg) => { if (location.search.includes("roomdebug")) console.error("room failed:", msg); }, // the worker couldn't build the room
+      fail: (msg) => { boot(); if (location.search.includes("roomdebug")) console.error("room failed:", msg); }, // the worker couldn't build the room
     };
 
     // the right edge of the tagline's actual text (nowrap lines can run past their box), as a fraction of the stage
@@ -159,7 +162,7 @@ export default function Hero({ reduced }) {
       }
       if (worker) {
         worker.onmessage = ({ data }) => {
-          if (data.ui === "gpu") { worker.terminate(); worker = null; room = null; if (data.a[0] === "none") mainThread(true); return; } // "software": keep the plain hero
+          if (data.ui === "gpu") { worker.terminate(); worker = null; room = null; if (data.a[0] === "none") mainThread(true); else boot(); return; } // "software": keep the plain hero
           ui[data.ui]?.(...data.a);
         };
         const off = canvas.transferControlToOffscreen(); // from here the canvas belongs to the worker
@@ -172,7 +175,8 @@ export default function Hero({ reduced }) {
     };
     // The same module on the main thread. If a worker had the canvas, render a fresh element first (a transferred canvas can't come back).
     const mainThread = (fresh) => {
-      if (dead || !gpuIsHardware()) return;
+      if (dead) return;
+      if (!gpuIsHardware()) { boot(); return; } // a software GPU keeps the plain hero
       if (fresh) { setEpoch((e) => e + 1); requestAnimationFrame(() => requestAnimationFrame(() => { canvas = cv.current; build(); })); } else build();
     };
     const build = () => {
@@ -185,12 +189,12 @@ export default function Hero({ reduced }) {
           mainRoom = r; room = (method, ...a) => r[method]?.(...a);
           up();
         })
-        .catch((e) => { if (location.search.includes("roomdebug")) console.error("room failed:", e); }); // no WebGL after all: the hero stays tagline-on-sky
+        .catch((e) => { boot(); if (location.search.includes("roomdebug")) console.error("room failed:", e); }); // no WebGL after all: the hero stays tagline-on-sky
     };
     // The room is an enhancement on top of a finished hero: start it once the page has loaded. Building it in a worker
     // costs the page nothing, so that starts straight away; the main-thread fallback also waits for idle time.
     const later = () => {
-      if (location.search.includes("noroom")) return;
+      if (location.search.includes("noroom")) { boot(); return; }
       if (workerMaybe()) start();
       else idle = window.requestIdleCallback ? requestIdleCallback(start, { timeout: 2000 }) : setTimeout(start, 200);
     };
