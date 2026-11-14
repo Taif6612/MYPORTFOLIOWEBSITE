@@ -169,6 +169,28 @@ export async function buildStreet({ scene, grad, G, front, right, light, pause =
     b.box(0.2, 0.28, 1.84, GR, -2.2, 0.55, 0); // rear bumper
     b.cyl(0.365, 0.22, TYRE, -2.36, 0.98, 0.15, "x", 14); b.cyl(0.21, 0.24, "#c3c7cc", -2.36, 0.98, 0.15, "x", 12); b.cyl(0.06, 0.26, "#3a3d42", -2.36, 0.98, 0.15, "x", 8); // spare
     rim(b, AX[0], 0.365, 0.78, 0.235, 0.22, 6, "#c3c7cc", "#3a3d42", [0.05, 0.07]); rim(b, AX[1], 0.365, 0.78, 0.235, 0.22, 6, "#c3c7cc", "#3a3d42", [0.05, 0.07]);
+    // the finer KJ details: grille surround and badge, fog lamps and tow hooks, plates (the rear one lit), wipers front and
+    // back, door shuts, side markers, the fuel door, the mast antenna on the front wing, crossbars on the rails, mud flaps,
+    // the exhaust, the third brake lamp, the tailgate handle
+    for (const y of [0.985, 0.715]) b.box(0.03, 0.03, 0.8, "#c9ccc8", 2.226, y, 0); for (const s of [-1, 1]) b.box(0.03, 0.3, 0.03, "#c9ccc8", 2.226, 0.85, s * 0.385);
+    b.box(0.02, 0.035, 0.12, CHROME, 2.244, 0.985, 0);
+    for (const s of [-1, 1]) {
+      b.cyl(0.055, 0.02, "#2a2c30", 2.326, 0.5, s * 0.6, "x", 10); b.cyl(0.042, 0.022, "#e9eef3", 2.332, 0.5, s * 0.6, "x", 10); g.cyl(0.042, 0.022, HEAD, 2.338, 0.5, s * 0.6, "x", 10);
+      b.box(0.08, 0.05, 0.06, BLK, 2.33, 0.4, s * 0.45);
+      b.box(0.02, 0.02, 0.55, BLK, 0.87, 1.175, s * 0.3);
+      for (const x of [0.62, -0.38, -1.3]) b.box(0.012, 0.62, 0.02, "#c4c7c3", x, 0.84, s * 0.893);
+      b.box(0.08, 0.04, 0.02, "#f0a02a", 2.06, 0.62, s * 0.935); b.box(0.08, 0.04, 0.02, TAIL, -2.12, 0.62, s * 0.925);
+      for (const ax of AX) b.box(0.02, 0.22, 0.16, BLK, ax - 0.6, 0.27, s * 0.8);
+    }
+    b.box(0.14, 0.12, 0.012, "#dcdfdb", -1.62, 0.95, 0.893); // fuel door
+    b.geo(new THREE.BoxGeometry(0.014, 0.75, 0.014).rotateZ(0.12), BLK, 1.55, 1.47, 0.86); // mast antenna
+    for (const x of [-0.4, -1.5]) b.box(0.05, 0.035, 1.42, "#2b2d31", x, 1.865, 0); // crossbars
+    b.box(0.015, 0.11, 0.32, "#f2efe6", 2.327, 0.6, 0); b.box(0.017, 0.022, 0.24, "#2d3546", 2.328, 0.6, 0); // front plate
+    b.box(0.015, 0.15, 0.3, "#f2efe6", -2.225, 0.78, -0.48); b.box(0.017, 0.03, 0.22, "#2d3546", -2.226, 0.78, -0.48); g.box(0.02, 0.02, 0.1, "#fff3c4", -2.228, 0.87, -0.48); // rear plate, its lamp
+    b.box(0.02, 0.04, 0.16, CHROME, -2.222, 1.1, -0.48); // tailgate handle
+    b.geo(new THREE.BoxGeometry(0.02, 0.42, 0.02).rotateX(0.6), BLK, -2.214, 1.36, -0.05); // rear wiper
+    b.box(0.03, 0.04, 0.34, TAIL, -2.205, 1.715, 0); g.box(0.03, 0.04, 0.34, RED, -2.212, 1.715, 0); // third brake lamp
+    b.cyl(0.035, 0.18, "#4a4d52", -2.28, 0.3, -0.55, "x", 8); // exhaust
     b.box(4.4, 0.004, 1.95, "#1b1c21", 0, 0.016, 0); // contact shadow
   };
 
@@ -198,8 +220,27 @@ export async function buildStreet({ scene, grad, G, front, right, light, pause =
     }
     b.box(0.02, 0.12, 0.72, BLK, 2.245, 0.8, 0); b.box(0.02, 0.07, 0.09, CHROME, 2.258, 0.8, 0); // grille and the H
     b.box(0.22, 0.4, 1.76, CH, 2.17, 0.52, 0); b.box(0.02, 0.1, 0.9, BLK, 2.282, 0.45, 0); // front bumper, intake
-    b.box(0.2, 0.36, 1.76, CH, -2.18, 0.52, 0); b.box(0.02, 0.11, 0.3, "#e8e2cf", -2.24, 0.78, 0); // rear bumper, plate
+    b.box(0.2, 0.36, 1.76, CH, -2.18, 0.52, 0); b.box(0.02, 0.11, 0.3, "#e8e2cf", -2.29, 0.6, 0); // rear bumper, plate
     rim(b, AX[0], 0.335, 0.75, 0.205, 0.215, 5, "#c7cbd2", "#2a2c31"); rim(b, AX[1], 0.335, 0.75, 0.205, 0.215, 5, "#c7cbd2", "#2a2c31");
+    // the finer RD1 details: the spare on the tailgate under its charcoal cover (the first generation's mark), grille slats,
+    // plates (the rear one lit), wipers front and back, door shuts, side markers, the antenna on the A-pillar, crossbars,
+    // mud flaps, the exhaust, the third brake lamp, the handle of the side-hinged tailgate
+    b.cyl(0.31, 0.24, "#2a2b2f", -2.36, 1.0, 0.05, "x", 16); b.cyl(0.24, 0.245, "#33353a", -2.36, 1.0, 0.05, "x", 14); b.box(0.02, 0.07, 0.11, CHROME, -2.484, 1.0, 0.05);
+    for (const y of [0.765, 0.835]) b.box(0.022, 0.014, 0.66, "#2a2c30", 2.247, y, 0);
+    for (const s of [-1, 1]) {
+      b.box(0.02, 0.02, 0.5, BLK, 0.97, 1.08, s * 0.28);
+      for (const x of [0.62, -0.4, -1.32]) b.box(0.012, 0.5, 0.02, "#6e0b11", x, 0.82, s * 0.852);
+      b.box(0.08, 0.04, 0.02, "#e98a2a", 2.05, 0.6, s * 0.884); b.box(0.08, 0.04, 0.02, TAIL, -2.1, 0.6, s * 0.884);
+      for (const ax of AX) b.box(0.02, 0.18, 0.14, BLK, ax - 0.52, 0.25, s * 0.78);
+    }
+    b.geo(new THREE.BoxGeometry(0.014, 0.7, 0.014).rotateZ(0.5), BLK, 0.74, 1.42, 0.8); // antenna
+    for (const x of [-0.5, -1.6]) b.box(0.05, 0.035, 1.42, BLK, x, 1.728, 0); // crossbars
+    b.box(0.015, 0.1, 0.3, "#f2efe6", 2.288, 0.58, 0); b.box(0.017, 0.02, 0.22, "#2d3546", 2.289, 0.58, 0); // front plate
+    b.box(0.017, 0.025, 0.2, "#2d3546", -2.296, 0.6, 0); g.box(0.02, 0.02, 0.1, "#fff3c4", -2.298, 0.68, 0); // rear plate's number, its lamp
+    b.box(0.02, 0.04, 0.14, CHROME, -2.24, 0.82, -0.62); // tailgate handle
+    b.geo(new THREE.BoxGeometry(0.02, 0.36, 0.02).rotateX(0.7), BLK, -2.224, 1.38, 0.35); // rear wiper
+    b.box(0.04, 0.035, 0.3, TAIL, -2.2, 1.6, 0); g.box(0.04, 0.035, 0.3, RED, -2.21, 1.6, 0); // third brake lamp
+    b.cyl(0.035, 0.18, "#4a4d52", -2.3, 0.28, 0.55, "x", 8); // exhaust
     b.box(4.3, 0.004, 1.9, "#1b1c21", 0, 0.016, 0);
   };
   // BMW 320d (F30), Estoril Blue, M Sport: twin kidneys, angel-eye headlamps, deep side intakes, L-shaped tail lamps
