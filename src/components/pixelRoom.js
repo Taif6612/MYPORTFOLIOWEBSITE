@@ -612,7 +612,7 @@ void main(){
   // (buildOutside, below): nobody sees them before scrolling. Their lamp is made now: a light added later would
   // recompile every lit shader in the room. `world` stays null until both are ready.
   const streetLamp = new THREE.PointLight("#ffd9a0", 0, 0, 2); scene.add(streetLamp);
-  let street = null, world = null;
+  let street = null, world = null, outsideErr = false;
 
   await pause();
   // ~300 static boxes → one vertex-coloured mesh: the whole room costs a handful of draw calls
@@ -883,7 +883,9 @@ void main(){
     bld.visible = reveal > 0; for (const m of bMats) m.color.copy(ENV.sky).lerp(m.userData.c, reveal);
     if (world) street.root.visible = world.root.visible = reveal > 0;
     if (!reduced && mode !== "site" && scrollP < 0.75) paintSky(t);
-    if (reveal > 0 && world) { world.update(t, ENV); street.update(t, ENV, dt, mode === "car" || (from && focusCar) ? focusCar : null); }
+    if (reveal > 0 && world) { // a bug in a moving part is reported once and skipped: it must never stop the frame being drawn
+      try { world.update(t, ENV); street.update(t, ENV, dt, mode === "car" || (from && focusCar) ? focusCar : null); } catch (e) { if (!outsideErr) { outsideErr = true; ui.fail(String(e)); } }
+    }
     updateRain(rainIn, ENV.rain && !reduced, 1, t); updateRain(rainOut, ENV.rain && !reduced, reveal, t);
     setV(tex, 0.7, 0.3 - (Math.sin(t * 0.12) * 0.5 + 0.5) * 0.3);
     outTex.offset.x = Math.round((0.1 + ptr.x * 0.06) * OUT) / OUT;

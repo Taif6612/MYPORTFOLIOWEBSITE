@@ -487,7 +487,7 @@ export async function buildWorld({ scene, grad, G, pause = async () => {} }) { /
     gMat.opacity = isNight ? 0.2 : 0.32;
     sea.forEach(([x, z, ph, T], i) => { const k = (t / T + ph) % 1, a = Math.sin(Math.PI * k) ** 2; glints.setMatrixAt(i, _gm.makeScale(0.15 + a * 1.1, 1, 1).setPosition(x + (k - 0.5) * 0.9, WY, z)); });
     ripples.forEach(([u0, side], i) => { // downstream is toward the sea (the start of the river's points)
-      const u = (u0 - t * 0.035 + 10) % 1, f = u * (river.length - 1) * 0.85, j = Math.floor(f), [x0, z0, h0] = river[j], [x1, z1, h1] = river[Math.min(j + 1, river.length - 1)], r = f - j;
+      const u = (((u0 - t * 0.035) % 1) + 1) % 1, f = u * (river.length - 1) * 0.85, j = Math.floor(f), [x0, z0, h0] = river[j], [x1, z1, h1] = river[Math.min(j + 1, river.length - 1)], r = f - j; // wrapped both ways: a plain % went negative after ~5 minutes and froze the map
       const a = Math.sin(Math.PI * ((u0 * 7 + t * 0.4) % 1)) ** 2;
       flow.setMatrixAt(i, _gm.makeScale(1, 1, 0.3 + a * 0.9).setPosition(x0 + (x1 - x0) * r + side * (h0 + (h1 - h0) * r), WY, z0 + (z1 - z0) * r));
     });
