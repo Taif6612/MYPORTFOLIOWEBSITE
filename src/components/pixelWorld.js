@@ -118,15 +118,15 @@ export async function buildWorld({ scene, grad, G, pause = async () => {} }) { /
   /* ---------- the water between: Burj Al Arab on its islet, a dhow, a container ship ---------- */
   let sail;
   { const X = -7, Z = -49.5; S.cyl(3.0, 0.5, SAND, X, Y + 0.25, Z, "y", 14);
-    const prof = new THREE.Shape([[0, 0], [0, 13], [0.6, 13], [1.9, 11.2], [3.0, 8.4], [3.6, 5.2], [3.7, 2], [3.6, 0]].map(([x, y]) => new THREE.Vector2(x, y)));
+    const prof = new THREE.Shape([[0, 0], [0, 11], [0.6, 11], [1.9, 9.5], [3.0, 7.1], [3.6, 4.4], [3.7, 1.7], [3.6, 0]].map(([x, y]) => new THREE.Vector2(x, y)));
     const g = new THREE.ExtrudeGeometry(prof, { depth: 2.4, bevelEnabled: false, curveSegments: 1 }).translate(-1.6, 0, -1.2).rotateY(-0.5);
     geo(g, WHITE, X, Y + 0.5, Z);
-    geo(new THREE.BoxGeometry(0.35, 14, 0.35).rotateY(-0.5), "#c9ced6", X - 1.6 * Math.cos(-0.5), Y + 7.5, Z + 1.6 * Math.sin(-0.5));
-    for (let i = 0; i < 4; i++) geo(new THREE.BoxGeometry(0.12, 3.6, 0.12).rotateX(i % 2 ? 0.5 : -0.5).rotateY(-0.5), "#c9ced6", X - 1.75 * Math.cos(-0.5), Y + 2.5 + i * 2.8, Z + 1.75 * Math.sin(-0.5));
-    S.cyl(1.0, 0.16, "#e6e6e6", X + 1.2, Y + 10.6, Z + 1.6, "y", 12);
+    geo(new THREE.BoxGeometry(0.35, 11, 0.35).rotateY(-0.5), "#c9ced6", X - 1.6 * Math.cos(-0.5), Y + 6.0, Z + 1.6 * Math.sin(-0.5));
+    for (let i = 0; i < 4; i++) geo(new THREE.BoxGeometry(0.12, 3.1, 0.12).rotateX(i % 2 ? 0.5 : -0.5).rotateY(-0.5), "#c9ced6", X - 1.75 * Math.cos(-0.5), Y + 2.2 + i * 2.4, Z + 1.75 * Math.sin(-0.5));
+    S.cyl(1.0, 0.16, "#e6e6e6", X + 1.2, Y + 9.1, Z + 1.6, "y", 12);
     sail = new THREE.Mesh(new THREE.ExtrudeGeometry(prof, { depth: 0.1, bevelEnabled: false, curveSegments: 1 }).translate(-1.55, 0, 1.22).rotateY(-0.5), new THREE.MeshBasicMaterial({ color: "#7fb8ff" }));
     sail.position.set(X, Y + 0.5, Z); sail.scale.set(0.96, 0.97, 1); root.add(sail);
-    pick("burjalarab", 5, 14, 5, X, Y + 7, Z);
+    pick("burjalarab", 5, 12, 5, X, Y + 6, Z);
   }
   const dhow = new THREE.Group(); dhow.position.set(-30, Y, -48.5); dhow.rotation.y = 0.3; root.add(dhow);
   { const k = kit(); const hull = new THREE.Shape([[-2.4, 0.9], [-1.8, 0], [1.8, 0], [2.8, 1.2], [2.4, 1.2], [1.9, 0.8], [-2.0, 0.8]].map(([x, y]) => new THREE.Vector2(x, y)));
@@ -152,7 +152,7 @@ export async function buildWorld({ scene, grad, G, pause = async () => {} }) { /
     pick("etihad", 7, 17, 6, X, Y + 8.5, Z);
   }
   { // Capital Gate: leaning 18 degrees, with its steel splash at the foot
-    const X = -15, Z = -55; geo(new THREE.BoxGeometry(2.3, 12, 2.3).translate(0, 6, 0).rotateZ(-0.32).rotateY(0.8), "#6f8daa", X, Y, Z);
+    const X = 8, Z = -57; geo(new THREE.BoxGeometry(2.3, 12, 2.3).translate(0, 6, 0).rotateZ(-0.32).rotateY(0.8), "#6f8daa", X, Y, Z);
     geo(new THREE.BoxGeometry(2.36, 0.12, 2.36).translate(0, 4, 0).rotateZ(-0.32).rotateY(0.8), "#9fb6cc", X, Y, Z); geo(new THREE.BoxGeometry(2.36, 0.12, 2.36).translate(0, 8, 0).rotateZ(-0.32).rotateY(0.8), "#9fb6cc", X, Y, Z);
     geo(new THREE.BoxGeometry(5, 0.3, 2).rotateZ(0.25).rotateY(0.3), "#d9dde2", X + 2.4, Y + 1.4, Z + 1.2);
     pick("capgate", 6, 12, 4, X + 1.5, Y + 6, Z);
@@ -165,22 +165,47 @@ export async function buildWorld({ scene, grad, G, pause = async () => {} }) { /
     N.geo(new THREE.TorusGeometry(2.4, 0.1, 4, 16).rotateY(0.7), "#cfe0ff", X, Y + 4.4, Z);
     pick("aldar", 8.4, 8.6, 3, X, Y + 4.4, Z);
   }
-  { // Sheikh Zayed Grand Mosque: white courtyard, a big dome and many small ones, four minarets, the pools in front
-    const X = -27, Z = -63, R = 0.75, cos = Math.cos(R), sin = Math.sin(R);
-    const at = (u, v) => [X + u * cos + v * sin, Z - u * sin + v * cos]; // the mosque's own axes, turned to face the camera
-    const b = (w, h, d, c, u, y, v) => { const [x, z] = at(u, v); geo(new THREE.BoxGeometry(w, h, d).rotateY(R), c, x, Y + y, z); };
-    b(15, 1.0, 10, WHITE, 0, 0.5, 0); b(12, 0.06, 6, "#e6eee8", 0, 1.03, 0.6); // platform, courtyard
-    b(11, 2.2, 3, WHITE, 0, 2.1, -3.3); b(15, 1.6, 0.8, WHITE, 0, 1.8, 4.6); b(0.8, 1.6, 9, WHITE, -7.1, 1.8, 0); b(0.8, 1.6, 9, WHITE, 7.1, 1.8, 0);
-    { const [x, z] = at(0, -3.3); S.cyl(1.35, 0.7, WHITE, x, Y + 3.55, z, "y", 12); geo(hemi(1.5).scale(1, 1.25, 1), WHITE, x, Y + 3.9, z); geo(new THREE.ConeGeometry(0.12, 0.8, 6), GOLD, x, Y + 6.1, z); N.geo(hemi(0.5), "#dbe6ff", x, Y + 4.4, z); }
-    for (const u of [-4.2, -2.4, 2.4, 4.2]) { const [x, z] = at(u, -3.3); geo(hemi(0.75), WHITE, x, Y + 3.2, z); }
-    for (let u = -6; u <= 6; u += 2) { const [x, z] = at(u, 4.6); geo(hemi(0.45), WHITE, x, Y + 2.6, z); }
-    for (let v = -2.5; v <= 3; v += 2.75) for (const u of [-7.1, 7.1]) { const [x, z] = at(u, v); geo(hemi(0.45), WHITE, x, Y + 2.6, z); }
-    for (const [u, v] of [[-7.3, -4.8], [7.3, -4.8], [-7.3, 4.8], [7.3, 4.8]]) { const [x, z] = at(u, v); S.cyl(0.32, 8, WHITE, x, Y + 4, z, "y", 8); S.cyl(0.42, 0.3, WHITE, x, Y + 6.4, z, "y", 8); geo(new THREE.ConeGeometry(0.2, 0.9, 6), GOLD, x, Y + 8.4, z); N.box(0.36, 0.14, 0.36, "#ffe2a8", x, Y + 6.6, z); }
-    { const [x, z] = at(0, 6.5); geo(new THREE.BoxGeometry(12, 0.08, 1.4).rotateY(R), "#5aa0d0", x, Y + 0.06, z); }
-    pick("mosque", 15, 8, 11, X, Y + 4, Z);
+  { // Sheikh Zayed Grand Mosque: white marble on a raised platform; the prayer hall under the great dome, with smaller domes either side;
+    // arcades of pointed arches round a courtyard inlaid with flowers, a gold-tipped dome over every bay and a bigger one on each corner;
+    // the domed main gate; four minarets with two balconies each; columns with gold capitals along the reflecting pools; at night the
+    // arches and balconies light up blue-white, like its lunar lighting
+    const X = -27, Z = -63, R = 0.75, cos = Math.cos(R), sin = Math.sin(R), MARBLE = "#f4f2ec", ARCH = "#55607a", MOON = "#a9c0ff", POOL = "#4f9ad0";
+    const at = (u, v) => [X + u * cos + v * sin, Z - u * sin + v * cos]; // the mosque's own axes, turned to face the camera (+v)
+    const b = (w, h, d, c, u, y, v, k = S) => { const [x, z] = at(u, v); k.geo(new THREE.BoxGeometry(w, h, d).rotateY(R), c, x, Y + y, z); };
+    const dome = (r, u, y, v, tall = 1) => { const [x, z] = at(u, v); geo(hemi(r).scale(1, tall, 1), WHITE, x, Y + y, z); geo(new THREE.ConeGeometry(r * 0.14, r * 0.7, 5), GOLD, x, Y + y + r * tall + r * 0.3, z); };
+    const arch = (u, y, v, w, h) => { b(w, h, 0.06, ARCH, u, y, v + 0.03); b(w * 0.55, h * 0.22, 0.06, ARCH, u, y + h * 0.6, v + 0.03); b(w * 0.9, h * 0.9, 0.05, MOON, u, y, v + 0.06, N); }; // pointed, lit at night
+    b(16.4, 0.9, 11.4, "#d9dcd6", 0, 0.45, 0); b(15.8, 0.12, 10.8, MARBLE, 0, 0.96, 0); // the raised platform and its marble top
+    b(11.6, 0.04, 6.2, "#e9efe9", 0, 1.04, 0.9); // the courtyard...
+    for (let i = 0; i < 5; i++) for (let j = 0; j < 3; j++) { const u = -4.6 + i * 2.3, v = -0.7 + j * 1.75; b(0.95, 0.02, 0.95, (i + j) % 2 ? "#d8b44a" : "#7fae5e", u, 1.07, v); b(0.38, 0.025, 0.38, "#4f8fbf", u, 1.08, v); } // ...and its inlaid flowers
+    // the prayer hall, its gold cornice, its arches onto the courtyard
+    b(12, 2.5, 3.4, MARBLE, 0, 2.27, -3.5); b(12.1, 0.16, 3.5, GOLD, 0, 3.6, -3.5);
+    for (let u = -5; u <= 5.01; u += 1.25) arch(u, 2.0, -1.8, 0.62, 1.3);
+    { const [x, z] = at(0, -3.5); S.cyl(1.5, 1.0, MARBLE, x, Y + 4.2, z, "y", 14); geo(hemi(1.65).scale(1, 1.35, 1), WHITE, x, Y + 4.7, z); // the great dome on its drum
+      S.cyl(0.22, 0.12, GOLD, x, Y + 6.95, z, "y", 8); geo(new THREE.ConeGeometry(0.15, 1.1, 6), GOLD, x, Y + 7.45, z); N.geo(hemi(0.6), "#dbe6ff", x, Y + 5.3, z); }
+    for (let k = -2; k <= 2; k++) arch(Math.sin(k * 0.5) * 1.5, 4.2, -3.5 + Math.cos(k * 0.5) * 1.5, 0.22, 0.5); // windows round the drum
+    for (const s of [-1, 1]) { dome(0.9, s * 2.9, 3.68, -3.5, 1.15); dome(0.7, s * 4.8, 3.68, -3.5, 1.1); }
+    for (let u = -5; u <= 5.01; u += 2.5) dome(0.42, u, 3.68, -4.75);
+    // the arcades round the courtyard, gold along their tops, arches either side of the gate, a dome over every bay
+    b(16, 1.9, 1.0, MARBLE, 0, 1.97, 5.0); for (const s of [-1, 1]) b(1.0, 1.9, 10.4, MARBLE, s * 7.5, 1.97, 0);
+    b(16.1, 0.12, 1.05, GOLD, 0, 2.97, 5.0); for (const s of [-1, 1]) b(1.05, 0.12, 10.4, GOLD, s * 7.5, 2.97, 0);
+    for (let u = -7; u <= 7.01; u += 1) if (Math.abs(u) > 1.2) arch(u, 1.75, 5.5, 0.55, 1.05);
+    for (let u = -6.1; u <= 6.11; u += 1.75) if (Math.abs(u) > 1.5) dome(0.36, u, 3.03, 5.0);
+    for (let v = -3.6; v <= 3.61; v += 1.8) for (const s of [-1, 1]) dome(0.36, s * 7.5, 3.03, v);
+    for (const s of [-1, 1]) for (const t of [-1, 1]) dome(0.55, s * 7.5, 3.03, t * 5.0, 1.1);
+    // the main gate: taller, domed, a great arch
+    b(3.0, 3.0, 1.4, MARBLE, 0, 2.5, 5.2); b(3.05, 0.14, 1.45, GOLD, 0, 4.03, 5.2); arch(0, 2.25, 5.9, 1.3, 2.0); dome(0.75, 0, 4.1, 5.2, 1.2);
+    // four minarets: a base, the shaft, two balconies with gold rims (lit at night), a lantern and its gold cap
+    for (const [u, v] of [[-8, -5.4], [8, -5.4], [-8, 5.4], [8, 5.4]]) { const [x, z] = at(u, v);
+      S.cyl(0.5, 1.2, "#e6e4dc", x, Y + 1.6, z, "y", 8); S.cyl(0.32, 8.6, WHITE, x, Y + 6.3, z, "y", 8);
+      for (const y of [5.2, 8.0]) { S.cyl(0.5, 0.16, WHITE, x, Y + y, z, "y", 8); S.cyl(0.53, 0.06, GOLD, x, Y + y + 0.1, z, "y", 8); N.box(0.42, 0.12, 0.42, "#cfe0ff", x, Y + y - 0.13, z); }
+      S.cyl(0.36, 0.7, WHITE, x, Y + 10.9, z, "y", 8); geo(hemi(0.36).scale(1, 1.4, 1), GOLD, x, Y + 11.25, z); geo(new THREE.ConeGeometry(0.08, 0.6, 5), GOLD, x, Y + 12.0, z); }
+    // the reflecting pools (a lit edge at night) and the columns with gold palm capitals along them
+    b(15, 0.07, 1.8, POOL, 0, 0.04, 7.2); b(14.6, 0.02, 0.12, "#bfe0ff", 0, 0.09, 6.5, N); for (const s of [-1, 1]) b(1.4, 0.07, 9, POOL, s * 9.1, 0.04, 0.4);
+    for (let u = -6.5; u <= 6.51; u += 1.3) { b(0.16, 1.4, 0.16, MARBLE, u, 0.7, 6.2); b(0.36, 0.14, 0.36, GOLD, u, 1.42, 6.2); }
+    pick("mosque", 16.4, 10, 12, X, Y + 4.5, Z);
   }
   { // Louvre Abu Dhabi: a flat lattice dome floating over white galleries at the water's edge
-    const X = -35, Z = -57; for (const [dx, dz, h] of [[-1.5, 0.5, 1.6], [1.2, -1, 2], [0.4, 1.6, 1.3]]) S.box(2.2, h, 2.2, WHITE, X + dx, Y + h / 2, Z + dz);
+    const X = -38.5, Z = -54.5; S.cyl(5.4, 0.1, "#d9d2c2", X, Y + 0.01, Z, "y", 20); for (const [dx, dz, h] of [[-1.5, 0.5, 1.6], [1.2, -1, 2], [0.4, 1.6, 1.3]]) S.box(2.2, h, 2.2, WHITE, X + dx, Y + h / 2, Z + dz);
     geo(new THREE.CylinderGeometry(4.6, 4.8, 0.5, 18), "#a9adb4", X, Y + 2.6, Z); geo(new THREE.CylinderGeometry(3.6, 3.6, 0.52, 18), "#c4c8ce", X, Y + 2.62, Z);
     for (const a of [0.5, 2.6, 4.7]) S.box(0.2, 2.4, 0.2, "#8d9198", X + Math.cos(a) * 4.2, Y + 1.2, Z + Math.sin(a) * 4.2);
     pick("louvre", 9.6, 3, 9.6, X, Y + 1.6, Z);
@@ -193,7 +218,7 @@ export async function buildWorld({ scene, grad, G, pause = async () => {} }) { /
   const zipA = new THREE.Vector3(-1, Y + 8.6, -73), zipB = new THREE.Vector3(8.5, Y + 0.9, -66);
   { const d = zipB.clone().sub(zipA), len = d.length(); const line = new THREE.BoxGeometry(len, 0.05, 0.05); const m = new THREE.Matrix4().lookAt(new THREE.Vector3(), d, new THREE.Vector3(0, 1, 0)); line.rotateY(-Math.PI / 2).applyMatrix4(m); geo(line, "#2a2c33", (zipA.x + zipB.x) / 2, (zipA.y + zipB.y) / 2, (zipA.z + zipB.z) / 2); S.box(1.2, 0.8, 1.2, "#5a5f68", zipB.x, zipB.y - 0.4, zipB.z); }
   const rider = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.55, 0.3), new THREE.MeshToonMaterial({ color: "#e8501e", gradientMap: grad })); root.add(rider);
-  for (const [x, z] of [[-30, -70], [-20, -75], [6, -60], [-38, -66], [-8, -76]]) palm(x, z, 2.2);
+  for (const [x, z] of [[-30, -70], [-20, -75], [-38, -66], [-8, -76]]) palm(x, z, 2.2);
   for (const [x, z, r] of [[-34, -75, 4], [-22, -78, 3.5], [8, -76, 3]]) geo(new THREE.SphereGeometry(r, 8, 4, 0, Math.PI * 2, 0, Math.PI / 2).scale(1.6, 0.35, 1), "#d8bc8c", x, Y, z); // dunes
 
   await pause();
@@ -228,13 +253,13 @@ export async function buildWorld({ scene, grad, G, pause = async () => {} }) { /
   /* ---------- Chattogram: the port on the shore, the Shah Amanat Bridge over the Karnaphuli ---------- */
   { // three ship-to-shore cranes and the container yard
     for (const x of [-28, -20, -12]) {
-      const z = -42; for (const dx of [-1.2, 1.2]) for (const dz of [-1, 1]) S.box(0.3, 6.5, 0.3, x === -20 ? "#2f6fb0" : "#c8463c", x + dx, Y + 3.25, z + dz);
-      S.box(2.8, 0.5, 2.4, WHITE, x, Y + 6.6, z); S.box(0.5, 0.45, 10, x === -20 ? "#2f6fb0" : "#c8463c", x, Y + 6.2, z - 2.5); S.box(1.0, 0.8, 1.0, WHITE, x, Y + 5.6, z - 5.5);
-      N.box(0.22, 0.22, 0.22, "#ff5a4a", x, Y + 7.0, z - 7.4);
+      const z = -42; for (const dx of [-1.2, 1.2]) for (const dz of [-1, 1]) S.box(0.3, 4.6, 0.3, x === -20 ? "#2f6fb0" : "#c8463c", x + dx, Y + 2.3, z + dz);
+      S.box(2.8, 0.5, 2.4, WHITE, x, Y + 4.7, z); S.box(0.5, 0.45, 7, x === -20 ? "#2f6fb0" : "#c8463c", x, Y + 4.3, z - 1.5); S.box(1.0, 0.8, 1.0, WHITE, x, Y + 3.7, z - 4.2);
+      N.box(0.22, 0.22, 0.22, "#ff5a4a", x, Y + 5.1, z - 4.9);
     }
     ["#c8463c", "#2f6fb0", "#3f9a5a", "#e09a3a", "#2a8a8a", "#7a5aa8", "#c8463c", "#2f6fb0", "#e0c040", "#3f9a5a"].forEach((c, i) => S.box(2.4, 1.0, 1.1, c, -30 + (i % 5) * 2.6, Y + 0.5 + Math.floor(i / 5) * 1.0, -37.5));
     land(-32, -9, -44, -35.5, "#8f8c84", 0.04); // the concrete apron
-    pick("port", 20, 7, 9, -20, Y + 3.5, -41);
+    pick("port", 20, 5, 9, -20, Y + 2.5, -41);
   }
   { // Shah Amanat Bridge: a single A-shaped pylon, cables fanning down to the deck
     const X = -75, Z = -16;
@@ -339,8 +364,8 @@ export async function buildWorld({ scene, grad, G, pause = async () => {} }) { /
   // From the pulled-back camera (az 40°, el 34°) a ground point's screen x and y. A lot nearer the camera than a landmark it
   // overlaps on screen stays low enough to leave at least the top 70% of the landmark in sight; lots the block hides are skipped.
   const sx = (x, z) => 0.766 * x - 0.643 * z, sy = (x, z) => -0.359 * x - 0.428 * z;
-  const KEEP = [[26, -20, 4, 40], [34, -2, 4.2, 9], [24, -35, 4, 14], [38, -27, 3, 4], [44, -10, 2, 2.5], [21, -42, 3, 8], [-7, -49.5, 3, 14], [-4, -58, 3.5, 17], [-15, -55, 3, 12], [-14, -66, 4, 8.6],
-    [-27, -63, 8, 8], [-35, -57, 5, 3], [-1, -73, 7, 9], [-50, -21, 7, 6], [-66, -9, 4, 6.5], [-75, -16, 8, 10.5], [-70, -32, 4, 5], [-59, -36, 5, 3], [-45, -34, 3, 7.5], [-20, -41, 10, 7]]; // x, z, half size, height
+  const KEEP = [[26, -20, 4, 40], [34, -2, 4.2, 9], [24, -35, 4, 14], [38, -27, 3, 4], [44, -10, 2, 2.5], [21, -42, 3, 8], [-7, -49.5, 3, 12], [-4, -58, 3.5, 17], [8, -57, 3, 12], [-14, -66, 4, 8.6],
+    [-27, -63, 9, 12], [-38.5, -54.5, 5, 3], [-1, -73, 7, 9], [-50, -21, 7, 6], [-66, -9, 4, 6.5], [-75, -16, 8, 10.5], [-70, -32, 4, 5], [-59, -36, 5, 3], [-45, -34, 3, 7.5], [-20, -41, 10, 5]]; // x, z, half size, height
   const maxH = (x, z, r) => { let h = 30; for (const [lx, lz, lr, lh] of KEEP) if ((x - lx) * 0.533 + (z - lz) * 0.635 > 0 && Math.abs(sx(x, z) - sx(lx, lz)) < 1.41 * (r + lr)) h = Math.min(h, (sy(lx, lz) - sy(x, z) - 0.79 * (r + lr)) / 0.83 + 0.3 * lh); return h; };
   const hidden = (x, z, r, h) => { const b = sx(x, z) + 1.41 * r; return x + r < 3.15 && z + r < -3.3 && sx(x, z) - 1.41 * r > -19.7 && b < 4.5 && sy(x, z) + 0.79 * r + 0.83 * h < 24.7 + (4.53 - b) * 0.466; }; // under the block's roofline
   const used = [ // what is already on the ground: x0, x1, z0, z1
@@ -349,15 +374,15 @@ export async function buildWorld({ scene, grad, G, pause = async () => {} }) { /
     [-75, -65, -36.5, -27.5], [-65, -53, -40.5, -31.5], [-50.5, -39.5, -36, -29], [-32, -9, -45, -35], [-37, -35, -33, -31], [-67, -65, 3, 5], [-85, -83, -3, -1], // hills, tea, waterfall, port, palms
     [-96.8, -83.2, -40.8, -24.2], [-94.8, -84.8, -21, -4.5], [-60.6, -39.6, -9.6, -5.6], [-37.8, -32, -29.5, -10], [-3.6, 2, -35.5, -15], [-10.3, -3.2, -36.8, -11.2], // neighbourhoods
     [19, 32, -27, -13], [29.4, 38.6, -5.6, 1.6], [19.5, 28.5, -39, -31], [34.5, 41.5, -30.5, -23.5], [41.5, 46.5, -12.5, -7.5], [17, 25, -45.8, -38.5], [39.5, 47.5, -44.5, -32.5], // Dubai
-    [-8.5, 0.5, -62.5, -54.5], [-18.5, -10.5, -58.5, -51.5], [-18.5, -9.5, -69.5, -62.5], [-36.5, -17.5, -71.5, -54.5], [-40.5, -29.5, -62, -52], [-7, 6, -79, -67], [5, 10.5, -70, -63.5], // Abu Dhabi
-    [-40, -28, -79, -71], [-27.6, -16.4, -79, -74.5], [3, 13, -79, -73], [5, 7, -61, -59], [-39, -37, -67, -65], // dunes, palms
+    [-8.5, 0.5, -62.5, -54.5], [-18.5, -10.5, -58.5, -51.5], [-18.5, -9.5, -69.5, -62.5], [-38.5, -15.5, -74, -52.5], [-44, -33, -60, -49], [5.5, 11.5, -60, -54], [-7, 6, -79, -67], [5, 10.5, -70, -63.5], // Abu Dhabi
+    [-40, -28, -79, -71], [-27.6, -16.4, -79, -74.5], [3, 13, -79, -73], [-39, -37, -67, -65], // dunes, palms
   ];
   for (const [x, z, h] of river) if (z > -47) used.push([x - h - 0.8, x + h + 0.8, z - 1, z + 1]); // the Karnaphuli, bank to bank
   for (const [x, z, w, d] of [[50, -27, 3.2, 3.2], [54.5, -20, 3, 3], [48.5, -14, 3.4, 3], [54, -8, 3, 3], [50, -36, 3.2, 3], [17, -60, 4, 3], [23, -66, 4, 3], [29.5, -61, 3.6, 3], [18, -70, 3.6, 3], [30, -70, 3.4, 3], [14, -56, 1, 1], [21, -56, 1, 1], [27, -56, 1, 1], [34, -64, 1, 1], [25, -74, 1, 1]]) used.push([x - w / 2 - 0.5, x + w / 2 + 0.5, z - d / 2 - 0.5, z + d / 2 + 0.5]);
   // the grounds round the landmarks: lawns (Burj Park and its fountain lake, Zabeel Park round the Frame, the mosque gardens), plazas
   const LAWN = "#6aa64e", PAVE = "#d9d2c2";
-  for (const [x0, x1, z0, z1, c] of [[19, 32, -27, -13, LAWN], [19.5, 28.5, -39, -31, LAWN], [-36.5, -17.5, -71.5, -54.5, LAWN], [-71.5, -60.5, -13, -5, "#4f8a45"], [17, 25, -45.8, -38.5, PAVE], [29.4, 38.6, -5.6, 1.6, PAVE], [34.5, 41.5, -30.5, -23.5, "#d9c4a0"],
-    [-8.5, 0.5, -62.5, -54.5, PAVE], [-18.5, -10.5, -58.5, -51.5, PAVE], [-18.5, -9.5, -69.5, -62.5, PAVE], [-40.5, -29.5, -62, -52, PAVE], [-7, 6, -79, -67, "#a88a6a"]]) land(x0, x1, z0, z1, c, 0.03);
+  for (const [x0, x1, z0, z1, c] of [[19, 32, -27, -13, LAWN], [19.5, 28.5, -39, -31, LAWN], [-38.5, -15.5, -74, -52.5, LAWN], [-71.5, -60.5, -13, -5, "#4f8a45"], [17, 25, -45.8, -38.5, PAVE], [29.4, 38.6, -5.6, 1.6, PAVE], [34.5, 41.5, -30.5, -23.5, "#d9c4a0"],
+    [-8.5, 0.5, -62.5, -54.5, PAVE], [-18.5, -10.5, -58.5, -51.5, PAVE], [-18.5, -9.5, -69.5, -62.5, PAVE], [5.5, 11.5, -60, -54, PAVE], [-7, 6, -79, -67, "#a88a6a"]]) land(x0, x1, z0, z1, c, c === PAVE ? 0.036 : 0.03); // paving a hair above lawns: at the same height they flickered
   land(21, 31, -15.6, -13.4, "#5aa0d0", 0.05); for (let x = 22.5; x < 30; x += 1.8) N.box(0.12, 1.2, 0.12, "#e8f4ff", x, Y + 0.6, -14.5); // the Dubai Fountain, lit at night
   const free = (x0, x1, z0, z1) => used.every(([a, b, c, d]) => x1 <= a || x0 >= b || z1 <= c || z0 >= d);
   const BDC = ["#efe0c4", "#ecc9a6", "#e6d3a8", "#e8bba2", "#f1e6d2", "#dcc3a1"], GUC = ["#efe8da", "#e6d8bd", "#ddd2bf", "#f2ece0"]; // warm: cream, peach, sand, terracotta

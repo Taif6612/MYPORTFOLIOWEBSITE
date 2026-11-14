@@ -332,6 +332,15 @@ void main(){
   box(0.26, 0.03, 0.34, C.cream, -0.75, 0.69, 2.15).rotation.set(0, 1.2, 0.25); box(0.26, 0.03, 0.34, "#efe6d0", -0.8, 0.66, 2.38).rotation.set(0, 1.2, -0.25);
   box(0.42, 0.1, 0.3, C.books[3], 2.75, 0.05, 0.4); box(0.38, 0.09, 0.28, C.books[4], 2.74, 0.145, 0.41).rotation.y = 0.2; box(0.34, 0.08, 0.26, C.books[0], 2.76, 0.23, 0.39).rotation.y = -0.15;
   for (const s of [-1, 1]) box(0.14, 0.05, 0.3, "#5a6a8a", 1.05 + s * 0.11, 0.025, 2.05).rotation.y = s * 0.12;
+  // a futon on the floor in the open corner: a sage-green tufted mattress, a striped pillow by the books, a linen blanket thrown over,
+  // one corner spilling onto the floorboards
+  const FU = { x: 2.2, z: 1.82, w: 1.2, l: 2.25 };
+  box(FU.w, 0.16, FU.l, "#9aab8c", FU.x, 0.08, FU.z); box(FU.w - 0.06, 0.03, FU.l - 0.06, "#a7b89a", FU.x, 0.175, FU.z);
+  for (let i = 0; i < 2; i++) for (let j = 0; j < 4; j++) box(0.04, 0.01, 0.04, "#7d8e70", FU.x - 0.3 + i * 0.6, 0.193, FU.z - 0.85 + j * 0.57); // tufts
+  box(0.62, 0.11, 0.3, "#8a7856", FU.x, 0.245, FU.z - FU.l / 2 + 0.26); for (const dx of [-0.2, 0, 0.2]) box(0.05, 0.115, 0.31, "#6f5f42", FU.x + dx, 0.246, FU.z - FU.l / 2 + 0.26);
+  box(FU.w - 0.22, 0.05, 1.15, "#eeeae2", FU.x - 0.08, 0.215, FU.z + 0.5); box(FU.w - 0.2, 0.06, 0.14, "#f6f3ec", FU.x - 0.08, 0.245, FU.z - 0.02); // the blanket (sage shows round it), its folded edge
+  box(0.32, 0.04, 0.55, "#eeeae2", FU.x - FU.w / 2 - 0.02, 0.1, FU.z + 0.75).rotation.z = 0.7;
+  const pFuton = proxy(FU.w + 0.1, 0.4, FU.l + 0.1, FU.x, 0.2, FU.z);
   // dust in the window light (daytime only)
   const MOTES = 34, motes = fx(new THREE.Points(new THREE.BufferGeometry(), new THREE.PointsMaterial({ color: "#fff4d6", size: 1, sizeAttenuation: false, transparent: true, depthWrite: false })));
   const moteSeed = Array.from({ length: MOTES }, () => [Math.random(), Math.random(), Math.random(), Math.random() * 6.28]);
@@ -720,7 +729,7 @@ void main(){
   const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
   const clickables = [["screen", [screen]], ["watch", [watch]], ["mug", [mug, handle, coffee]], ["lamp", [shade, bulb, la1, la2]], ["plant", [plant]], ["me", [me]],
     ["trophy", [pTrophy]], ["degree", [pDegree]], ["frames", shots], ["phone", [phone]], ["cat", [cat]], ["duck", [duck]], ["photo", [photo]], ["pc", [pPC]], ["loq", [loq.g]], ["asus", [asus.g]], ["hp", [hp.g]], ["retro", [pRetro]],
-    ...albumFrames.map((p, i) => [`album${i}`, [p]]), ...paperFrames.map((p, i) => [`paper${i}`, [p]])];
+    ["futon", [pFuton]], ...albumFrames.map((p, i) => [`album${i}`, [p]]), ...paperFrames.map((p, i) => [`paper${i}`, [p]])];
   const owns = (o) => clickables.some(([, objs]) => objs.some((c) => { for (let p = o; p; p = p.parent) if (p === c) return true; return false; }));
   function pick(nx, ny) {
     ndc.set(nx, ny); ray.setFromCamera(ndc, cam);
@@ -743,7 +752,7 @@ void main(){
     screen: new V3(MON.x + 0.62, MON.y + 0.42, MON.z + 0.1), watch: new V3(0.72, DESK_Y + 0.4, -1.75), mug: new V3(MUG.x, MUG.y + 0.5, MUG.z), lamp: new V3(LAMP_HEAD.x + 0.2, LAMP_HEAD.y + 0.28, LAMP_HEAD.z),
     plant: new V3(2.45, 1.55, -2.35), me: new V3(0.32, 2.5, -1.1), trophy: new V3(-2.78, TROPHY_Y + 0.62, 0), degree: new V3(0.24, 4.06, -2.9), frames: new V3(-2.9, 3.62, 1.55), phone: new V3(1.95, DESK_Y + 0.32, -1.85),
     cat: new V3(2.3, WY0 + 0.86, -2.7), duck: new V3(2.03, DESK_Y + 0.42, -2.36), photo: new V3(-2.9, 3.3, -0.4), pc: new V3(PC.x + 0.3, 1.28, PC.z + 0.3), loq: new V3(1.4, DESK_Y + 0.78, -2.35),
-    asus: new V3(-2.5, 1.18, 1.95), hp: new V3(-2.5, 1.1, 2.6), retro: new V3(-2.45, 1.38, 1.05),
+    asus: new V3(-2.5, 1.18, 1.95), hp: new V3(-2.5, 1.1, 2.6), retro: new V3(-2.45, 1.38, 1.05), futon: new V3(2.2, 0.62, 1.6),
     ...Object.fromEntries(paperFrames.map((m, i) => [`paper${i}`, new V3(-2.9, 2.95, m.position.z + 0.18)])),
   };
   const sparkGeo = mergeGeometries([new THREE.BoxGeometry(0.24, 0.05, 0.01), new THREE.BoxGeometry(0.05, 0.24, 0.01)]), sparkMat = basic("#ffffff", { transparent: true, depthTest: false, depthWrite: false });
@@ -758,13 +767,14 @@ void main(){
     if (mode === "watch" || mode === "car") { go("room"); return true; }
     if (inStreet()) { // the two parked cars open a close-up; anything else on the street just says what it is
       const n = pickStreet(nx, ny); if (!n) return false;
+      ui.sound(street.cars[n] ? "lock" : n);
       if (street.cars[n]) { focusCar = n; carT0 = performance.now() / 1000; carScroll = scrollP; street.flash(n); go("car", n); }
       else ui.toast(PLACE[n]);
       return true;
     }
     if (mode !== "room" || scrollP > 0.05) return false;
     const n = pick(nx, ny); if (!n) return false;
-    seen.add(n);
+    seen.add(n); ui.sound(n);
     if (n === "screen") go("dive");
     else if (n === "watch") go("watch");
     else if (n === "mug") { coffeeLevel = 1; steam.forEach((s) => (s.userData.t = Math.random() * 0.3)); burst = 1.5; ui.toast("Fresh coffee."); }
@@ -791,6 +801,7 @@ void main(){
     else if (n === "hp") ui.toast("HP Pavilion 14 · i5-4200U · 8 GB. Where it started.");
     else if (n === "retro") { crtT = 3; ui.toast("PS2 Slim. Still plugged in."); }
     else if (n === "photo") ui.toast("That’s me, give or take a few pixels.");
+    else if (n === "futon") ui.toast("The futon. Most nights, anyway.");
     else if (n.startsWith("album")) ui.album(+n.slice(5));
     else if (n.startsWith("paper")) ui.paper(+n.slice(5));
     dirty = shadowsDirty = true; return true;

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { profile } from "../data/profile.js";
+import { unlock, play, startMusic, stopMusic } from "./roomSound.js";
 
 /* Hero = tagline in front of the pixel room. The room (pixelRoom.js) is three.js and
    never runs during first paint: after the page has loaded it starts inside a worker
@@ -16,7 +17,7 @@ const PORTRAIT = "/taif-portrait-480.webp"; // the About photo, hung on the room
 const FRAMES = ["proctorless", "autohub-premium", "luxeglow-spa", "solar-panel"].map((id) => `/projects/shots/${id}-800.webp`);
 const ALBUM = [1, 2, 3, 4, 5].map((n) => `/room/${n}.jpg`); // the photos on the little table: fetched only when a frame is clicked
 const COPY = { trophy: "Winner, Algorithm Project Showcase · TechFest", degree: "B.Sc. in Computer Science, 2026" };
-const LABELS = { screen: "Step inside", watch: "Your time", mug: "Coffee", lamp: "Lamp", plant: "Plant", me: "Say hi", trophy: "Trophy", degree: "Degree", frames: "See my work", phone: "My phone", cat: "Cat", duck: "Rubber duck", photo: "That’s me", pc: "My PC", loq: "Lenovo LOQ", asus: "ASUS X556UF", hp: "HP Pavilion 14", retro: "PS2 Slim", paper0: "Research paper", paper1: "Research paper" };
+const LABELS = { screen: "Step inside", watch: "Your time", mug: "Coffee", lamp: "Lamp", plant: "Plant", me: "Say hi", trophy: "Trophy", degree: "Degree", frames: "See my work", phone: "My phone", cat: "Cat", duck: "Rubber duck", photo: "That’s me", pc: "My PC", loq: "Lenovo LOQ", asus: "ASUS X556UF", hp: "HP Pavilion 14", retro: "PS2 Slim", paper0: "Research paper", paper1: "Research paper", futon: "Futon" };
 const CARS = { jeep: ["2005 Jeep Liberty", "Sold as the Cherokee outside North America."], crv: ["1999 Honda CR-V", "The first generation."] };
 const greet = (h) => (h >= 5 && h < 12 ? "Good morning" : h >= 12 && h < 17 ? "Good afternoon" : h >= 17 && h < 23 ? "Good evening" : "You’re up late");
 
@@ -118,13 +119,14 @@ export default function Hero({ reduced }) {
     const ui = {
       env: ({ bg, fg, time: ms }) => { const d = new Date(ms); root.style.setProperty("--hero-bg", bg); root.style.setProperty("--hero-fg", fg); setTime(d.toLocaleTimeString([], hm)); setHello(greet(d.getHours())); },
       size: ({ w, h }) => { canvas.style.width = `${w}px`; canvas.style.height = `${h}px`; },
-      mode: (m, extra) => { modeNow = m; setMode(m); if (m === "car") setCar(extra); },
+      mode: (m, extra) => { modeNow = m; setMode(m); if (m === "car") { setCar(extra); startMusic(extra); } else stopMusic(); }, // the car stereo plays while its close-up is open
       toast: (text) => setToast({ text, n: performance.now() }),
       watch: (ms) => { const t = new Date(ms).toLocaleTimeString([], { ...hm, second: "2-digit" }); setWatch((w) => (w === t ? w : t)); },
       hover: (name, label) => { st.style.cursor = name ? "pointer" : ""; const el = tip.current, text = name ? label || LABELS[name] || "" : ""; if (text) el.textContent = text; el.classList.toggle("is-on", !!text); }, // unlabelled things (the photo frames) get only the cursor
       go: (hash) => document.querySelector(hash)?.scrollIntoView({ behavior: reduced ? "auto" : "smooth" }),
       dive: land,
       ready: () => setReady(true),
+      sound: (name) => play(name),
       album: (i) => setShown({ img: ALBUM[i] }),
       paper: (i) => setShown({ paper: profile.publications[i] }),
       probe: (id, name) => { probes.get(id)?.(name); probes.delete(id); },
@@ -203,9 +205,9 @@ export default function Hero({ reduced }) {
     };
     const onMove = (e) => { if (e.pointerType === "touch") return; ptrEvt = { x: e.clientX, y: e.clientY, ui: !!e.target.closest("a, button, h1, p") }; if (!ptrRaf) ptrRaf = requestAnimationFrame(flush); };
     const onLeave = () => { ptrEvt = null; room?.("leave"); };
-    const onClick = (e) => { if (!e.target.closest("a, button, .lv-album")) room?.("click", ...ndc(e.clientX, e.clientY)); };
+    const onClick = (e) => { unlock(); if (!e.target.closest("a, button, .lv-album")) room?.("click", ...ndc(e.clientX, e.clientY)); };
     const onKey = (e) => { if (e.key === "Escape") { setShown(null); room?.("leaveWatch"); } };
-    const onVis = () => room?.("setActive", !document.hidden && inView);
+    const onVis = () => { room?.("setActive", !document.hidden && inView); if (document.hidden) stopMusic(); };
     let inView = true;
     const ro = new ResizeObserver(() => { room?.("layout", textRight(), textBottom()); room?.("resize", st.clientWidth, st.clientHeight, window.devicePixelRatio || 1); });
     document.fonts?.ready.then(() => room?.("layout", textRight(), textBottom())); // the display font changes the tagline's width
@@ -232,7 +234,7 @@ export default function Hero({ reduced }) {
       window.removeEventListener("keydown", onKey);
       document.removeEventListener("visibilitychange", onVis);
       root.classList.remove("on-hero");
-      worker?.terminate(); mainRoom?.dispose();
+      worker?.terminate(); mainRoom?.dispose(); stopMusic();
       setReady(false);
     };
   }, [reduced]);
