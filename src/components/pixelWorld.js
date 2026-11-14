@@ -40,10 +40,29 @@ export async function buildWorld({ scene, grad, G, pause = async () => {} }) { /
   const Y = G; // ground level
 
   /* ---------- ground: home land, Dubai's sand, Abu Dhabi's island; the sea is the slab underneath ---------- */
-  const land = (x0, x1, z0, z1, c, top = 0.02) => S.box(x1 - x0, 0.14, z1 - z0, c, (x0 + x1) / 2, Y + top - 0.07, (z0 + z1) / 2);
+  const rects = [[-130, 47, 2.4, 44]]; // every rectangle of ground (the street's own strip included), so the water glints know what is land
+  const land = (x0, x1, z0, z1, c, top = 0.02) => { rects.push([x0, x1, z0, z1]); S.box(x1 - x0, 0.14, z1 - z0, c, (x0 + x1) / 2, Y + top - 0.07, (z0 + z1) / 2); };
   const HOME = "#7f8c63";
-  land(-72, 17, -44, 48, HOME); land(-96, -78, -44, 48, HOME); land(-78, -72, -14, 48, HOME); land(-78, -72, -14, -5, "#4f8a45", 0.05); // the gap is the Karnaphuli, from the sea up to the bridge; grass past it
-  land(17, 58, -46, 14, SAND); land(-42, 12, -79, -52, SAND); // Dubai · Abu Dhabi island
+  // Shaped ground: a flat outline (x, z points), extruded so its top sits where a land() box's would. Coasts wave and the
+  // Karnaphuli winds instead of running ruler-straight; quays (Chattogram, the Abu Dhabi marina) stay straight like real ones.
+  const shapes = []; // every shaped outline, so the water glints know what is land
+  const flat = (pts, c, top = 0.02) => { shapes.push(pts); S.geo(new THREE.ExtrudeGeometry(new THREE.Shape(pts.map(([x, z]) => new THREE.Vector2(x, -z))), { depth: 0.14, bevelEnabled: false, curveSegments: 1 }).rotateX(-Math.PI / 2), c, 0, Y + top - 0.14, 0); };
+  const smooth = (ctrl, n, closed = false) => new THREE.CatmullRomCurve3(ctrl.map(([a, b, c = 0]) => new THREE.Vector3(a, c, b)), closed).getPoints(n).map((p) => [p.x, p.z, p.y]); // [x, z, extra]
+  const wave = (s, lo, hi, k = 0) => lo + (hi - lo) * (0.5 + 0.3 * Math.sin(s * 0.23 + k) + 0.2 * Math.sin(s * 0.091 + 2 * k)); // a gentle, uneven 0..1 swing between lo and hi
+  const ramp = (s, a, b, w = 4) => Math.min(1, Math.max(0, Math.min(s - a, b - s) / w)); // 0 at a and b, 1 between, w to ease in
+  // Bangladesh's north coast bulges out a little (never in: lots stand right up to z -44), straight along the port, calm at the river mouth
+  const coast = (x) => -44 - wave(x, 0, 2.2) * (1 - ramp(x, -34, -7, 3)) * Math.min(1, Math.abs(x + 75) / 9);
+  // the Karnaphuli: from the sea past Cox's Bazar's end, under the Shah Amanat Bridge, narrowing inland to a stream ([x, z, half width])
+  const river = smooth([[-75, -48, 4.4], [-75.4, -43, 3.6], [-77.4, -38, 3.0], [-79.2, -33, 2.6], [-79.6, -28, 2.4], [-78.2, -23, 2.3], [-76.2, -19, 2.3], [-75.2, -16, 2.3],
+    [-75.8, -13, 2.0], [-77.6, -10, 1.6], [-78.4, -7, 1.1], [-78.2, -5, 0.6], [-78, -4, 0.05]], 60);
+  const bank = river.filter(([, z]) => z >= -44); // the part inside the land outline
+  const along = (x0, x1, f, step = 1.5) => { const p = []; for (let x = x0; x <= x1 + 1e-6; x += step) p.push([x, f(x)]); return p; };
+  flat([[-130, 48], ...along(-130, -80, coast), ...bank.map(([x, z, h]) => [x - h, z]), ...bank.slice().reverse().map(([x, z, h]) => [x + h, z]), ...along(-70, 17, coast), [17, 48]], HOME);
+  land(17, 58, -46, 14, SAND); // Dubai
+  // Abu Dhabi's island: soft wavy edges all round (outward only: its lots fill the old rectangle), the marina quay straight
+  const isle = (x) => -52 + wave(x, 0, 1.3, 1) * (1 - ramp(x, -10.5, -3.5, 2)); // stays clear of Burj Al Arab's islet
+  flat([...along(-42, 12, isle), [12.6, -53], ...along(14, 36, () => -53, 4), ...along(-77, -53, (z) => 36 + wave(z, 0.4, 2, 2)).map(([z, x]) => [x, z]).reverse(),
+    ...along(-42, 36, (x) => -79 - wave(x, 0.4, 2.2, 3)).reverse(), ...along(-79, -52, (z) => -42 - wave(z, 0.3, 2.4, 4)).map(([z, x]) => [x, z])], SAND);
   const palm = (x, z, h = 2.6) => { S.box(0.22, h, 0.22, "#8a6a44", x, Y + h / 2, z); for (let i = 0; i < 5; i++) geo(new THREE.BoxGeometry(1.5, 0.12, 0.34).translate(0.7, 0, 0).rotateZ(-0.35).rotateY((i / 5) * Math.PI * 2), LEAF, x, Y + h, z); };
 
   await pause(); // short tasks: the room keeps animating while this builds
@@ -230,7 +249,7 @@ export async function buildWorld({ scene, grad, G, pause = async () => {} }) { /
 
   await pause();
   /* ---------- Cox's Bazar (past Chakaria), and the easter eggs: Bandarban, Sreemangal, Madhabkunda ---------- */
-  { land(-70, -34, -44, -40.5, "#ead6a6", 0.05);
+  { flat([...along(-70, -34, coast), [-34, -40.5], [-70, -40.5]], "#ead6a6", 0.05); // the beach runs out to the wavy coast
     [["#c8463c", -66], ["#e0c040", -60], ["#2f6fb0", -54], ["#3f9a5a", -48], ["#e8501e", -42]].forEach(([c, x]) => { S.box(0.1, 1.5, 0.1, "#6a5a4a", x, Y + 0.8, -42.4); geo(new THREE.ConeGeometry(1.1, 0.5, 8), c, x, Y + 1.6, -42.4); S.box(0.6, 0.15, 1.2, WHITE, x + 0.9, Y + 0.3, -41.8); });
     const boat = new THREE.Shape([[-1.6, 0.6], [-1.2, 0], [1.2, 0], [1.9, 0.9], [1.5, 0.6]].map(([x, y]) => new THREE.Vector2(x, y)));
     geo(new THREE.ExtrudeGeometry(boat, { depth: 0.8, bevelEnabled: false, curveSegments: 1 }).translate(0, 0, -0.4).rotateY(0.4), "#3f6fa0", -52, Y, -46.5);
@@ -256,7 +275,7 @@ export async function buildWorld({ scene, grad, G, pause = async () => {} }) { /
     pick("waterfall", 5, 7.5, 3, X, Y + 3.8, Z + 0.6);
   }
   const coco = (x, z) => { S.box(0.22, 3, 0.22, "#7a5c3c", x, Y + 1.5, z); for (let i = 0; i < 6; i++) geo(new THREE.BoxGeometry(1.4, 0.1, 0.3).translate(0.65, 0, 0).rotateZ(-0.45).rotateY(i), "#3f8a3a", x, Y + 3, z); }; // a coconut palm
-  for (const [x, z] of [[-40, -16], [-62, -26], [-36, -32], [-80, -30], [-66, 4], [-84, -2]]) coco(x, z);
+  for (const [x, z] of [[-40, -16], [-62, -26], [-36, -32], [-66, 4], [-84, -2]]) coco(x, z);
 
   await pause();
   /* ---------- neighbourhoods: homes, parks and boats, so no ground is left bare ---------- */
@@ -264,19 +283,20 @@ export async function buildWorld({ scene, grad, G, pause = async () => {} }) { /
   // an apartment block with windows on its two camera-facing walls (lit ones glow at night). Windows are few and big, like
   // the main building's, and soft against the wall, so a street of blocks reads calm from the map instead of speckled.
   // Bangladesh style: a water tank on the roof. Gulf style: a glass band on every floor, a plant room on top.
+  const FH = 2.2; // storey height: tall enough that the owner's block stands among the city, not over it
   const block = (x, z, w, d, floors, c, gulf = false) => {
-    const FH = 1.35, h = floors * FH + 0.4, glass = gulf ? "#86a2b8" : "#7d8fa3";
+    const h = floors * FH + 0.4, glass = gulf ? "#86a2b8" : "#7d8fa3";
     S.box(w, h, d, c, x, Y + h / 2, z);
     const nx = Math.max(1, Math.round(w / 1.8)), nz = Math.max(1, Math.round(d / 1.8));
     for (let f = 0; f < floors; f++) {
-      const y = Y + 0.95 + f * FH;
+      const y = Y + 1.25 + f * FH;
       if (gulf) {
-        quad(S, w - 0.4, 0.62, glass, x, y, z + d / 2 + 0.02); quad(S, d - 0.4, 0.62, glass, x + w / 2 + 0.02, y, z, 1);
-        if (rnd(x | 0, f, 1) < 0.5) quad(N, w - 0.4, 0.62, "#ffe2a8", x, y, z + d / 2 + 0.035); if (rnd(z | 0, f, 2) < 0.5) quad(N, d - 0.4, 0.62, "#ffe2a8", x + w / 2 + 0.035, y, z, 1);
+        quad(S, w - 0.4, 1.0, glass, x, y, z + d / 2 + 0.02); quad(S, d - 0.4, 1.0, glass, x + w / 2 + 0.02, y, z, 1);
+        if (rnd(x | 0, f, 1) < 0.5) quad(N, w - 0.4, 1.0, "#ffe2a8", x, y, z + d / 2 + 0.035); if (rnd(z | 0, f, 2) < 0.5) quad(N, d - 0.4, 1.0, "#ffe2a8", x + w / 2 + 0.035, y, z, 1);
         continue;
       }
-      for (let i = 0; i < nx; i++) { const xx = x - w / 2 + (w / nx) * (i + 0.5); quad(S, 0.8, 0.7, glass, xx, y, z + d / 2 + 0.02); if (rnd(x | 0, f, i) < 0.45) quad(N, 0.8, 0.7, "#ffd890", xx, y, z + d / 2 + 0.035); }
-      for (let i = 0; i < nz; i++) { const zz = z - d / 2 + (d / nz) * (i + 0.5); quad(S, 0.8, 0.7, glass, x + w / 2 + 0.02, y, zz, 1); if (rnd(z | 0, f, i + 9) < 0.45) quad(N, 0.8, 0.7, "#ffd890", x + w / 2 + 0.035, y, zz, 1); }
+      for (let i = 0; i < nx; i++) { const xx = x - w / 2 + (w / nx) * (i + 0.5); quad(S, 0.9, 1.1, glass, xx, y, z + d / 2 + 0.02); if (rnd(x | 0, f, i) < 0.45) quad(N, 0.9, 1.1, "#ffd890", xx, y, z + d / 2 + 0.035); }
+      for (let i = 0; i < nz; i++) { const zz = z - d / 2 + (d / nz) * (i + 0.5); quad(S, 0.9, 1.1, glass, x + w / 2 + 0.02, y, zz, 1); if (rnd(z | 0, f, i + 9) < 0.45) quad(N, 0.9, 1.1, "#ffd890", x + w / 2 + 0.035, y, zz, 1); }
     }
     if (gulf) S.box(w * 0.55, 0.6, d * 0.55, "#e2ddd2", x, Y + h + 0.3, z);
     else { S.box(w + 0.1, 0.25, d + 0.1, "#d9d2c4", x, Y + h + 0.12, z); S.cyl(0.32, 0.55, rnd(x | 0, z | 0, 2) < 0.5 ? "#4f6f9a" : "#3a3d4c", x - w * 0.2, Y + h + 0.52, z - d * 0.2, "y", 6); }
@@ -291,7 +311,7 @@ export async function buildWorld({ scene, grad, G, pause = async () => {} }) { /
   // Bangladesh: the corner past the bridge (low homes, a pond park), a row facing the park, blocks either side of the port
   park(-96, -84, -40, -25);
   [[-92, -19, 3.4, 3.2, 3, "#e8c9a0"], [-87.5, -13.5, 3.4, 3, 3, "#bfe0d0"], [-92.5, -8, 3, 3, 2, "#f0b8b0"], [-87, -6.5, 3, 3, 3, "#f3e3b0"]].forEach((b) => block(...b));
-  [[-58, -7.6, 3.6, 3, 3, "#f1d9b5"], [-53.5, -7.6, 3.4, 3, 4, "#cfe3e8"], [-46.5, -7.6, 3.8, 3, 3, "#f0c7c0"], [-42, -7.6, 3.2, 3, 3, "#e7e0a8"]] /* low: the Parliament stands behind them */.forEach((b) => block(...b));
+  [[-58, -7.6, 3.6, 3, 2, "#f1d9b5"], [-53.5, -7.6, 3.4, 3, 2, "#cfe3e8"], [-46.5, -7.6, 3.8, 3, 2, "#f0c7c0"], [-42, -7.6, 3.2, 3, 2, "#e7e0a8"]] /* low: the Parliament stands behind them */.forEach((b) => block(...b));
   [[-35, -27, 4, 4, 6, "#e9d3b0"], [-35.2, -20, 4.2, 4, 8, "#cfe0d6"], [-34.8, -12.6, 4.4, 4, 7, "#f2c9b8"]].forEach((b) => block(...b));
   [[-0.8, -33, 4, 4, 6, "#f0dcc0"], [-0.8, -25.4, 4.4, 4, 8, "#c9dbe9"], [-0.6, -17.6, 4, 4, 7, "#e8c8d0"]].forEach((b) => block(...b));
   park(-9.5, -4, -36, -12); for (const [x, z] of [[-6.8, -28], [-6.8, -20]]) { S.box(1.4, 0.18, 0.5, "#7a5a3c", x, Y + 0.45, z); S.box(0.15, 0.4, 0.5, "#3a3d4c", x - 0.6, Y + 0.25, z); S.box(0.15, 0.4, 0.5, "#3a3d4c", x + 0.6, Y + 0.25, z); }
@@ -324,14 +344,15 @@ export async function buildWorld({ scene, grad, G, pause = async () => {} }) { /
   const maxH = (x, z, r) => { let h = 30; for (const [lx, lz, lr, lh] of KEEP) if ((x - lx) * 0.533 + (z - lz) * 0.635 > 0 && Math.abs(sx(x, z) - sx(lx, lz)) < 1.41 * (r + lr)) h = Math.min(h, (sy(lx, lz) - sy(x, z) - 0.79 * (r + lr)) / 0.83 + 0.3 * lh); return h; };
   const hidden = (x, z, r, h) => { const b = sx(x, z) + 1.41 * r; return x + r < 3.15 && z + r < -3.3 && sx(x, z) - 1.41 * r > -19.7 && b < 4.5 && sy(x, z) + 0.79 * r + 0.83 * h < 24.7 + (4.53 - b) * 0.466; }; // under the block's roofline
   const used = [ // what is already on the ground: x0, x1, z0, z1
-    [-67, 47, 2.4, 43.6], [-29.3, 3.9, -4.1, 3.9], [-64.8, -29.2, -5.3, 5.3], [2.4, 19, -39, 6.9], // the street and its park strip, the block, the green beside it, the side road
-    [-61.8, -38.2, -31.8, -10.2], [-71.5, -60.5, -13, -5], [-84, -66, -18.5, -13.5], [-78.8, -71.2, -45, -5], [-71, -33, -45, -39.7], // Parliament lake, Minar, bridge, river, beach
-    [-75, -65, -36.5, -27.5], [-65, -53, -40.5, -31.5], [-50.5, -39.5, -36, -29], [-32, -9, -45, -35], [-37, -35, -33, -31], [-81, -79, -31, -29], [-67, -65, 3, 5], [-85, -83, -3, -1], // hills, tea, waterfall, port, palms
+    [-129, 47, 2.4, 43.6], [-29.3, 3.9, -4.1, 3.9], [-64.8, -29.2, -5.3, 5.3], [2.4, 19, -47, 6.9], // the street and its park strip, the block, the green beside it, the side road down to its jetty
+    [-61.8, -38.2, -31.8, -10.2], [-71.5, -60.5, -13, -5], [-84, -66, -18.5, -13.5], [-71, -33, -45, -39.7], // Parliament lake, Minar, bridge, beach
+    [-75, -65, -36.5, -27.5], [-65, -53, -40.5, -31.5], [-50.5, -39.5, -36, -29], [-32, -9, -45, -35], [-37, -35, -33, -31], [-67, -65, 3, 5], [-85, -83, -3, -1], // hills, tea, waterfall, port, palms
     [-96.8, -83.2, -40.8, -24.2], [-94.8, -84.8, -21, -4.5], [-60.6, -39.6, -9.6, -5.6], [-37.8, -32, -29.5, -10], [-3.6, 2, -35.5, -15], [-10.3, -3.2, -36.8, -11.2], // neighbourhoods
     [19, 32, -27, -13], [29.4, 38.6, -5.6, 1.6], [19.5, 28.5, -39, -31], [34.5, 41.5, -30.5, -23.5], [41.5, 46.5, -12.5, -7.5], [17, 25, -45.8, -38.5], [39.5, 47.5, -44.5, -32.5], // Dubai
     [-8.5, 0.5, -62.5, -54.5], [-18.5, -10.5, -58.5, -51.5], [-18.5, -9.5, -69.5, -62.5], [-36.5, -17.5, -71.5, -54.5], [-40.5, -29.5, -62, -52], [-7, 6, -79, -67], [5, 10.5, -70, -63.5], // Abu Dhabi
     [-40, -28, -79, -71], [-27.6, -16.4, -79, -74.5], [3, 13, -79, -73], [5, 7, -61, -59], [-39, -37, -67, -65], // dunes, palms
   ];
+  for (const [x, z, h] of river) if (z > -47) used.push([x - h - 0.8, x + h + 0.8, z - 1, z + 1]); // the Karnaphuli, bank to bank
   for (const [x, z, w, d] of [[50, -27, 3.2, 3.2], [54.5, -20, 3, 3], [48.5, -14, 3.4, 3], [54, -8, 3, 3], [50, -36, 3.2, 3], [17, -60, 4, 3], [23, -66, 4, 3], [29.5, -61, 3.6, 3], [18, -70, 3.6, 3], [30, -70, 3.4, 3], [14, -56, 1, 1], [21, -56, 1, 1], [27, -56, 1, 1], [34, -64, 1, 1], [25, -74, 1, 1]]) used.push([x - w / 2 - 0.5, x + w / 2 + 0.5, z - d / 2 - 0.5, z + d / 2 + 0.5]);
   // the grounds round the landmarks: lawns (Burj Park and its fountain lake, Zabeel Park round the Frame, the mosque gardens), plazas
   const LAWN = "#6aa64e", PAVE = "#d9d2c2";
@@ -357,7 +378,7 @@ export async function buildWorld({ scene, grad, G, pause = async () => {} }) { /
   const lot = (x, z, style, r, r2, hm) => {
     if (style === "bd") {
       if (hm < 2.2) green(x, z, hm, false);
-      else if (r < 0.55 && hm > 3.4) block(x + (r2 - 0.5) * 0.6, z, 3.6 + r2 * 1.0, 3.4 + r * 1.0, Math.max(2, Math.min(2 + Math.floor(r2 * 5), Math.floor((hm - 0.6) / 1.35))), of(BDC, r2));
+      else if (r < 0.55 && hm > 3.4) block(x + (r2 - 0.5) * 0.6, z, 3.6 + r2 * 1.0, 3.4 + r * 1.0, Math.max(2, Math.min(2 + Math.floor(r2 * 5), Math.floor((hm - 0.6) / FH))), of(BDC, r2));
       else if (r < 0.72) { house(x - 1.2, z - 1.1, of(BDC, r2), of(TIN, r)); house(x + 1.2, z + 1.2, of(BDC, 1 - r2), of(TIN, r2)); }
       else if (r < 0.9) green(x, z, hm, false);
       else if (r < 0.96 || hm < 5.6) green(x, z, hm, false);
@@ -366,7 +387,7 @@ export async function buildWorld({ scene, grad, G, pause = async () => {} }) { /
     }
     const ad = style === "ad"; // Abu Dhabi stays lower than Dubai
     if (hm < 2.2) green(x, z, hm, true);
-    else if (r < 0.5 && hm > 5) block(x, z, 3.4 + r2 * 0.6, 3.2 + r * 0.6, Math.max(3, Math.min((ad ? 3 : 4) + Math.floor(r2 * (ad ? 6 : 12)), Math.floor((hm - 1) / 1.35))), of(GUC, r2), true);
+    else if (r < 0.5 && hm > 5) block(x, z, 3.4 + r2 * 0.6, 3.2 + r * 0.6, Math.max(3, Math.min((ad ? 3 : 4) + Math.floor(r2 * (ad ? 6 : 12)), Math.floor((hm - 1) / FH))), of(GUC, r2), true);
     else if (r < 0.72 && hm > 2.6) villa(x - 0.3, z - 1, of(GUC, r2));
     else if (r < 0.86) green(x, z, hm, true);
     else if (r < 0.95 || hm < 5.6) mall(x, z);
@@ -376,22 +397,23 @@ export async function buildWorld({ scene, grad, G, pause = async () => {} }) { /
   const fill = (X0, X1, Z0, Z1, style, C = 5.6) => {
     for (let x0 = X0; x0 + C <= X1 + 1e-6; x0 += C) for (let z0 = Z0; z0 + C <= Z1 + 1e-6; z0 += C) {
       const x = x0 + C / 2, z = z0 + C / 2, hm = maxH(x, z, C / 2 - 0.3), r = rnd(x0 * 7 | 0, z0 * 7 | 0, 1), r2 = rnd(x0 * 7 | 0, z0 * 7 | 0, 2);
-      if (!free(x0, x0 + C, z0, z0 + C) || hidden(x, z, C / 2, Math.min(hm, 12))) continue;
+      if (!free(x0, x0 + C, z0, z0 + C) || hidden(x, z, C / 2, Math.min(hm, 18))) continue;
       used.push([x0, x0 + C, z0, z0 + C]);
       land(x0, x0 + C, z0, z0 + C, style === "bd" ? "#4f8a45" : "#e6dcc6", 0.04);
       if (C > 3) lot(x, z, style, r, r2, hm);
       else if (hm >= 2.7 && r < 0.5) style === "bd" ? tree(x, z, 0.9) : r < 0.3 && palm(x, z, 2.3);
     }
   };
-  land(46, 58, 14, 44, SAND); land(-96, 58, 44, 52, "#ead6a6", 0.01); // Dubai's shore past the end of the road; a beach along the front (above the sea's surface, never level with it)
-  for (const C of [5.6, 2.8]) { fill(-96, 17, -44, 48, "bd", C); await pause(); fill(17, 58, -46, 44, "gulf", C); await pause(); fill(-42, 36, -79, -52, "ad", C); await pause(); }
-  for (let x = -90; x < 56; x += 7.3) { const c = AWN[Math.floor(rnd(x | 0, 1, 7) * 4)]; S.box(0.1, 1.5, 0.1, "#6a5a4a", x, Y + 0.75, 50); geo(new THREE.ConeGeometry(1.0, 0.45, 8), c, x, Y + 1.5, 50); S.box(0.6, 0.12, 1.1, WHITE, x + 0.9, Y + 0.1, 50.6); }
+  land(46, 58, 14, 44, SAND); land(-130, 58, 44, 52, "#ead6a6", 0.01); // Dubai's shore past the end of the road; a beach along the front (above the sea's surface, never level with it)
+  for (const C of [5.6, 2.8]) { fill(-96, 17, -44, 48, "bd", C); fill(-129.6, -96, -44, 48, "bd", C); await pause(); fill(17, 58, -46, 44, "gulf", C); await pause(); fill(-42, 36, -79, -52, "ad", C); await pause(); }
+  for (let x = -126.5; x < 56; x += 7.3) { const c = AWN[Math.floor(rnd(x | 0, 1, 7) * 4)]; S.box(0.1, 1.5, 0.1, "#6a5a4a", x, Y + 0.75, 50); geo(new THREE.ConeGeometry(1.0, 0.45, 8), c, x, Y + 1.5, 50); S.box(0.6, 0.12, 1.1, WHITE, x + 0.9, Y + 0.1, 50.6); }
 
   await pause();
   /* ---------- out at sea: Saint Martin's Island, the Sundarbans, more boats (they fill the tall phone view) ---------- */
   { // Saint Martin's Island off Cox's Bazar: coral sand, coconut palms, two resort huts, rocks along the edge
     const X = -64, Z = -58;
-    land(X - 8, X + 8, Z - 4, Z + 4, "#ead6a6", 0.03); land(X - 4, X + 9, Z - 6.5, Z - 3, "#ead6a6", 0.03); land(X - 6, X + 6, Z - 3, Z + 2.6, "#6f9a4f", 0.06);
+    const blob = (cx, cz, rx, rz, k) => smooth(Array.from({ length: 10 }, (_, i) => { const a = (i / 10) * Math.PI * 2, r = 0.86 + 0.14 * Math.sin(a * 3 + k); return [cx + Math.cos(a) * rx * r, cz + Math.sin(a) * rz * r]; }), 40, true).slice(0, -1);
+    flat(blob(X + 0.5, Z - 0.8, 9.5, 6.4, 1), "#ead6a6", 0.03); flat(blob(X, Z - 0.3, 6.6, 3.8, 2.5), "#6f9a4f", 0.06);
     for (let i = 0; i < 9; i++) coco(X - 5 + (i % 5) * 2.6 + rnd(i, 1, 1), Z - 2.4 + Math.floor(i / 5) * 3.4);
     for (const dx of [-3, 1.5]) { S.box(1.6, 1, 1.4, "#c9a56a", X + dx, Y + 0.5, Z + 3.1); geo(new THREE.ConeGeometry(1.3, 0.9, 4).rotateY(Math.PI / 4), "#8a6a3c", X + dx, Y + 1.45, Z + 3.1); N.box(0.4, 0.4, 0.05, "#ffd890", X + dx, Y + 0.6, Z + 3.82); }
     for (const [dx, dz] of [[-8.6, 1], [8.6, -1], [6, 4.3], [-6, -4.5], [3, -6.8]]) S.box(1.2, 0.5, 0.9, "#6f6a62", X + dx, Y + 0.2, Z + dz);
@@ -411,6 +433,19 @@ export async function buildWorld({ scene, grad, G, pause = async () => {} }) { /
   sailboat(-100, -64, "#e8501e"); sailboat(-56, -84, "#2f6fb0"); sailboat(10, 58, "#e0c040"); sailboat(38, 48, "#c8463c");
   ship(-52, -70); ship(-25, 62);
 
+  /* ---------- the water, just moving: glints that swell and fade on the sea, ripples drifting down the Karnaphuli ---------- */
+  const inside = (pts, x, z) => { let c = false; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const [xi, zi] = pts[i], [xj, zj] = pts[j]; if (zi > z !== zj > z && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) c = !c; } return c; };
+  const ground = (x, z) => rects.some(([a, b, c, d]) => x > a && x < b && z > c && z < d) || shapes.some((pts) => inside(pts, x, z));
+  const wet = (x, z) => !ground(x, z) && !ground(x + 1.4, z) && !ground(x - 1.4, z) && !ground(x, z + 1.4) && !ground(x, z - 1.4); // clear of every shore
+  const sea = [];
+  for (let i = 0; sea.length < 170 && i < 4000; i++) { const x = -135 + rnd(i, 7, 1) * 205, z = -95 + rnd(i, 7, 2) * 167; if (wet(x, z)) sea.push([x, z, rnd(i, 7, 3), 3.5 + rnd(i, 7, 4) * 3]); }
+  const ripples = Array.from({ length: 26 }, (_, i) => [rnd(i, 8, 1), rnd(i, 8, 2) - 0.5]); // place along the river, side to side
+  const gMat = new THREE.MeshBasicMaterial({ color: "#d6e6ff", transparent: true, opacity: 0.3, depthWrite: false });
+  const glints = new THREE.InstancedMesh(new THREE.PlaneGeometry(1, 0.16).rotateX(-Math.PI / 2), gMat, sea.length);
+  const flow = new THREE.InstancedMesh(new THREE.PlaneGeometry(0.14, 0.9).rotateX(-Math.PI / 2), gMat, ripples.length);
+  for (const m of [glints, flow]) { m.layers.set(1); m.renderOrder = 4; m.frustumCulled = false; root.add(m); } // layer 1 = FX in pixelRoom.js: never outlined
+  const _gm = new THREE.Matrix4(), WY = Y + 0.012; // just above the sea's surface, below every land top
+
   await pause();
   S.mesh(lit); const night = N.mesh(glowMat);
   const burjTip = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), new THREE.MeshBasicMaterial({ color: "#ff4a3a" })); burjTip.position.set(26, Y + 39.5, -20); root.add(burjTip);
@@ -424,6 +459,14 @@ export async function buildWorld({ scene, grad, G, pause = async () => {} }) { /
     const u = (t * 0.16) % 1; rider.position.lerpVectors(zipA, zipB, u).y -= 0.35; rider.visible = u < 0.94; // someone on the zipline, about every six seconds
     dhow.position.y = Y + Math.sin(t * 1.3) * 0.08; dhow.rotation.z = Math.sin(t * 1.1) * 0.04;
     for (const m of drops) { const k = (m.userData.k + t * 0.6) % 1; m.position.y = Y + 6.8 - k * 6.4; }
+    gMat.opacity = isNight ? 0.2 : 0.32;
+    sea.forEach(([x, z, ph, T], i) => { const k = (t / T + ph) % 1, a = Math.sin(Math.PI * k) ** 2; glints.setMatrixAt(i, _gm.makeScale(0.15 + a * 1.1, 1, 1).setPosition(x + (k - 0.5) * 0.9, WY, z)); });
+    ripples.forEach(([u0, side], i) => { // downstream is toward the sea (the start of the river's points)
+      const u = (u0 - t * 0.035 + 10) % 1, f = u * (river.length - 1) * 0.85, j = Math.floor(f), [x0, z0, h0] = river[j], [x1, z1, h1] = river[Math.min(j + 1, river.length - 1)], r = f - j;
+      const a = Math.sin(Math.PI * ((u0 * 7 + t * 0.4) % 1)) ** 2;
+      flow.setMatrixAt(i, _gm.makeScale(1, 1, 0.3 + a * 0.9).setPosition(x0 + (x1 - x0) * r + side * (h0 + (h1 - h0) * r), WY, z0 + (z1 - z0) * r));
+    });
+    glints.instanceMatrix.needsUpdate = flow.instanceMatrix.needsUpdate = true;
   }
 
   return { root, update, picks };

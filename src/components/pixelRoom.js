@@ -681,7 +681,7 @@ void main(){
     const a = ease(clamp(scrollP / 0.58, 0, 1)), b = ease(clamp((scrollP - 0.66) / 0.34, 0, 1));
     return {
       target: ROOM.clone().lerp(WIDE, a).lerp(world ? street.focus : WIDE, b),
-      az: AZ0 + ptr.x * degToRad(8) * (1 - a), el: EL0 + degToRad(ptr.y * 5 * (1 - a) + a * 6 - b * 3),
+      az: AZ0 + ptr.x * degToRad(lerp(8, 5, a)), el: EL0 + degToRad(ptr.y * lerp(5, 3, a) + a * 6 - b * 3), // the pointer turns the view at every zoom, a little less pulled back
       zoom: lerp(lerp(1, portrait ? 0.18 : 0.17, a), portrait ? 0.72 : 0.6, b),
       fx: lerp(portrait ? 0.5 : FXL, 0.5, a), fy: lerp(portrait ? FYP : 0.5, 0.5, a), near: NEAR,
     };

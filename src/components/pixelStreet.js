@@ -51,7 +51,7 @@ export async function buildStreet({ scene, grad, G, front, right, light, pause =
 
   /* ---------- layout (x along the building front, z toward the camera) ---------- */
   const BAY0 = front + 3.05, BAY1 = BAY0 + 7.6, LANE_A = BAY1 + 2.5, LANE_B = BAY1 + 7.5, NB0 = BAY1 + 10, NB1 = NB0 + 7.6; // pavement | bays | two lanes | bays | pavement
-  const XL = -66, XR = 46, SX0 = right + 3.05, SX1 = SX0 + 9, SZ0 = -38; // main road extent; the side road beside the building
+  const XL = -128, XR = 46, SX0 = right + 3.05, SX1 = SX0 + 9, SZ0 = -43.4; // main road extent (both ends off-screen, so traffic never vanishes in view); the side road runs on to the water
   const BAYS = [-25.15, -21.25, -17.35, -13.45, -9.55, -5.65, -1.75]; // bay centres, 3.9 apart
   const S = kit(), SG = kit(), P = kit(); // static lit, static glow, light pools on the ground
 
@@ -75,8 +75,8 @@ export async function buildStreet({ scene, grad, G, front, right, light, pause =
     S.box(0.2, 6.6, 0.2, POST, x, G + 3.6, z); S.box(0.16, 0.16, 1.9, POST, x, G + 6.85, z + 0.85 * dz); S.box(0.5, 0.18, 0.8, "#3a3d4c", x, G + 6.82, z + 1.7 * dz);
     SG.box(0.4, 0.1, 0.62, WARM, x, G + 6.7, z + 1.7 * dz); P.cyl(4.4, 0.02, "#ffcf87", x, G + 0.34, z + 2.1 * dz, "y", 14);
   };
-  for (const x of [-50, -36.6, -23.2, -11.5, 0.2]) lamp(x, BAY0 - 0.45, 1);
-  for (const x of [-58, -34, BAYS[2] - 2.6, BAYS[6] + 4.2, 26]) lamp(x, NB1 + 0.45, -1); // from this camera a post hides what is up and to its left, so these two stand clear of the Jeep and the CR-V
+  for (const x of [-114, -98, -82, -66, -50, -36.6, -23.2, -11.5, 0.2]) lamp(x, BAY0 - 0.45, 1);
+  for (const x of [-120, -104, -88, -73, -58, -34, BAYS[2] - 2.6, BAYS[6] + 4.2, 26]) lamp(x, NB1 + 0.45, -1); // from this camera a post hides what is up and to its left, so these two stand clear of the Jeep and the CR-V
   for (const z of [-30, -14]) { S.box(0.2, 6.6, 0.2, POST, SX0 - 0.45, G + 3.6, z); S.box(1.9, 0.16, 0.16, POST, SX0 + 0.4, G + 6.85, z); SG.box(0.62, 0.1, 0.4, WARM, SX0 + 1.25, G + 6.7, z); P.cyl(4.2, 0.02, "#ffcf87", SX0 + 1.7, G + 0.14, z, "y", 14); }
 
   // trees
@@ -95,8 +95,8 @@ export async function buildStreet({ scene, grad, G, front, right, light, pause =
 
   // ...and it's a proper park: a path, trees, benches, a pond and a playground (nothing tall near the two cars)
   S.box(XR - XL, 0.02, 0.8, "#c9b48a", (XL + XR) / 2, G + 0.25, NB1 + 6.4);
-  for (const x of [-63, -56, -48.5, -41, -33, 9, 17, 26, 35, 43]) tree(x, NB1 + 9.6, 0.75);
-  for (const x of [-59, -44, -30, 13, 30]) { S.box(1.5, 0.16, 0.5, "#7a5a3c", x, G + 0.66, NB1 + 5.4); for (const s2 of [-1, 1]) S.box(0.14, 0.42, 0.5, POST, x + s2 * 0.62, G + 0.45, NB1 + 5.4); }
+  for (const x of [-123, -115, -107, -99, -91, -83, -76, -69, -63, -56, -48.5, -41, -33, 9, 17, 26, 35, 43]) tree(x, NB1 + 9.6, 0.75);
+  for (const x of [-110, -86, -71, -59, -44, -30, 13, 30]) { S.box(1.5, 0.16, 0.5, "#7a5a3c", x, G + 0.66, NB1 + 5.4); for (const s2 of [-1, 1]) S.box(0.14, 0.42, 0.5, POST, x + s2 * 0.62, G + 0.45, NB1 + 5.4); }
   S.box(5.2, 0.06, 2.6, "#5aa0d0", -51.5, G + 0.27, NB1 + 8.2);
   { const X = -37, Z = NB1 + 8.2; for (const dx of [-1.1, 1.1]) S.box(0.12, 1.9, 0.12, "#c8463c", X + dx, G + 1.2, Z); S.box(2.4, 0.12, 0.12, "#c8463c", X, G + 2.15, Z); for (const dx of [-0.45, 0.45]) S.box(0.36, 0.06, 0.24, "#2f6fb0", X + dx, G + 0.85, Z); // swings
     S.box(0.12, 1.5, 0.12, "#e0c040", X + 2.4, G + 1.0, Z - 0.4); S.box(0.12, 1.5, 0.12, "#e0c040", X + 2.4, G + 1.0, Z + 0.4); S.geo(new THREE.BoxGeometry(2.2, 0.08, 0.7).rotateZ(-0.6), "#3f9a5a", X + 3.3, G + 1.1, Z); } // slide
@@ -106,6 +106,9 @@ export async function buildStreet({ scene, grad, G, front, right, light, pause =
   S.box(0.4, 0.5, 0.4, "#3e6e8e", -32.6, G + 0.55, front + 2.5); S.box(0.4, 0.5, 0.4, "#c0644f", -29.5, G + 0.55, front + 2.6);
   SG.box(0.22, 0.22, 0.22, WARM, -31, G + 2.55, front + 1.6); P.cyl(2.6, 0.02, "#ffcf87", -31, G + 0.34, front + 2.1, "y", 12);
   S.box(0.12, 3.6, 0.12, POST, -38.4, G + 2.1, BAY0 - 0.5); S.box(0.1, 0.9, 0.9, "#2b6cb0", -38.4, G + 3.6, BAY0 - 0.5);
+  // where the side road meets the water: a wooden jetty and a sampan tied up at its end
+  { const X = (SX0 + SX1) / 2; S.box(2.2, 0.14, 5.4, "#8a6a48", X, G + 0.32, SZ0 - 2.4); for (const dx of [-1, 1]) for (const dz of [-0.6, -2.4, -4.4]) S.box(0.16, 0.6, 0.16, "#5a4430", X + dx, G + 0.1, SZ0 + dz);
+    S.box(3.0, 0.4, 1.0, "#6a4a2e", X + 2.4, G + 0.15, SZ0 - 4.6); S.box(1.2, 0.45, 0.85, "#c9a56a", X + 2.2, G + 0.55, SZ0 - 4.6); }
 
   await pause(); // short tasks: the room keeps animating while this builds
   /* ---------- vehicles: each is drawn facing +x, wheels on y = 0 ---------- */
@@ -287,11 +290,21 @@ export async function buildStreet({ scene, grad, G, front, right, light, pause =
     const v = vehicle(build), beam = new THREE.Mesh(beamGeo, hazeMat); beam.position.set(len / 2 + 3.4, 0.06, 0); v.add(beam); nightOnly.push(beam);
     v.position.set(x0, G + 0.1, lane); v.rotation.y = dir > 0 ? 0 : Math.PI; movers.push({ v, dir, x0, speed }); return v;
   };
+  drive(sedan("#c0644f"), 6.8, LANE_A, 1, -112, 6.5); drive(van("#d9d2c4"), 7.4, LANE_A, 1, -84, 6.5); drive(sedan("#5b8a5a"), 6.8, LANE_B, -1, -74, 5.5); cngs.push(drive(cng, 4.2, LANE_B, -1, -102, 5.5)); // the stretch west, off-screen half the time
   drive(sedan("#3f7fb8"), 6.8, LANE_A, 1, -52, 6.5); cngs.push(drive(cng, 4.2, LANE_A, 1, -34, 6.5)); drive(van("#eceff1"), 7.4, LANE_A, 1, -12, 6.5); cngs.push(drive(cng, 4.2, LANE_A, 1, 16, 6.5));
   const busV = drive(bus, 14.5, LANE_B, -1, 30, 5.5); drive(sedan("#e0b12e"), 6.8, LANE_B, -1, 4, 5.5); cngs.push(drive(cng, 4.2, LANE_B, -1, -22, 5.5)); drive(sedan("#7b8089"), 6.8, LANE_B, -1, -46, 5.5);
 
-  // two rickshaws up and down the side road, keeping left
-  const sideMovers = [[rickshaw("#2f8f5a"), 1, -30], [rickshaw("#c8463c"), -1, -6]].map(([build, dir, z0]) => { const v = vehicle(build); v.position.set(dir > 0 ? SX1 - 2.2 : SX0 + 4.2, G + 0.1, z0); v.rotation.y = dir > 0 ? -Math.PI / 2 : Math.PI / 2; return { v, dir, z0 }; });
+  // two rickshaws up and down the side road, keeping left, turning round at the jetty and at the main road (a loop: they never jump)
+  const RA = SX1 - 2.2, RB = SX0 + 4.2, RC = (RA + RB) / 2, RR = (RA - RB) / 2, ZA = SZ0 + 2.2, ZB = BAY0 - 1.6, LS = ZB - ZA, LOOP = 2 * LS + 2 * Math.PI * RR;
+  const sideMovers = [[rickshaw("#2f8f5a"), 0.15], [rickshaw("#c8463c"), 0.62]].map(([build, s0]) => ({ v: vehicle(build), s0 }));
+  const ride = (m, t) => { // up lane RA (+z), round at the main road, down lane RB (-z), round at the jetty
+    let s = (((m.s0 * LOOP + t * 2.2) % LOOP) + LOOP) % LOOP, x, z, hx, hz;
+    if (s < LS) { x = RA; z = ZA + s; hx = 0; hz = 1; }
+    else if ((s -= LS) < Math.PI * RR) { const f = s / RR; x = RC + RR * Math.cos(f); z = ZB + RR * Math.sin(f); hx = -Math.sin(f); hz = Math.cos(f); }
+    else if ((s -= Math.PI * RR) < LS) { x = RB; z = ZB - s; hx = 0; hz = -1; }
+    else { const f = (s - LS) / RR; x = RC - RR * Math.cos(f); z = ZA - RR * Math.sin(f); hx = Math.sin(f); hz = -Math.cos(f); }
+    m.v.position.set(x, G + 0.1, z); m.v.rotation.y = Math.atan2(-hz, hx);
+  };
   const rickshaws = sideMovers.map((m) => m.v);
 
   await pause();
@@ -321,7 +334,7 @@ export async function buildStreet({ scene, grad, G, front, right, light, pause =
       if (flashT <= 0) flashCar = null;
     }
     for (const m of movers) m.v.position.x = XL + 2 + ((((m.x0 - XL - 2 + m.dir * m.speed * t) % SPAN) + SPAN) % SPAN);
-    { const z0 = SZ0 + 3, L = BAY0 - 3 - z0; for (const m of sideMovers) m.v.position.z = z0 + ((((m.z0 - z0 + m.dir * 2.2 * t) % L) + L) % L); }
+    for (const m of sideMovers) ride(m, t);
     brolly.visible = env.rain;
     for (let i = 0; i < N; i++) {
       const w = walkers[i], L = w.to - w.from; let p = w.from, d = 1, sw = 0, bob = 0, sit = 0;
