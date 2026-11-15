@@ -8,14 +8,14 @@
    drawn or updated until the camera has left the room (root.visible). */
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import { spriteLayer, streetSheet, personCell } from "./pixelSprites.js";
 
 export const STREET_LABELS = { crv: "1999 Honda CR-V", jeep: "2005 Jeep Liberty", bus: "City bus", cng: "CNG", rickshaw: "Rickshaw", bmw: "BMW 320d (F30)" };
 
 const TYRE = "#15161b", HUB = "#b4b8c2", GLASS = "#1f2c3a", DARK = "#26272d", CHROME = "#c9ccd3", LAMP = "#f6efd8", TAIL = "#c8261f";
 const WARM = "#ffd98a", HEAD = "#fff3c4", RED = "#ff4a3a"; // glow colours (night only)
+const SKINS = ["#9b6b4b", "#7d5238", "#b98863"]; // the drivers of the CNGs and rickshaws
 const WALK = "#8d919c", ASPHALT = "#3b3e48", MARK = "#dcd9cc", POST = "#2b2e3d";
-const SHIRTS = ["#d2553a", "#3e6e8e", "#d9a441", "#5b8a5a", "#8a5a9e", "#e0d4bc", "#2f4f6b", "#c0644f", "#b9a4cf", "#4f8f8a"];
-const SKINS = ["#9b6b4b", "#7d5238", "#b98863"], BROLLY = ["#c8463c", "#3f9a7a", "#e0a83a", "#3e6e8e", "#e9e2d3"];
 
 // A kit collects coloured boxes, cylinders and any other geometry, then merges them into one vertex-coloured mesh.
 const _kc = new THREE.Color();
@@ -135,6 +135,11 @@ export async function buildStreet({ scene, grad, G, front, right, light, pause =
     }
   };
 
+  // a Dhaka plate: two lines of dark script on white (city and class above, the number below); x is the plate's face
+  const plateText = (b, x, y, w) => { for (const [dy, n] of [[0.022, 4], [-0.022, 6]]) for (let i = 0; i < n; i++) b.box(0.006, 0.016, w / 12, "#2d3546", x, y + dy, (i - (n - 1) / 2) * (w / 7.5)); };
+  // glass reads as glass: light bands across the windscreen (len along its slope, at slope angle ang) and a streak per side window
+  const glint = (b, x, y, ang, z0, w, len) => rbox(b, len, 0.008, w, ang, "#4a6480", x, y, z0);
+  const streak = (b, xs, y, zs) => { for (const x of xs) for (const s of [-1, 1]) rbox(b, 0.3, 0.035, 0.01, 0.95, "#3d556e", x, y, s * zs); };
   // 2005 Jeep Liberty (KJ), Stone White, Sport trim: upright and square, round headlamps either side of the
   // seven-slot grille, grey bumpers and squared-off grey fender flares, black roof rails, spare wheel on the tailgate.
   const jeep = (b, g) => {
@@ -185,7 +190,11 @@ export async function buildStreet({ scene, grad, G, front, right, light, pause =
     b.box(0.14, 0.12, 0.012, "#dcdfdb", -1.62, 0.95, 0.893); // fuel door
     b.geo(new THREE.BoxGeometry(0.014, 0.75, 0.014).rotateZ(0.12), BLK, 1.55, 1.47, 0.86); // mast antenna
     for (const x of [-0.4, -1.5]) b.box(0.05, 0.035, 1.42, "#2b2d31", x, 1.865, 0); // crossbars
-    b.box(0.015, 0.11, 0.32, "#f2efe6", 2.327, 0.6, 0); b.box(0.017, 0.022, 0.24, "#2d3546", 2.328, 0.6, 0); // front plate
+    b.box(0.015, 0.11, 0.32, "#f2efe6", 2.327, 0.6, 0); plateText(b, 2.335, 0.6, 0.3); // front plate
+    for (const s of [-1, 1]) { b.cyl(0.142, 0.02, "#d9dcd8", 2.212, 0.86, s * 0.55, "x", 14); b.cyl(0.045, 0.012, "#ffffff", 2.252, 0.86, s * 0.55, "x", 10); } // chrome bezels, reflectors
+    rbox(b, 1.15, 0.026, 0.62, Math.atan2(0.05, -1.2), W, 1.49, 1.138, 0); // the hood's raised centre
+    glint(b, 0.616, 1.405, Math.atan2(0.58, -0.64), 0.25, 0.5, 0.06); glint(b, 0.507, 1.504, Math.atan2(0.58, -0.64), 0.35, 0.3, 0.04);
+    streak(b, [0.1, -0.6, -1.55], 1.45, 0.795);
     b.box(0.015, 0.15, 0.3, "#f2efe6", -2.225, 0.78, -0.48); b.box(0.017, 0.03, 0.22, "#2d3546", -2.226, 0.78, -0.48); g.box(0.02, 0.02, 0.1, "#fff3c4", -2.228, 0.87, -0.48); // rear plate, its lamp
     b.box(0.02, 0.04, 0.16, CHROME, -2.222, 1.1, -0.48); // tailgate handle
     b.geo(new THREE.BoxGeometry(0.02, 0.42, 0.02).rotateX(0.6), BLK, -2.214, 1.36, -0.05); // rear wiper
@@ -218,7 +227,7 @@ export async function buildStreet({ scene, grad, G, front, right, light, pause =
       b.box(0.02, 0.42, 0.18, TAIL, -2.237, 0.88, s * 0.74); b.box(0.022, 0.08, 0.16, "#e8e4dc", -2.238, 0.73, s * 0.74); b.box(0.1, 0.4, 0.02, TAIL, -2.19, 0.88, s * 0.852);
       g.box(0.02, 0.42, 0.18, RED, -2.245, 0.88, s * 0.74);
     }
-    b.box(0.02, 0.12, 0.72, BLK, 2.245, 0.8, 0); b.box(0.02, 0.07, 0.09, CHROME, 2.258, 0.8, 0); // grille and the H
+    b.box(0.02, 0.12, 0.72, BLK, 2.245, 0.8, 0); for (const z of [-0.04, 0.04]) b.box(0.02, 0.1, 0.022, CHROME, 2.258, 0.8, z); b.box(0.02, 0.022, 0.06, CHROME, 2.258, 0.8, 0); // grille and the H
     b.box(0.22, 0.4, 1.76, CH, 2.17, 0.52, 0); b.box(0.02, 0.1, 0.9, BLK, 2.282, 0.45, 0); // front bumper, intake
     b.box(0.2, 0.36, 1.76, CH, -2.18, 0.52, 0); b.box(0.02, 0.11, 0.3, "#e8e2cf", -2.29, 0.6, 0); // rear bumper, plate
     rim(b, AX[0], 0.335, 0.75, 0.205, 0.215, 5, "#c7cbd2", "#2a2c31"); rim(b, AX[1], 0.335, 0.75, 0.205, 0.215, 5, "#c7cbd2", "#2a2c31");
@@ -235,7 +244,11 @@ export async function buildStreet({ scene, grad, G, front, right, light, pause =
     }
     b.geo(new THREE.BoxGeometry(0.014, 0.7, 0.014).rotateZ(0.5), BLK, 0.74, 1.42, 0.8); // antenna
     for (const x of [-0.5, -1.6]) b.box(0.05, 0.035, 1.42, BLK, x, 1.728, 0); // crossbars
-    b.box(0.015, 0.1, 0.3, "#f2efe6", 2.288, 0.58, 0); b.box(0.017, 0.02, 0.22, "#2d3546", 2.289, 0.58, 0); // front plate
+    b.box(0.015, 0.1, 0.3, "#f2efe6", 2.288, 0.58, 0); plateText(b, 2.296, 0.58, 0.28); // front plate
+    for (const s of [-1, 1]) { b.cyl(0.055, 0.012, "#ffffff", 2.252, 0.8, s * 0.56, "x", 10); b.cyl(0.035, 0.012, "#f4f6f8", 2.252, 0.8, s * 0.7, "x", 8); } // reflectors
+    rbox(b, 1.05, 0.02, 0.7, Math.atan2(0.11, -1.17), RD, 1.585, 0.995, 0); // the hood's centre
+    glint(b, 0.607, 1.302, Math.atan2(0.55, -0.77), 0.25, 0.5, 0.06); glint(b, 0.476, 1.396, Math.atan2(0.55, -0.77), 0.35, 0.3, 0.04);
+    streak(b, [0.15, -0.55, -1.55], 1.33, 0.785);
     b.box(0.017, 0.025, 0.2, "#2d3546", -2.296, 0.6, 0); g.box(0.02, 0.02, 0.1, "#fff3c4", -2.298, 0.68, 0); // rear plate's number, its lamp
     b.box(0.02, 0.04, 0.14, CHROME, -2.24, 0.82, -0.62); // tailgate handle
     b.geo(new THREE.BoxGeometry(0.02, 0.36, 0.02).rotateX(0.7), BLK, -2.224, 1.38, 0.35); // rear wiper
@@ -349,24 +362,19 @@ export async function buildStreet({ scene, grad, G, front, right, light, pause =
   const rickshaws = sideMovers.map((m) => m.v);
 
   await pause();
-  /* ---------- people: instanced parts walked up and down the pavements ---------- */
+  /* ---------- people: pixel sprites walked up and down the pavements (pixelSprites.js) ---------- */
   const walkers = [];
-  const walker = (axis, fixed, from, to, speed, phase) => walkers.push({ axis, fixed, from, to, speed, phase });
+  const walker = (axis, fixed, from, to, speed, phase, who) => walkers.push({ axis, fixed, from, to, speed, phase, who: who ?? walkers.length });
   for (let i = 0; i < 8; i++) walker("x", front + 0.8 + (i % 3) * 0.75, -42, SX0 - 0.6, 1.5 + (i % 4) * 0.35, i * 11.3);
   for (let i = 0; i < 3; i++) walker("z", right + 0.9 + i * 0.6, SZ0 + 4, front + 2, 1.6 + i * 0.3, i * 7.1);
   for (let i = 0; i < 5; i++) walker("x", NB1 + 0.8 + (i % 2) * 1.1, -52, 34, 1.4 + (i % 3) * 0.4, i * 17.7);
-  walker("x", front + 2.5, -32.6, -32.6, 0, 0); walker("x", front + 2.6, -29.5, -29.5, 0, 0); // two regulars sitting at the tea stall
+  walker("x", front + 2.5, -32.6, -32.6, 0, 0, 3); walker("x", front + 2.6, -29.5, -29.5, 0, 0, 4); // two regulars on the tea stall's stools
   const N = walkers.length;
-  const part = (geo, color) => { const m = new THREE.InstancedMesh(geo, new THREE.MeshToonMaterial({ color, gradientMap: grad }), N); m.frustumCulled = false; m.castShadow = m.receiveShadow = false; root.add(m); return m; };
-  const torso = part(new THREE.BoxGeometry(0.5, 1.05, 0.8), "#ffffff"), headM = part(new THREE.BoxGeometry(0.55, 0.55, 0.55), "#ffffff"), hair = part(new THREE.BoxGeometry(0.6, 0.2, 0.6), "#1d1715");
-  const legGeo = new THREE.BoxGeometry(0.32, 1.0, 0.3).translate(0, -0.5, 0), legL = part(legGeo, "#2b2c3e"), legR = part(legGeo, "#2b2c3e");
-  const brolly = part(mergeGeometries([new THREE.ConeGeometry(1.05, 0.45, 8), new THREE.BoxGeometry(0.06, 1.3, 0.06).translate(0, -0.8, 0)]), "#ffffff"); brolly.visible = false;
-  for (let i = 0; i < N; i++) { torso.setColorAt(i, _c.set(SHIRTS[i % SHIRTS.length])); headM.setColorAt(i, _c.set(SKINS[i % SKINS.length])); brolly.setColorAt(i, _c.set(BROLLY[i % BROLLY.length])); }
-  const base = new THREE.Matrix4(), loc = new THREE.Matrix4(), tmp = new THREE.Matrix4();
+  // drawn 40 texels tall (32 of them the figure): about a person's height beside the cars at street level
+  const people = spriteLayer({ sheet: streetSheet(), count: N, grad, unit: 0.07, parent: root });
 
   let wasNight = null, flashT = 0, flashCar = null;
-  const ZERO = new THREE.Matrix4().makeScale(0, 0, 0);
-  function update(t, env, dt = 0, focus = null) {
+  function update(t, env, dt = 0, focus = null, view = null) {
     const night = env.lamp > 0.4;
     if (night !== wasNight) { wasNight = night; nightOnly.forEach((o) => (o.visible = night)); starLamp.intensity = night ? 70 : 0; }
     if (flashCar) { // the lock chirp: lamps blink twice
@@ -376,23 +384,17 @@ export async function buildStreet({ scene, grad, G, front, right, light, pause =
     }
     for (const m of movers) m.v.position.x = XL + 2 + ((((m.x0 - XL - 2 + m.dir * m.speed * t) % SPAN) + SPAN) % SPAN);
     for (const m of sideMovers) ride(m, t);
-    brolly.visible = env.rain;
     for (let i = 0; i < N; i++) {
-      const w = walkers[i], L = w.to - w.from; let p = w.from, d = 1, sw = 0, bob = 0, sit = 0;
-      if (L > 0) { const u = (t * w.speed + w.phase) % (2 * L); d = u < L ? 1 : -1; p = w.from + (u < L ? u : 2 * L - u); const ph = t * w.speed * 2.6 + w.phase; sw = Math.sin(ph) * 0.55; bob = Math.abs(Math.cos(ph)) * 0.05; }
-      else { sit = 0.45; sw = 1.2; }
+      const w = walkers[i], L = w.to - w.from;
+      if (L <= 0) { people.set(i, w.fixed === front + 2.5 ? w.from + 0.05 : w.from, G + 0.3, w.fixed, personCell(w.who, "S"), i % 2 === 1, 0.32); continue; } // nudged toward the camera, so the stool is under them
+      const u = (t * w.speed + w.phase) % (2 * L), out = u < L, p = w.from + (out ? u : 2 * L - u);
       const x = w.axis === "x" ? p : w.fixed, z = w.axis === "x" ? w.fixed : p;
-      if (focus && w.fixed > NB0 && Math.abs(x - cars[focus].position.x) < 9) { for (const m of [torso, headM, hair, legL, legR, brolly]) m.setMatrixAt(i, ZERO); continue; }
-      const yaw = L > 0 ? (w.axis === "x" ? (d > 0 ? 0 : Math.PI) : d > 0 ? -Math.PI / 2 : Math.PI / 2) : Math.PI / 2;
-      base.makeRotationY(yaw).setPosition(x, G + 0.3 + bob - sit, z);
-      torso.setMatrixAt(i, tmp.multiplyMatrices(base, loc.makeTranslation(0, 1.53, 0)));
-      headM.setMatrixAt(i, tmp.multiplyMatrices(base, loc.makeTranslation(0, 2.33, 0)));
-      hair.setMatrixAt(i, tmp.multiplyMatrices(base, loc.makeTranslation(0, 2.66, 0)));
-      legL.setMatrixAt(i, tmp.multiplyMatrices(base, loc.makeRotationZ(sw).setPosition(0, 1.0, 0.2)));
-      legR.setMatrixAt(i, tmp.multiplyMatrices(base, loc.makeRotationZ(sit ? sw : -sw).setPosition(0, 1.0, -0.2)));
-      if (env.rain) brolly.setMatrixAt(i, tmp.multiplyMatrices(base, loc.makeTranslation(0.1, 3.25, 0)));
+      if (focus && w.fixed > NB0 && Math.abs(x - cars[focus].position.x) < 9) { people.hide(i); continue; }
+      // +x walks toward the bottom right of the screen and +z toward the bottom left: front views; the other ways, backs
+      const toCam = out, view = toCam ? "F" : "B", flip = w.axis === "x" ? toCam : !toCam;
+      people.set(i, x, G + 0.3, z, personCell(w.who, view, Math.floor(u / 0.34) % 4, env.rain), flip);
     }
-    for (const m of [torso, headM, hair, legL, legR, brolly]) m.instanceMatrix.needsUpdate = true;
+    if (view) people.update(view.cam, view.lw, view.lh);
   }
 
   const cars = { jeep: jeepCar, crv: crvCar };

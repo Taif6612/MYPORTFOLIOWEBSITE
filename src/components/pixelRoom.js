@@ -13,6 +13,7 @@
    Sky, light and the wristwatch follow the visitor's clock. */
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import { spriteLayer, taifSheet, TAIF } from "./pixelSprites.js";
 import { buildStreet, STREET_LABELS } from "./pixelStreet.js";
 import { buildWorld, WORLD_LABELS } from "./pixelWorld.js";
 const PLACE = { ...STREET_LABELS, ...WORLD_LABELS };
@@ -83,7 +84,7 @@ uniform sampler2D tC,tD,tN;uniform vec2 res;uniform float span,dt,ck;varying vec
 float D(vec2 u){return texture2D(tD,u).x*span;}
 vec3 N(vec2 u){return texture2D(tN,u).xyz*2.-1.;}
 void main(){
-  vec2 p=1./res; vec3 col=texture2D(tC,vUv).rgb; float d=D(vUv); vec3 n=N(vUv);
+  vec2 p=1./res; vec4 c4=texture2D(tC,vUv); vec3 col=c4.rgb; float d=D(vUv); vec3 n=N(vUv);
   vec2 o[4]; o[0]=vec2(p.x,0.); o[1]=vec2(-p.x,0.); o[2]=vec2(0.,p.y); o[3]=vec2(0.,-p.y);
   float dd=0., nd=0.;
   for(int i=0;i<4;i++){
@@ -93,7 +94,7 @@ void main(){
     float di=clamp(sign((dn-d)*.25+.0025),0.,1.);
     nd+=(1.-dot(n,nn))*di*ni;
   }
-  col = step(dt,dd)>0. ? col*.58 : col*(1.+step(.25,nd)*ck);
+  if(c4.a>.5) col = step(dt,dd)>0. ? col*.58 : col*(1.+step(.25,nd)*ck); // sprites (alpha 0) carry their own outline
   gl_FragColor=vec4(col,1.);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
@@ -402,16 +403,8 @@ void main(){
   box(0.46, 0.3, 0.14, C.bag, 0.08, 1.12, -0.6); box(0.3, 0.02, 0.02, "#5a6078", 0.08, 1.2, -0.525);
   box(0.05, 0.36, 0.05, C.bag, -0.1, 1.42, -0.63); box(0.05, 0.36, 0.05, C.bag, 0.26, 1.42, -0.63);
   const me = new THREE.Group(); me.position.copy(CH); scene.add(me);
-  box(0.56, 0.3, 0.5, C.pants, 0, 1.02, 0, me);
-  const torso = new THREE.Group(); torso.position.set(0, 1.15, 0); me.add(torso);
-  box(0.62, 0.72, 0.42, C.tee, 0, 0.38, 0, torso);
-  const head = new THREE.Group(); head.position.set(0, 0.98, 0); torso.add(head);
-  box(0.5, 0.5, 0.48, C.skin, 0, 0, 0, head); box(0.54, 0.2, 0.52, C.hair, 0, 0.2, 0, head); box(0.54, 0.4, 0.14, C.hair, 0, 0.04, 0.2, head);
-  box(0.06, 0.07, 0.02, C.hair, -0.12, 0.04, -0.245, head); box(0.06, 0.07, 0.02, C.hair, 0.12, 0.04, -0.245, head);
-  box(0.46, 0.14, 0.04, C.hair, 0, -0.18, -0.235, head); // beard
-  const thighs = [limbMesh(0.2, C.pants, me), limbMesh(0.2, C.pants, me)], shins = [limbMesh(0.17, C.pants, me), limbMesh(0.17, C.pants, me)];
-  for (const s of [-1, 1]) { const i = s < 0 ? 0 : 1; limb(thighs[i], new V3(s * 0.15, 1.0, 0), new V3(s * 0.16, 1.0, -0.55)); limb(shins[i], new V3(s * 0.16, 1.0, -0.55), new V3(s * 0.17, 0.12, -0.62)); box(0.2, 0.1, 0.3, C.shoe, s * 0.17, 0.06, -0.7, me); }
-  const uArms = [limbMesh(0.16, C.tee, me), limbMesh(0.16, C.tee, me)], fArms = [limbMesh(0.13, C.skin, me), limbMesh(0.13, C.skin, me)], hands = [limbMesh(0.12, C.skin, me), limbMesh(0.12, C.skin, me)];
+  { const hit = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.75, 0.7), basic("#000000")); hit.position.set(0, 1.75, -0.15); hit.visible = false; me.add(hit); } // the raycaster ignores .visible
+  const meSprite = spriteLayer({ sheet: taifSheet(), count: 1, grad, unit: 0.038, layer: FX, parent: scene }); // drawn for the room shot: one texel per art pixel there
   // "z z z" for the small hours
   const zGeo = mergeGeometries([new THREE.BoxGeometry(0.16, 0.04, 0.01).translate(0, 0.075, 0), new THREE.BoxGeometry(0.2, 0.04, 0.01).rotateZ(0.72), new THREE.BoxGeometry(0.16, 0.04, 0.01).translate(0, -0.075, 0)]);
   const zs = [0, 1, 2].map(() => { const m = fx(new THREE.Mesh(zGeo, basic("#ffffff", { transparent: true, depthWrite: false }))); m.visible = false; scene.add(m); return m; });
@@ -683,6 +676,7 @@ void main(){
     else { const free = Math.max(0.3, 0.975 - (textR + 0.025)); VH = Math.max(10, (9.2 * H) / (W * free)); FXL = clamp(textR + 0.025 + free / 2 + (0.28 * H) / (VH * W), 0.6, 0.8); }
     dirty = true;
   }
+  const view = { cam, get lw() { return lw; }, get lh() { return lh; } }; // for sprites: the camera and the size of the frame in art pixels
   const ptr = { x: 0, y: 0, tx: 0, ty: 0, inside: false, last: 0 };
   let scrollP = 0;
   // scroll: 0 = the room · 0.58 = the whole block with its street · 0.66 to 1 = down to the two cars parked outside
@@ -808,24 +802,14 @@ void main(){
   }
 
   /* ---------- tiny Taif: types, waves, and sleeps on the keyboard between 1 and 5 am ---------- */
-  const SH = [new V3(-0.36, 0.69, -0.02), new V3(0.36, 0.69, -0.02)]; // shoulders, in the torso's space
   function poseMe(t, dt) {
     let wave = 0;
     if (waveT >= 0) { waveT += dt; wave = waveT < 2.4 ? Math.sin((Math.min(1, waveT / 0.35) * Math.PI) / 2) * (waveT > 2 ? (2.4 - waveT) / 0.4 : 1) : 0; if (waveT > 2.4) waveT = -1; }
     wakeT = Math.max(0, wakeT - dt);
     const before = sleepK; sleepK += ((asleep() ? 1 : 0) - sleepK) * (reduced ? 1 : Math.min(1, dt * 3)); if (sleepK < 0.002) sleepK = 0;
-    const sk = sleepK, idleNod = Math.sin(t * 0.7) * 0.03;
-    torso.rotation.set(-0.85 * sk, -0.55 * wave, 0);
-    head.rotation.set(lerp(0.12 + idleNod, 0.2, sk) * (1 - wave), -1.25 * wave, 0.45 * sk);
-    torso.updateMatrix();
-    for (let i = 0; i < 2; i++) {
-      const s = i ? 1 : -1, tap = reduced || sk > 0.5 ? 0 : Math.max(0, Math.sin(t * 14 + i * 2.1)) * 0.035;
-      const el = new V3(s * 0.4, 1.62, -0.42).lerp(_a.set(s * 0.5, 1.68, -0.74), sk), hd = new V3(s * 0.2, 1.73 - tap, -0.86).lerp(_a.set(s * 0.2, 1.7, -1.02), sk);
-      if (i === 1 && wave > 0) { el.lerp(new V3(0.62, 2.25, 0.05), wave); hd.lerp(new V3(0.68 + Math.sin(t * 12) * 0.12, 2.75, 0.2), wave); }
-      const sh = SH[i].clone().applyMatrix4(torso.matrix);
-      limb(uArms[i], sh, el); limb(fArms[i], el, hd);
-      limb(hands[i], hd, hd.clone().add(_b.copy(hd).sub(el).normalize().multiplyScalar(0.12)));
-    }
+    // typing in bursts with short pauses; turned round while waving; head down on the desk while asleep
+    const burst = !reduced && Math.sin(t * 0.9) > -0.35, cell = sleepK > 0.5 ? TAIF.sleep : wave > 0.25 ? (Math.sin(t * 12) > 0 ? TAIF.wave0 : TAIF.wave1) : burst && Math.floor(t * 7) % 2 ? TAIF.type1 : TAIF.type0;
+    meSprite.set(0, CH.x, 0.88, CH.z, cell); // feet of the sprite on the seat
     return wave > 0 || Math.abs(sleepK - before) > 0.0005;
   }
 
@@ -877,14 +861,14 @@ void main(){
     // reduced motion: only render when something changed (a click, a scroll, the second hand)
     if (reduced && !dirty && !from && !moving && sec === lastSec) return;
     lastSec = sec; dirty = false;
-    if (mode !== "site") placeCam(currentShot);
+    if (mode !== "site") { placeCam(currentShot); meSprite.update(cam, lw, lh); }
 
     const reveal = clamp((scrollP - 0.03) / 0.2, 0, 1);
     bld.visible = reveal > 0; for (const m of bMats) m.color.copy(ENV.sky).lerp(m.userData.c, reveal);
     if (world) street.root.visible = world.root.visible = reveal > 0;
     if (!reduced && mode !== "site" && scrollP < 0.75) paintSky(t);
     if (reveal > 0 && world) { // a bug in a moving part is reported once and skipped: it must never stop the frame being drawn
-      try { world.update(t, ENV); street.update(t, ENV, dt, mode === "car" || (from && focusCar) ? focusCar : null); } catch (e) { if (!outsideErr) { outsideErr = true; ui.fail(String(e)); } }
+      try { world.update(t, ENV); street.update(t, ENV, dt, mode === "car" || (from && focusCar) ? focusCar : null, view); } catch (e) { if (!outsideErr) { outsideErr = true; ui.fail(String(e)); } }
     }
     updateRain(rainIn, ENV.rain && !reduced, 1, t); updateRain(rainOut, ENV.rain && !reduced, reveal, t);
     setV(tex, 0.7, 0.3 - (Math.sin(t * 0.12) * 0.5 + 0.5) * 0.3);
@@ -921,13 +905,13 @@ void main(){
     }
     lantern.material.color.set(ENV.lamp > 0.3 ? "#ffcf6a" : "#a08a6a");
     phoneScreen.material.color.set(phoneT > 0 && Math.floor(phoneT * 6) % 2 ? "#cfe4ff" : "#ffffff"); phone.rotation.z = phoneT > 0 && !reduced ? Math.sin(t * 40) * 0.05 : 0;
-    me.visible = !(mode === "dive" && modeT > 0.18) && mode !== "site"; // step out of the way of the dive
+    me.visible = meSprite.mesh.visible = !(mode === "dive" && modeT > 0.18) && mode !== "site"; // step out of the way of the dive
     const min = d.getMinutes() + sec / 60, hr = (d.getHours() % 12) + min / 60;
     hS.rotation.y = (-sec / 60) * Math.PI * 2; hM.rotation.y = (-min / 60) * Math.PI * 2; hH.rotation.y = (-hr / 12) * Math.PI * 2;
     if (mode === "watch") ui.watch(d.getTime());
     if (sleepK > 0.05) {
       // rise up and to the left on screen, over the dark wall (to the right they vanish against the monitor)
-      head.getWorldPosition(_w); _a.set(1, 0, 0).applyQuaternion(cam.quaternion); _b.set(0, 1, 0).applyQuaternion(cam.quaternion);
+      _w.set(CH.x + 0.05, 2.0, CH.z - 0.3); _a.set(1, 0, 0).applyQuaternion(cam.quaternion); _b.set(0, 1, 0).applyQuaternion(cam.quaternion);
       zs.forEach((z, i) => { const u = ((reduced ? 0.35 : t * 0.22) + i / 3) % 1; z.visible = true; z.position.copy(_w).addScaledVector(_a, -0.55 - u * 0.5).addScaledVector(_b, 0.5 + u * 1.0); z.quaternion.copy(cam.quaternion); z.scale.setScalar(0.8 + u * 1.0); z.material.opacity = Math.sin(Math.PI * u) * sleepK; });
     } else zs.forEach((z) => (z.visible = false));
     const hintsOn = !reduced && mode === "room" && scrollP < 0.05 && !from;
@@ -959,7 +943,7 @@ void main(){
   // used to block for ~150 ms. Draw one object per shader variant, each in its own task, into the same
   // targets the real frame uses (a private layer hides everything else; lights join it so the variant matches).
   const WARM = 2, lights = [hemi, sky, lamp, fairy, monLight, nook, streetLamp], reps = new Map();
-  const variant = (o) => { const m = o.material; return !m || Array.isArray(m) || !o.visible ? null : [o.type, !!o.isInstancedMesh, o.receiveShadow, m.type, m.vertexColors, !!m.map, m.side, m.transparent].join(); };
+  const variant = (o) => { const m = o.material; return !m || Array.isArray(m) || !o.visible ? null : [o.type, !!o.isInstancedMesh, o.receiveShadow, m.type, m.vertexColors, !!m.map, m.side, m.transparent, m.customProgramCacheKey === THREE.Material.prototype.customProgramCacheKey ? "" : m.customProgramCacheKey()].join(); };
   scene.traverse((o) => { const key = variant(o); if (key && !reps.has(key)) reps.set(key, o); });
   lights.forEach((l) => l.layers.enable(WARM));
   renderer.shadowMap.needsUpdate = true; // the first warm-up draw also fills the shadow maps
