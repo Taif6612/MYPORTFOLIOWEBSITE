@@ -405,6 +405,29 @@ void main(){
   const me = new THREE.Group(); me.position.copy(CH); scene.add(me);
   { const hit = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.75, 0.7), basic("#000000")); hit.position.set(0, 1.75, -0.15); hit.visible = false; me.add(hit); } // the raycaster ignores .visible
   const meSprite = spriteLayer({ sheet: taifSheet(), count: 1, grad, unit: 0.038, layer: FX, parent: scene }); // drawn for the room shot: one texel per art pixel there
+  /* What tiny Taif is up to: picked for the visitor's hour on each visit, and changed every two or three minutes.
+     at: where the sprite stands (or sits); flip: the drawings face up-right, so the left wall's things need it;
+     beat: seconds per frame; hit: the click box round him [w, h, d, centre y]; zz: where the "z z z" rise from. */
+  const ACTS = {
+    desk: { at: new V3(CH.x, 0.88, CH.z), cells: [TAIF.desk0, TAIF.desk1], wave: [TAIF.deskWave0, TAIF.deskWave1], beat: 0.14, hit: [0.8, 1.75, 0.7, 0.87], zz: new V3(CH.x + 0.05, 2.0, CH.z - 0.3), say: "Hi! Thanks for stopping by." },
+    ps2: { at: new V3(-0.55, -0.12, 2.2), flip: true, cells: [TAIF.ps20, TAIF.ps21], wave: [TAIF.deskWave0, TAIF.deskWave1], waveAt: new V3(-0.55, 0.56, 2.2), beat: 0.3, hit: [0.9, 1.6, 0.9, 1.0], say: "One more race, then back to work." },
+    sleep: { at: new V3(2.12, 0.18, 2.15), fwd: 0.45, cells: [TAIF.sleep0, TAIF.sleep1], beat: 1.8, hit: [1.1, 0.6, 1.5, 0.25], zz: new V3(FU.x + 0.45, 0.45, FU.z - 1.1), say: "Shh. He's asleep." },
+    trophy: { at: new V3(-1.8, 0, -1.15), flip: true, cells: [TAIF.trophy0, TAIF.trophy1], wave: [TAIF.wave0, TAIF.wave1], beat: 2.2, hit: [0.8, 3.3, 0.7, 1.65], say: "Best Algorithm Project at TechFest. Still proud of it." },
+    book: { at: new V3(-2.0, 0, -0.75), flip: true, cells: [TAIF.book0, TAIF.book1], wave: [TAIF.wave0, TAIF.wave1], beat: 0.55, hit: [0.8, 3.6, 0.7, 1.8], say: "Almost got it…" },
+    window: { at: new V3(1.2, 0, -1.35), cells: [TAIF.window0, TAIF.window1], wave: [TAIF.wave0, TAIF.wave1], beat: 2.6, hit: [0.8, 3.3, 0.7, 1.65], say: "Nice out there, isn't it?" },
+  };
+  // the visitor's hour decides what is likely: asleep in the small hours, the window in the morning, the desk by day, the PS2 at night
+  const actOdds = (h, rain) => h >= 1 && h < 6 ? { sleep: 8, desk: 1 } : h < 9 ? { window: 3, desk: 3, book: 1.5, trophy: 1 }
+    : h < 17 ? { desk: 5, book: 1.5, trophy: 1.5, window: 1 + (rain ? 2 : 0), ps2: 1 } : h < 23 ? { desk: 3, ps2: 3, window: 1 + (rain ? 2 : 0), book: 1, trophy: 1 } : { desk: 4, ps2: 2, sleep: 1.5 };
+  const pickAct = (prev) => {
+    const odds = actOdds(ENV ? ENV.hour : new Date().getHours(), ENV && ENV.rain), keys = Object.keys(odds).filter((k) => k !== prev);
+    let r = Math.random() * keys.reduce((a, k) => a + odds[k], 0);
+    for (const k of keys) if ((r -= odds[k]) <= 0) return k;
+    return keys[0] || "desk";
+  };
+  const forced = ACTS[Q.get("act")] ? Q.get("act") : null; // ?act=ps2 shows one activity, for checks
+  let act = null, actT = 0, actNext = 130;
+  const hitBox = me.children[0];
   // "z z z" for the small hours
   const zGeo = mergeGeometries([new THREE.BoxGeometry(0.16, 0.04, 0.01).translate(0, 0.075, 0), new THREE.BoxGeometry(0.2, 0.04, 0.01).rotateZ(0.72), new THREE.BoxGeometry(0.16, 0.04, 0.01).translate(0, -0.075, 0)]);
   const zs = [0, 1, 2].map(() => { const m = fx(new THREE.Mesh(zGeo, basic("#ffffff", { transparent: true, depthWrite: false }))); m.visible = false; scene.add(m); return m; });
@@ -755,7 +778,7 @@ void main(){
 
   let mode = "room", modeT = 0, from = null, hovered = null, lampOn = true, growth = 0, coffeeLevel = 0.6, burst = 0, waveT = -1, wakeT = 0, sleepK = 0, phoneT = 0, catK = 0, catT = 0, duckT = 0, pcT = 0, crtT = 0;
   const go = (m, extra) => { if (mode === "car" && m !== "car") setTimeout(() => { if (mode !== "car") focusCar = null; }, 1400); from = currentShot; mode = m; modeT = 0; ui.mode(m, extra); dirty = true; };
-  const asleep = () => ENV.hour >= 1 && ENV.hour < 5 && wakeT <= 0;
+  const asleep = () => act === "sleep";
   function click(nx, ny) {
     if (mode === "phone") { go("room"); setTimeout(() => { if (!gone) ui.go("#booking"); }, 600); return true; } // the close-up's call to action
     if (mode === "watch" || mode === "car") { go("room"); return true; }
@@ -768,7 +791,7 @@ void main(){
     }
     if (mode !== "room" || scrollP > 0.05) return false;
     const n = pick(nx, ny); if (!n) return false;
-    seen.add(n); ui.sound(n);
+    seen.add(n); ui.sound(n); ui.found(); // the visitor has found that things here can be clicked
     if (n === "screen") go("dive");
     else if (n === "watch") go("watch");
     else if (n === "mug") { coffeeLevel = 1; steam.forEach((s) => (s.userData.t = Math.random() * 0.3)); burst = 1.5; ui.toast("Fresh coffee."); }
@@ -779,10 +802,7 @@ void main(){
       else if (growth === 4) { box(0.22, 0.22, 0.22, C.flower, 0, 1.0, 0, plant); box(0.1, 0.1, 0.1, C.mug, 0, 1.12, 0, plant); ui.toast("It flowered."); }
       else ui.toast("That’s as big as it gets.");
     }
-    else if (n === "me") {
-      if (asleep()) { wakeT = 9; ui.toast("Still up? Me too."); }
-      else { waveT = 0; ui.toast("Hi! Thanks for stopping by."); }
-    }
+    else if (n === "me") { if (ACTS[act].wave) waveT = 0; ui.toast(ACTS[act].say); }
     else if (n === "trophy") ui.toast(copy.trophy || "A trophy.");
     else if (n === "degree") ui.toast(copy.degree || "A degree.");
     else if (n === "frames") ui.go("#work");
@@ -801,16 +821,30 @@ void main(){
     dirty = shadowsDirty = true; return true;
   }
 
-  /* ---------- tiny Taif: types, waves, and sleeps on the keyboard between 1 and 5 am ---------- */
+  /* ---------- tiny Taif: at whatever he is doing; turns round to wave when clicked ---------- */
+  function placeMe() { // move his click box and his sparkle to where he is now
+    const A = ACTS[act], [w, h, d2, cy] = A.hit;
+    me.position.copy(A.at).setY(0); hitBox.scale.set(w / 0.8, h / 1.75, d2 / 0.7); hitBox.position.set(0, A.at.y + cy, 0);
+    const spark = hints.find((m) => m.userData.name === "me"); if (spark) spark.position.set(A.at.x + 0.3, A.at.y + cy + h / 2 + 0.2, A.at.z);
+    dirty = true;
+  }
   function poseMe(t, dt) {
+    let changed = false;
+    if (!act) { act = forced || pickAct(null); placeMe(); changed = true; }
+    actT += dt;
+    if (!forced && !reduced && actT > actNext && mode === "room" && hovered !== "me" && waveT < 0) { act = pickAct(act); actT = 0; actNext = 110 + Math.random() * 80; placeMe(); changed = true; }
     let wave = 0;
     if (waveT >= 0) { waveT += dt; wave = waveT < 2.4 ? Math.sin((Math.min(1, waveT / 0.35) * Math.PI) / 2) * (waveT > 2 ? (2.4 - waveT) / 0.4 : 1) : 0; if (waveT > 2.4) waveT = -1; }
     wakeT = Math.max(0, wakeT - dt);
     const before = sleepK; sleepK += ((asleep() ? 1 : 0) - sleepK) * (reduced ? 1 : Math.min(1, dt * 3)); if (sleepK < 0.002) sleepK = 0;
-    // typing in bursts with short pauses; turned round while waving; head down on the desk while asleep
-    const burst = !reduced && Math.sin(t * 0.9) > -0.35, cell = sleepK > 0.5 ? TAIF.sleep : wave > 0.25 ? (Math.sin(t * 12) > 0 ? TAIF.wave0 : TAIF.wave1) : burst && Math.floor(t * 7) % 2 ? TAIF.type1 : TAIF.type0;
-    meSprite.set(0, CH.x, 0.88, CH.z, cell); // feet of the sprite on the seat
-    return wave > 0 || Math.abs(sleepK - before) > 0.0005;
+    const A = ACTS[act];
+    if (wave > 0.25 && A.wave) { const at = A.waveAt || A.at; meSprite.set(0, at.x, at.y, at.z, A.wave[Math.sin(t * 12) > 0 ? 0 : 1]); } // turned round to the camera
+    else {
+      // at the desk he types in bursts with short pauses; everything else keeps its own slow beat
+      const k = reduced ? 0 : act === "desk" ? (Math.sin(t * 0.9) > -0.35 ? Math.floor(t / A.beat) % 2 : 0) : Math.floor(t / A.beat) % 2;
+      meSprite.set(0, A.at.x, A.at.y, A.at.z, A.cells[k], !!A.flip, A.fwd || 0);
+    }
+    return changed || wave > 0 || Math.abs(sleepK - before) > 0.0005;
   }
 
   // Outside, drops fill a slab across the camera's view, so every shot rains edge to edge, not one patch of the map.
@@ -911,7 +945,7 @@ void main(){
     if (mode === "watch") ui.watch(d.getTime());
     if (sleepK > 0.05) {
       // rise up and to the left on screen, over the dark wall (to the right they vanish against the monitor)
-      _w.set(CH.x + 0.05, 2.0, CH.z - 0.3); _a.set(1, 0, 0).applyQuaternion(cam.quaternion); _b.set(0, 1, 0).applyQuaternion(cam.quaternion);
+      _w.copy(ACTS[act].zz || ACTS.desk.zz); _a.set(1, 0, 0).applyQuaternion(cam.quaternion); _b.set(0, 1, 0).applyQuaternion(cam.quaternion);
       zs.forEach((z, i) => { const u = ((reduced ? 0.35 : t * 0.22) + i / 3) % 1; z.visible = true; z.position.copy(_w).addScaledVector(_a, -0.55 - u * 0.5).addScaledVector(_b, 0.5 + u * 1.0); z.quaternion.copy(cam.quaternion); z.scale.setScalar(0.8 + u * 1.0); z.material.opacity = Math.sin(Math.PI * u) * sleepK; });
     } else zs.forEach((z) => (z.visible = false));
     const hintsOn = !reduced && mode === "room" && scrollP < 0.05 && !from;

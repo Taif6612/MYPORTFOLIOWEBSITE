@@ -432,7 +432,12 @@ html::-webkit-scrollbar { display: none; }
 .lv-hud { position: absolute; z-index: 2; left: var(--hx); bottom: clamp(72px, 12vh, 128px); max-width: min(46vw, 640px); }
 .lv-hud > * { transition: opacity 0.3s var(--ease-out); }
 .lv-stage:not([data-mode="room"]) :is(.lv-hud > *, .lv-room-cap, .lv-room-hint, .lv-tip) { opacity: 0; pointer-events: none; }
-.lv-room-cap, .lv-room-hint { transition: opacity 0.3s var(--ease-out); }
+.lv-room-cap, .lv-room-hint, .lv-room-try { transition: opacity 0.3s var(--ease-out); }
+/* "psst, everything in the room is clickable": sits on the caption, with the same four-point sparkle the room's things carry */
+.lv-room-try { position: absolute; z-index: 2; right: var(--hx); bottom: calc(18px + 3.9rem); margin: 0; padding: 0.4em 0.75em; border-radius: 8px; font: 0.7rem/1.6 var(--font-pixel); background: color-mix(in srgb, var(--hero-bg) 78%, transparent); opacity: calc(var(--hint, 1) * 0.9); animation: lv-fade 0.9s var(--ease-out) 1.6s both; }
+.lv-room-try i { display: inline-block; width: 0.7em; height: 0.7em; margin-right: 0.6em; vertical-align: -0.05em; background: currentColor; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); animation: lv-twinkle 1.6s ease-in-out infinite; }
+@keyframes lv-twinkle { 50% { transform: scale(0.55) rotate(45deg); opacity: 0.5; } }
+.lv-stage:not([data-mode="room"]) .lv-room-try, .lv-stage.is-out .lv-room-try { opacity: 0; visibility: hidden; }
 .lv-hero-intro { font-family: var(--font-pixel); font-size: clamp(0.82rem, 0.72rem + 0.25vw, 0.95rem); line-height: 1.75; max-width: 40ch; margin-bottom: 1.25rem; text-wrap: pretty; }
 .lv-hero .lv-display { font-size: clamp(2.5rem, 4.55vw, 5.4rem); font-weight: 700; line-height: 0.95; letter-spacing: -0.035em; text-wrap: initial; }
 .lv-display > span { display: block; white-space: nowrap; }
@@ -503,6 +508,7 @@ html::-webkit-scrollbar { display: none; }
   .lv-hero .lv-display { font-size: clamp(2.1rem, 9.4vw, 4rem); }
   .lv-display > span { white-space: normal; text-wrap: balance; }
   .lv-room-cap { left: var(--hx); right: auto; text-align: left; bottom: 18px; }
+  .lv-room-try { left: var(--hx); right: auto; }
   .lv-room-hint { display: none; }
 }
 @media (max-aspect-ratio: 4/5) and (max-height: 740px) { .lv-facts { display: none; } } /* short phones: the room needs the room */

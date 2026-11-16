@@ -57,6 +57,8 @@ export default function Hero({ reduced }) {
   const [hello, setHello] = useState("");
   const [watch, setWatch] = useState("");
   const [toast, setToast] = useState(null);
+  // "psst, things here are clickable" until the visitor has clicked one (remembered on this browser if it can be)
+  const [found, setFound] = useState(() => { try { return localStorage.getItem("room-found") === "1"; } catch { return false; } });
   const [shown, setShown] = useState(null); // { img } or { paper } while a photo or a paper is open
   const [touch, setTouch] = useState(false);
   const [epoch, setEpoch] = useState(0); // a new canvas element after a worker gave its one back unused
@@ -124,6 +126,7 @@ export default function Hero({ reduced }) {
       size: ({ w, h }) => { canvas.style.width = `${w}px`; canvas.style.height = `${h}px`; },
       mode: (m, extra) => { modeNow = m; setMode(m); if (m === "car") { setCar(extra); startMusic(extra); } else stopMusic(); }, // the car stereo plays while its close-up is open
       toast: (text) => setToast({ text, n: performance.now() }),
+      found: () => { setFound(true); try { localStorage.setItem("room-found", "1"); } catch {} },
       watch: (ms) => { const t = new Date(ms).toLocaleTimeString([], { ...hm, second: "2-digit" }); setWatch((w) => (w === t ? w : t)); },
       hover: (name, label) => { st.style.cursor = name ? "pointer" : ""; const el = tip.current, text = name ? label || LABELS[name] || "" : ""; if (text) el.textContent = text; el.classList.toggle("is-on", !!text); }, // unlabelled things (the photo frames) get only the cursor
       go: (hash) => document.querySelector(hash)?.scrollIntoView({ behavior: reduced ? "auto" : "smooth" }),
@@ -267,6 +270,7 @@ export default function Hero({ reduced }) {
         </div>
         {ready && (
           <>
+            {!found && <p className="lv-room-try" aria-hidden="true"><i />Psst: everything in the room is {touch ? "tappable" : "clickable"}</p>}
             <p className="lv-room-cap">{hello}. It’s {time} where you are.<br />{touch ? "Tap" : "Click"} around the room.</p>
             {!reduced && <p className="lv-room-hint" aria-hidden="true">Scroll to step outside</p>}
           </>

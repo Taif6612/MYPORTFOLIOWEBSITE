@@ -370,8 +370,8 @@ export async function buildStreet({ scene, grad, G, front, right, light, pause =
   for (let i = 0; i < 5; i++) walker("x", NB1 + 0.8 + (i % 2) * 1.1, -52, 34, 1.4 + (i % 3) * 0.4, i * 17.7);
   walker("x", front + 2.5, -32.6, -32.6, 0, 0, 3); walker("x", front + 2.6, -29.5, -29.5, 0, 0, 4); // two regulars on the tea stall's stools
   const N = walkers.length;
-  // drawn 40 texels tall (32 of them the figure): about a person's height beside the cars at street level
-  const people = spriteLayer({ sheet: streetSheet(), count: N, grad, unit: 0.07, parent: root });
+  // the figure drawn 38 texels tall: about a person's height beside the cars, one texel per art pixel at street level
+  const people = spriteLayer({ sheet: streetSheet(), count: N, grad, unit: 0.065, parent: root });
 
   let wasNight = null, flashT = 0, flashCar = null;
   function update(t, env, dt = 0, focus = null, view = null) {
@@ -390,8 +390,9 @@ export async function buildStreet({ scene, grad, G, front, right, light, pause =
       const u = (t * w.speed + w.phase) % (2 * L), out = u < L, p = w.from + (out ? u : 2 * L - u);
       const x = w.axis === "x" ? p : w.fixed, z = w.axis === "x" ? w.fixed : p;
       if (focus && w.fixed > NB0 && Math.abs(x - cars[focus].position.x) < 9) { people.hide(i); continue; }
-      // +x walks toward the bottom right of the screen and +z toward the bottom left: front views; the other ways, backs
-      const toCam = out, view = toCam ? "F" : "B", flip = w.axis === "x" ? toCam : !toCam;
+      // +x walks toward the bottom right of the screen and +z toward the bottom left: front views; the other ways, backs.
+      // The front view faces down-left and the back view up-right, so along x (down-right, or up-left) both are mirrored.
+      const view = out ? "F" : "B", flip = w.axis === "x";
       people.set(i, x, G + 0.3, z, personCell(w.who, view, Math.floor(u / 0.34) % 4, env.rain), flip);
     }
     if (view) people.update(view.cam, view.lw, view.lh);
