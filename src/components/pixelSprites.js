@@ -80,7 +80,11 @@ function figure(cv, J, L, s, ax, ay) {
     const S0 = U(sh), E = U(a.el), Hd = U(a.ha);
     if (part !== "fore" && (a.upper ?? over) === over) {
       if (sleeve >= 1) cap(cv, S0, E, R(3.6), TO);
-      else { const m = [S0[0] + (E[0] - S0[0]) * sleeve, S0[1] + (E[1] - S0[1]) * sleeve]; cap(cv, m, E, R(3.1), SK); cap(cv, S0, m, R(3.8), TO); }
+      else {
+        const m = [S0[0] + (E[0] - S0[0]) * sleeve, S0[1] + (E[1] - S0[1]) * sleeve], sr = R(L.sleeveR || 3.8);
+        cap(cv, m, E, R(L.armR || 3.1), SK); cap(cv, S0, m, sr, TO);
+        if (L.sleeveR) { const dx = E[0] - S0[0], dy = E[1] - S0[1], l = Math.hypot(dx, dy) || 1, px = (-dy / l) * sr * 0.9, py = (dx / l) * sr * 0.9; cap(cv, [m[0] + px, m[1] + py], [m[0] - px, m[1] - py], 0.5, [TO[3], TO[3], TO[3], TO[3], TO[4]], false); } // the hem
+      }
     }
     if (part !== "upper" && (a.fore ?? over) === over) { cap(cv, E, Hd, R(3.0), sleeve > 1.5 ? TO : SK); ell(cv, Hd[0], Hd[1], R(2.7), R(2.7), SK); }
   };
@@ -88,6 +92,7 @@ function figure(cv, J, L, s, ax, ay) {
     if (!g) return;
     const Hp = P(hip), K = P(g.kn), A = P(g.an);
     cap(cv, Hp, K, R(4.8), BO); cap(cv, K, A, R(3.6), BO, false); // no line at the knee: one leg
+    if (L.cuffs) cap(cv, [A[0] - R(3.6), A[1] - R(1.4)], [A[0] + R(3.6), A[1] - R(1.4)], R(1.1), [BO[0], BO[0], BO[0], BO[3], BO[4]], false); // the rolled cuff
     const f = g.foot ?? 0, tip = g.tip ? 0.6 : 1;
     ell(cv, A[0] + f * R(2.2), A[1] + R(1.6), R(f ? 4.4 : 3.4) * tip, R(2.3), SH);
   };
@@ -114,10 +119,16 @@ function figure(cv, J, L, s, ax, ay) {
     cap(cv, U([(xl + xr) / 2, hiN[1] + 3]), P([(xl + xr) / 2, kneeY - 1]), R(0.6), [TO[3], TO[3], TO[3], TO[3], TO[4]], false); // the side slit
   } else {
     const wy = (Math.min(shN[1], shF[1]) + Math.max(hiN[1], hiF[1])) / 2 + 4, side = (a, b, k) => a + (b - a) * k;
-    poly(cv, [U([shF[0] - 0.5, shF[1] - 2]), U([shN[0] + 0.5, shN[1] - 2]), U([shN[0] + 2.5, shN[1] + 4]), U([side(shN[0], hiN[0], 0.6) + 0.5, wy]), U([hiN[0] + 2.5, hiN[1]]), U([hiF[0] - 2.5, hiF[1]]), U([side(shF[0], hiF[0], 0.6) - 0.5, wy]), U([shF[0] - 2.5, shF[1] + 4])], TO);
+    const back = J.v === "b" ? [U([(shN[0] + shF[0]) / 2 + 1, Math.min(shN[1], shF[1]) - 4.5])] : []; // from behind, a crew neck rides up the back of the neck
+    poly(cv, [U([shF[0] - 0.5, shF[1] - 2]), ...back, U([shN[0] + 0.5, shN[1] - 2]), U([shN[0] + 2.5, shN[1] + 4]), U([side(shN[0], hiN[0], 0.6) + 0.5, wy]), U([hiN[0] + 2.5, hiN[1]]), U([hiF[0] - 2.5, hiF[1]]), U([side(shF[0], hiF[0], 0.6) - 0.5, wy]), U([shF[0] - 2.5, shF[1] + 4])], TO);
     cap(cv, U([hiF[0] - 2, hiF[1] - 0.8]), U([hiN[0] + 2, hiN[1] - 0.8]), R(0.7), [TO[3], TO[3], TO[3], TO[3], TO[4]], false); // the hem
   }
-  for (const sh of [shF, shN]) ell(cv, ...U(sh), R(3.9), R(3.4), TO, false); // rounded shoulders
+  for (const sh of [shF, shN]) ell(cv, ...U(sh), R(L.sleeveR ? 4.6 : 3.9), R(3.4), TO, false); // rounded shoulders (dropped, for an oversized tee)
+  if (L.folds && J.legs !== undefined) { // a few soft creases in the cotton
+    const T2 = [TO[2], TO[2], TO[2], TO[2], TO[4]], my = (Math.min(shN[1], shF[1]) + Math.max(hiN[1], hiF[1])) / 2, mx = (shN[0] + shF[0]) / 2;
+    if (J.v === "b") { cap(cv, U([mx - 4, my - 8]), U([mx - 2.5, my + 6]), 0.45, T2, false); cap(cv, U([mx + 6, my - 4]), U([mx + 4, my + 9]), 0.45, T2, false); }
+    else { cap(cv, U([shN[0] - 2, shN[1] + 9]), U([mx + 1, my + 7]), 0.45, T2, false); cap(cv, U([shF[0] + 3, my + 4]), U([mx - 2, my + 11]), 0.45, T2, false); }
+  }
   if (L.belt && L.topStyle !== "long") cap(cv, U([hiF[0] - 2, hiF[1] - 1]), U([hiN[0] + 2, hiN[1] - 1]), R(1.1), BO, false);
   if (L.dupatta) { // across the chest from the near shoulder; the end hangs behind the far one
     const D = tones(L.dupatta);
@@ -132,12 +143,41 @@ function figure(cv, J, L, s, ax, ay) {
   arm(farArm, shF, true); arm(nearArm, shN, true);
   // the neck (behind the collar from the back), then the head
   const neck = () => cap(cv, U([J.head[0] + (J.v === "b" ? 1 : -0.5), J.head[1] + 6]), U([(shN[0] + shF[0]) / 2, Math.min(shN[1], shF[1]) - 0.5]), R(2.8), SK);
-  if (J.v !== "b") neck();
+  if (J.v !== "b") { if (L.folds) ell(cv, ...U([(shN[0] + shF[0]) / 2, Math.min(shN[1], shF[1]) - 1.5]), R(4.4), R(2.2), [TO[3], TO[3], TO[3], TO[3], TO[4]], false); neck(); } // a crew collar round the neck
   head(cv, J.hv || J.v, U(J.head), s, L, J.eyes);
   for (const x of J.extra || []) x(cv, U, P, R, s);
 }
 
+/* Taif's head, drawn by hand from his photo: black hair short at the sides with lift on top, thick brows, a full short
+   beard round the mouth and over the chin and jaw, and the big smile. One letter per pixel; the outline comes after.
+   j H h hair (shine, base, shade) · f g the fade at the back · l S s E skin (light, base, shade, ear) · B b d beard (base, stubble, dark) · e eyes · w teeth · m mouth */
+const TAIF_HEADS = {
+  F: [
+    "........jHH...", "....jjjHHHHH..", "..jjjHHHHjHHH.", ".jjHHHHHjHHHHh", "jHHHHHHjHHHHhh", "hHHHHHHHHHHhhh", "hhHhhhllhhhHhh", "hhlllSSSSSSlhh",
+    "hSShhSSSShhSSh", "ESSSSSSSSSSSSE", "ESSeeSSSSeeSSE", ".sSllSSsSllSs.", ".bSSSSSsSSSSb.", ".BbddddddddbB.", ".BdmwwwwwwmdB.", ".BBdmmmmmmdBB.", "..BBBbbbbBBB..", "...BBBBBBBB...", ".....BBBB.....",
+  ], // full front, smiling, the eyes creased, cheeks up
+  Fs: [
+    "........jHH...", "....jjjHHHHH..", "..jjjHHHHjHHH.", ".jjHHHHHjHHHHh", "jHHHHHHjHHHHhh", "hHHHHHHHHHHhhh", "hhHhhhllhhhHhh", "hhlllSSSSSSlhh",
+    "hSShhSSSShhSSh", "ESSSSSSSSSSSSE", "ESsseSSSSessSE", ".sSSSSSsSSSSs.", ".bSSSSSsSSSSb.", ".BbddddddddbB.", ".BBdmmmmmmdBB.", ".BBBBBBBBBBBB.", "..BBBbbbbBBB..", "...BBBBBBBB...", ".....BBBB.....",
+  ], // asleep: eyes shut, mouth closed
+  b: [
+    "......jjHH....", "...jjjHHjHHH..", "..jjHHHjHHHHH.", ".jHHHHjHHHHHhh", "jHHHHHHHHHHHhh", "HHHHHHHHHHHhhh", "hHHHHHHHHHhhhs", "hhHHHHHHHhhhSs",
+    "fhhhhhhhhhhESS", ".fgfhhhhhgfEsb", ".gfgfgfgfgfsBB", "..fgfgfgfgsBB.", "...sSSSSSsBB..", "....sSSSSs....",
+  ], // from behind his right shoulder: the faded back and sides, his right ear, the edge of the beard
+};
+const HEAD_PAL = {"j": "#4d4452", "H": "#241c20", "h": "#15101a", "f": "#5a3c32", "g": "#7a5340", "l": "#c78f6c", "S": "#a56d4f", "s": "#7e4e36", "E": "#8f5c42", "B": "#2b2124", "b": "#6a4636", "d": "#1a1316", "e": "#120c12", "w": "#f3ede4", "m": "#5c2c27"};
+// stamp a hand-drawn head with its eye row on (x, y)
+function stamp(cv, rows, x, y, eyeRow = 8) {
+  const id = cv.n++, ox = Math.round(x - rows[0].length / 2), oy = Math.round(y - eyeRow);
+  rows.forEach((row, r) => { for (let c = 0; c < row.length; c++) {
+    const ch = row[c]; if (ch === ".") continue;
+    const X = ox + c, Y = oy + r; if (X < 0 || Y < 0 || X >= cv.w || Y >= cv.h) continue;
+    const k = Y * cv.w + X, col = rgb(HEAD_PAL[ch]); cv.c[k] = col; cv.o[k] = mix(col, INK, 0.75); cv.id[k] = id;
+  } });
+}
+
 function head(cv, view, [cx, cy], s, L, eyes = "open") {
+  if (L.heads) { const v = view === "b" ? "b" : eyes === "closed" ? "Fs" : "F"; stamp(cv, TAIF_HEADS[v], cx, cy + 1, v === "b" ? 8 : 10); return; }
   const SK = tones(L.skin), HA = tones(L.hair), rx = 7.2 * s, ry = 8.3 * s, eye = [26, 20, 32], big = s > 0.6;
   const E = (x, y) => { dot(cv, x, y, eye); if (big && eyes !== "closed") dot(cv, x, y - 1, eye); };
   const closed = (x, y) => { dot(cv, x, y, SK[4]); if (big) dot(cv, x + 1, y, SK[4]); };
@@ -238,7 +278,8 @@ export const personCell = (i, view, frame = 0, umb = false) => (i % PEOPLE.lengt
 export const streetSheet = () => sheet(PEOPLE.flatMap((L, i) => personCells(L, BROLLY[i % BROLLY.length])), SW, SH);
 
 /* ---------- tiny Taif: 64 x 100 cells, the standing figure 88 texels tall; a cell's bottom row is what he stands or sits on ---------- */
-const TAIF_LOOK = { skin: "#9b6b4b", hair: "#2e2328", beard: "#2a1f22", top: "#b9a4cf", bottom: "#454b64", shoes: "#d4cfd9", sleeve: 0.5 };
+const TAIF_LOOK = { skin: "#a56d4f", hair: "#241c20", beard: "#2b2124", top: "#ad97c0", bottom: "#7b93b4", // his lilac tee and light jeans, a shade deeper than the photo so they hold their colour under the room's light
+   shoes: "#e9e4dc", sleeve: 0.8, sleeveR: 4.4, armR: 2.9, cuffs: true, folds: true, heads: true };
 const TS = 0.88, TW = 64, TH = 100;
 // seated poses sit their hips on the cell's bottom row (y 100); the others stand on it
 const SEATED = (J) => J;
@@ -275,12 +316,9 @@ const POSES = {
 function sleeper(cv, breath) {
   const s = TS, at = (x, y) => [TW / 2 + (x - 50) * s, TH - 1 + (y - 100) * s], SK = tones(TAIF_LOOK.skin), BL = tones("#eeeae2"), TO = tones(TAIF_LOOK.top);
   const h = at(73, 78.5); // the head (the body runs down and left from it along the futon, about 0.35 down for 1 across)
-  ell(cv, h[0] + 1.5 * s, h[1] - 1.8 * s, 8.2 * s, 7 * s, tones(TAIF_LOOK.hair)); // hair on the pillow
-  ell(cv, h[0] - 1.2 * s, h[1] + 1.2 * s, 5.6 * s, 5.8 * s, SK); // the face, turned up to the ceiling
-  const BD = tones(TAIF_LOOK.beard); cap(cv, [h[0] - 5.6 * s, h[1] + 2.8 * s], [h[0] - 1.6 * s, h[1] + 6.4 * s], 0.9 * s, BD, false); ell(cv, h[0] - 2.4 * s, h[1] + 6.2 * s, 2.6 * s, 1.1 * s, BD, false); // a short beard on the jaw
-  for (const ex of [-4.6, -0.8]) { dot(cv, h[0] + ex * s, h[1] + 0.6 * s, SK[4]); dot(cv, h[0] + ex * s + 1, h[1] + 0.6 * s, SK[4]); } // eyes shut
+  stamp(cv, TAIF_HEADS.Fs, h[0], h[1] + 1, 10); // his face, turned up to the ceiling, eyes shut
   // his shoulder and an arm out over the blanket
-  cap(cv, at(61, 86), at(51, 90), 4.4 * s, TO); cap(cv, at(51, 90), at(42, 92), 3.1 * s, SK); ell(cv, ...at(41, 92.3), 2.7 * s, 2.7 * s, SK);
+  cap(cv, at(61, 86), at(51, 90), 4.6 * s, TO); cap(cv, at(51, 90), at(42, 92), 2.9 * s, SK); ell(cv, ...at(41, 92.3), 2.7 * s, 2.7 * s, SK);
   // the blanket over the rest of him, rising and falling a little
   const b = breath ? 0.8 : 0;
   poly(cv, [at(66, 83.5 - b), at(56, 80.5 - b), at(32, 89.5 - b), at(25, 94.5), at(33, 97), at(62, 91.5)], BL);
