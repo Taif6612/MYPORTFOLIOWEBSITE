@@ -347,7 +347,7 @@ void main(){
   const moteSeed = Array.from({ length: MOTES }, () => [Math.random(), Math.random(), Math.random(), Math.random() * 6.28]);
   motes.geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(MOTES * 3), 3)); scene.add(motes);
 
-  // the cat: sits on the ledge watching the street, swishes its tail, blinks, and curls up to sleep in the small hours
+  // the cat (Kaltush): sits on the ledge watching the street, swishes its tail, blinks, and curls up to sleep in the small hours
   const FUR = "#1f1c27";
   const cat = new THREE.Group(); cat.position.set(2.22, WY0, -2.8); cat.rotation.y = 0.5; scene.add(cat);
   box(0.3, 0.2, 0.36, FUR, 0, 0.1, -0.03, cat); box(0.22, 0.26, 0.18, FUR, 0, 0.3, 0.08, cat);
@@ -810,7 +810,7 @@ void main(){
     else if (n === "degree") ui.toast(copy.degree || "A degree.");
     else if (n === "frames") ui.go("#work");
     else if (n === "phone") { phoneT = 1.2; go("phone"); }
-    else if (n === "cat") { catT = 1.6; ui.toast(catK > 0.5 ? "Zzz." : "Mrrp."); }
+    else if (n === "cat") { catT = 1.6; ui.toast(catK > 0.5 ? "Kaltush is asleep. Zzz." : "Kaltush: mrrp."); }
     else if (n === "duck") { duckT = 0.7; ui.toast("Quack. It found the bug."); }
     else if (n === "pc") { pcT = 2.5; ui.toast("Ryzen 5 3400G · 16 GB · GTX 1650 Super 4 GB"); }
     else if (n === "loq") ui.toast("Lenovo LOQ · i5-13450HX · RTX 5050 · 144 Hz. The daily driver.");

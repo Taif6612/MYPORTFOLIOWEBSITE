@@ -17,7 +17,7 @@ const PORTRAIT = "/taif-portrait-480.webp"; // the About photo, hung on the room
 const FRAMES = ["proctorless", "autohub-premium", "luxeglow-spa", "solar-panel"].map((id) => `/projects/shots/${id}-800.webp`);
 const ALBUM = [1, 2, 3, 4, 5].map((n) => `/room/${n}.jpg`); // the photos on the little table: fetched only when a frame is clicked
 const COPY = { trophy: "Winner, Algorithm Project Showcase · TechFest", degree: "B.Sc. in Computer Science, 2026" };
-const LABELS = { screen: "Step inside", watch: "Your time", mug: "Coffee", lamp: "Lamp", plant: "Plant", me: "Say hi", trophy: "Trophy", degree: "Degree", frames: "See my work", phone: "My phone", cat: "Cat", duck: "Rubber duck", photo: "That’s me", pc: "My PC", loq: "Lenovo LOQ", asus: "ASUS X556UF", hp: "HP Pavilion 14", retro: "PS2 Slim", paper0: "Research paper", paper1: "Research paper", futon: "Futon" };
+const LABELS = { screen: "Step inside", watch: "Your time", mug: "Coffee", lamp: "Lamp", plant: "Plant", me: "Say hi", trophy: "Trophy", degree: "Degree", frames: "See my work", phone: "My phone", cat: "Kaltush", duck: "Rubber duck", photo: "That’s me", pc: "My PC", loq: "Lenovo LOQ", asus: "ASUS X556UF", hp: "HP Pavilion 14", retro: "PS2 Slim", paper0: "Research paper", paper1: "Research paper", futon: "Futon" };
 const CARS = { jeep: ["2005 Jeep Liberty", "Sold as the Cherokee outside North America."], crv: ["1999 Honda CR-V", "The first generation."] };
 const greet = (h) => (h >= 5 && h < 12 ? "Good morning" : h >= 12 && h < 17 ? "Good afternoon" : h >= 17 && h < 23 ? "Good evening" : "You’re up late");
 
