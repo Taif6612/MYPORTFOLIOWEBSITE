@@ -86,12 +86,14 @@ function figure(cv, J, L, s, ax, ay) {
         if (L.sleeveR) { const dx = E[0] - S0[0], dy = E[1] - S0[1], l = Math.hypot(dx, dy) || 1, px = (-dy / l) * sr * 0.9, py = (dx / l) * sr * 0.9; cap(cv, [m[0] + px, m[1] + py], [m[0] - px, m[1] - py], 0.5, [TO[3], TO[3], TO[3], TO[3], TO[4]], false); } // the hem
       }
     }
-    if (part !== "upper" && (a.fore ?? over) === over) { cap(cv, E, Hd, R(3.0), sleeve > 1.5 ? TO : SK); ell(cv, Hd[0], Hd[1], R(2.7), R(2.7), SK); }
+    if (part !== "upper" && (a.fore ?? over) === over) { cap(cv, E, Hd, R(L.armR || 3.0), sleeve > 1.5 ? TO : SK); ell(cv, Hd[0], Hd[1], R(L.handR || 2.7), R(L.handR || 2.7), SK); }
   };
+  const mxh = (J.hip[0][0] + J.hip[1][0]) / 2;
   const leg = (g, hip) => {
     if (!g) return;
-    const Hp = P(hip), K = P(g.kn), A = P(g.an);
-    cap(cv, Hp, K, R(4.8), BO); cap(cv, K, A, R(3.6), BO, false); // no line at the knee: one leg
+    const dx = L.hipSpread ? (hip[0] - mxh) * (L.hipSpread - 1) : 0, [tr, sr] = L.legR || [4.8, 3.6];
+    const Hp = P([hip[0] + dx, hip[1]]), K = P([g.kn[0] + dx * 0.7, g.kn[1]]), A = P([g.an[0] + dx * 0.5, g.an[1]]);
+    cap(cv, Hp, K, R(tr), BO); cap(cv, K, A, R(sr), BO, false); // no line at the knee: one leg
     if (L.cuffs) cap(cv, [A[0] - R(3.6), A[1] - R(1.4)], [A[0] + R(3.6), A[1] - R(1.4)], R(1.1), [BO[0], BO[0], BO[0], BO[3], BO[4]], false); // the rolled cuff
     const f = g.foot ?? 0, tip = g.tip ? 0.6 : 1;
     ell(cv, A[0] + f * R(2.2), A[1] + R(1.6), R(f ? 4.4 : 3.4) * tip, R(2.3), SH);
@@ -99,7 +101,7 @@ function figure(cv, J, L, s, ax, ay) {
   const [nearArm, farArm] = J.arms || [], [nearLeg, farLeg] = J.legs || [];
   const [shN, shF] = J.sh, [hiN, hiF] = J.hip;
   // behind everything: the neck from the back, long hair that falls behind the shoulders, the far arm's hidden parts
-  if (J.v === "b") cap(cv, U([J.head[0] + 1, J.head[1] + 6]), U([(shN[0] + shF[0]) / 2, Math.min(shN[1], shF[1]) + 1]), R(2.8), SK);
+  if (J.v === "b") cap(cv, U([J.head[0] + 1, J.head[1] + 6]), U([(shN[0] + shF[0]) / 2, Math.min(shN[1], shF[1]) + 1]), R(L.neckR || 2.8), SK);
   if (L.hairStyle === "long" && J.v === "f") cap(cv, U([J.head[0] + 5, J.head[1] + 2]), U([J.head[0] + 6, J.head[1] + 20]), R(5.2), HA);
   arm(farArm, shF, false); arm(nearArm, shN, false);
   // legs, far then near; a lungi or the lower half of a long top over them
@@ -120,16 +122,20 @@ function figure(cv, J, L, s, ax, ay) {
   } else {
     const wy = (Math.min(shN[1], shF[1]) + Math.max(hiN[1], hiF[1])) / 2 + 4, side = (a, b, k) => a + (b - a) * k;
     const back = J.v === "b" ? [U([(shN[0] + shF[0]) / 2 + 1, Math.min(shN[1], shF[1]) - 4.5])] : []; // from behind, a crew neck rides up the back of the neck
-    poly(cv, [U([shF[0] - 0.5, shF[1] - 2]), ...back, U([shN[0] + 0.5, shN[1] - 2]), U([shN[0] + 2.5, shN[1] + 4]), U([side(shN[0], hiN[0], 0.6) + 0.5, wy]), U([hiN[0] + 2.5, hiN[1]]), U([hiF[0] - 2.5, hiF[1]]), U([side(shF[0], hiF[0], 0.6) - 0.5, wy]), U([shF[0] - 2.5, shF[1] + 4])], TO);
-    cap(cv, U([hiF[0] - 2, hiF[1] - 0.8]), U([hiN[0] + 2, hiN[1] - 0.8]), R(0.7), [TO[3], TO[3], TO[3], TO[3], TO[4]], false); // the hem
+    // work from the image's left and right edges: the near shoulder is on the right in front views but on the left from behind
+    const [sl, sr] = shN[0] < shF[0] ? [shN, shF] : [shF, shN], [hl, hr] = hiN[0] < hiF[0] ? [hiN, hiF] : [hiF, hiN];
+    const hem = L.boxy ? 3 : 0, hx = L.boxy ? 5.5 : 2.5; // an oversized tee hangs straight down and past the hips
+    const wl = L.boxy ? sl[0] - 3 : side(sl[0], hl[0], 0.6) - 0.5, wr = L.boxy ? sr[0] + 3 : side(sr[0], hr[0], 0.6) + 0.5;
+    poly(cv, [U([sl[0] - 0.5, sl[1] - 2]), ...back, U([sr[0] + 0.5, sr[1] - 2]), U([sr[0] + 2.5, sr[1] + 4]), U([wr, wy]), U([hr[0] + hx, hr[1] + hem]), U([hl[0] - hx, hl[1] + hem]), U([wl, wy]), U([sl[0] - 2.5, sl[1] + 4])], TO);
+    cap(cv, U([hl[0] - hx + 0.5, hl[1] + hem - 0.8]), U([hr[0] + hx - 0.5, hr[1] + hem - 0.8]), R(0.7), [TO[3], TO[3], TO[3], TO[3], TO[4]], false); // the hem
   }
-  for (const sh of [shF, shN]) ell(cv, ...U(sh), R(L.sleeveR ? 4.6 : 3.9), R(3.4), TO, false); // rounded shoulders (dropped, for an oversized tee)
+  for (const sh of [shF, shN]) ell(cv, ...U(sh), R(L.shoulderR || 3.9), R(3.6), TO, false); // rounded shoulders (dropped, for an oversized tee)
   if (L.folds && J.legs !== undefined) { // a few soft creases in the cotton
     const T2 = [TO[2], TO[2], TO[2], TO[2], TO[4]], my = (Math.min(shN[1], shF[1]) + Math.max(hiN[1], hiF[1])) / 2, mx = (shN[0] + shF[0]) / 2;
     if (J.v === "b") { cap(cv, U([mx - 4, my - 8]), U([mx - 2.5, my + 6]), 0.45, T2, false); cap(cv, U([mx + 6, my - 4]), U([mx + 4, my + 9]), 0.45, T2, false); }
     else { cap(cv, U([shN[0] - 2, shN[1] + 9]), U([mx + 1, my + 7]), 0.45, T2, false); cap(cv, U([shF[0] + 3, my + 4]), U([mx - 2, my + 11]), 0.45, T2, false); }
   }
-  if (L.belt && L.topStyle !== "long") cap(cv, U([hiF[0] - 2, hiF[1] - 1]), U([hiN[0] + 2, hiN[1] - 1]), R(1.1), BO, false);
+  if (L.belt && L.topStyle !== "long") cap(cv, U([Math.min(hiF[0], hiN[0]) - 2, hiF[1] - 1]), U([Math.max(hiF[0], hiN[0]) + 2, hiN[1] - 1]), R(1.1), BO, false);
   if (L.dupatta) { // across the chest from the near shoulder; the end hangs behind the far one
     const D = tones(L.dupatta);
     if (J.v === "b") cap(cv, U([shF[0] + 1, shF[1]]), U([shF[0] + 3, shF[1] + 20]), R(3.2), D);
@@ -142,7 +148,7 @@ function figure(cv, J, L, s, ax, ay) {
   }
   arm(farArm, shF, true); arm(nearArm, shN, true);
   // the neck (behind the collar from the back), then the head
-  const neck = () => cap(cv, U([J.head[0] + (J.v === "b" ? 1 : -0.5), J.head[1] + 6]), U([(shN[0] + shF[0]) / 2, Math.min(shN[1], shF[1]) - 0.5]), R(2.8), SK);
+  const neck = () => cap(cv, U([J.head[0] + (J.v === "b" ? 1 : -0.5), J.head[1] + 6]), U([(shN[0] + shF[0]) / 2, Math.min(shN[1], shF[1]) - 0.5]), R(L.neckR || 2.8), SK);
   if (J.v !== "b") { if (L.folds) ell(cv, ...U([(shN[0] + shF[0]) / 2, Math.min(shN[1], shF[1]) - 1.5]), R(4.4), R(2.2), [TO[3], TO[3], TO[3], TO[3], TO[4]], false); neck(); } // a crew collar round the neck
   head(cv, J.hv || J.v, U(J.head), s, L, J.eyes);
   for (const x of J.extra || []) x(cv, U, P, R, s);
@@ -279,7 +285,7 @@ export const streetSheet = () => sheet(PEOPLE.flatMap((L, i) => personCells(L, B
 
 /* ---------- tiny Taif: 64 x 100 cells, the standing figure 88 texels tall; a cell's bottom row is what he stands or sits on ---------- */
 const TAIF_LOOK = { skin: "#a56d4f", hair: "#241c20", beard: "#2b2124", top: "#ad97c0", bottom: "#7b93b4", // his lilac tee and light jeans, a shade deeper than the photo so they hold their colour under the room's light
-   shoes: "#e9e4dc", sleeve: 0.8, sleeveR: 4.4, armR: 2.9, cuffs: true, folds: true, heads: true };
+   shoes: "#e9e4dc", sleeve: 0.8, sleeveR: 5.2, shoulderR: 5.4, armR: 3.4, handR: 3.0, neckR: 3.4, legR: [5.9, 4.5], hipSpread: 1.3, boxy: true, cuffs: true, folds: true, heads: true };
 const TS = 0.88, TW = 64, TH = 100;
 // seated poses sit their hips on the cell's bottom row (y 100); the others stand on it
 const SEATED = (J) => J;
