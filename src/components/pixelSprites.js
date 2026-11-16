@@ -22,7 +22,7 @@ const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
 const WARM = [255, 236, 206], COOL = [46, 32, 70], INK = [28, 18, 34];
 const TONES = new Map();
 const tones = (h) => {
-  if (!TONES.has(h)) { const b = rgb(h); TONES.set(h, [mix(b, WARM, 0.3), b, mix(b, COOL, 0.34), mix(b, INK, 0.5), mix(b, INK, 0.72)]); }
+  if (!TONES.has(h)) { const b = rgb(h); const L0 = mix(b, WARM, 0.3), S0 = mix(b, COOL, 0.34); TONES.set(h, [L0, b, S0, mix(b, INK, 0.38), mix(b, INK, 0.62), mix(L0, b, 0.5), mix(b, S0, 0.5)]); }
   return TONES.get(h);
 };
 const LX = -0.55, LY = -0.83; // the light comes from the upper left (y grows down the sprite)
@@ -33,8 +33,10 @@ function fill(cv, x0, y0, x1, y1, inside, T, edge = true) {
   const id = cv.n++, mine = new Map();
   x0 = Math.max(0, Math.floor(x0)); y0 = Math.max(0, Math.floor(y0)); x1 = Math.min(cv.w - 1, Math.ceil(x1)); y1 = Math.min(cv.h - 1, Math.ceil(y1));
   for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const n = inside(x + 0.5, y + 0.5); if (n) mine.set(y * cv.w + x, n); }
+  const big = mine.size > 60; // in-between tones only where a shape is big enough to carry them
   for (const [k, n] of mine) {
-    const d = n[0] * LX + n[1] * LY; let t = d > 0.45 ? 0 : d < -0.3 ? 2 : 1;
+    const d = n[0] * LX + n[1] * LY;
+    let t = d > 0.62 ? 0 : d > 0.36 ? (big && T[5] ? 5 : 1) : d > -0.14 ? 1 : d > -0.38 ? (big && T[6] ? 6 : 1) : 2;
     if (edge) { // over a part drawn earlier, the border is drawn in a darker line so the two read apart
       const x = k % cv.w;
       for (const kk of [k - 1, k + 1, k - cv.w, k + cv.w]) if (kk >= 0 && kk < cv.c.length && Math.abs((kk % cv.w) - x) <= 1 && !mine.has(kk) && cv.c[kk] && cv.id[kk] !== id) { t = 3; break; }
@@ -42,11 +44,11 @@ function fill(cv, x0, y0, x1, y1, inside, T, edge = true) {
     cv.c[k] = T[t]; cv.o[k] = T[4]; cv.id[k] = id;
   }
 }
-const cap = (cv, a, b, r, T, edge) => {
-  const dx = b[0] - a[0], dy = b[1] - a[1], l2 = dx * dx + dy * dy || 1e-6, rn = Math.max(r, 0.8);
-  fill(cv, Math.min(a[0], b[0]) - r, Math.min(a[1], b[1]) - r, Math.max(a[0], b[0]) + r, Math.max(a[1], b[1]) + r, (x, y) => {
-    const t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (y - a[1]) * dy) / l2)), ox = x - a[0] - t * dx, oy = y - a[1] - t * dy;
-    return ox * ox + oy * oy <= r * r ? [ox / rn, oy / rn] : null;
+const cap = (cv, a, b, r, T, edge, r2 = r) => { // r at a, r2 at b (a limb that tapers)
+  const dx = b[0] - a[0], dy = b[1] - a[1], l2 = dx * dx + dy * dy || 1e-6, M = Math.max(r, r2);
+  fill(cv, Math.min(a[0], b[0]) - M, Math.min(a[1], b[1]) - M, Math.max(a[0], b[0]) + M, Math.max(a[1], b[1]) + M, (x, y) => {
+    const t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (y - a[1]) * dy) / l2)), ox = x - a[0] - t * dx, oy = y - a[1] - t * dy, rt = r + (r2 - r) * t, rn = Math.max(rt, 0.8);
+    return ox * ox + oy * oy <= rt * rt ? [ox / rn, oy / rn] : null;
   }, T, edge);
 };
 const ell = (cv, cx, cy, rx, ry, T, edge) => fill(cv, cx - rx, cy - ry, cx + rx, cy + ry, (x, y) => { const u = (x - cx) / rx, v = (y - cy) / ry; return u * u + v * v <= 1 ? [u, v] : null; }, T, edge);
@@ -56,12 +58,12 @@ const poly = (cv, P, T, edge) => {
   fill(cv, x0, y0, x1, y1, (x, y) => (inPoly(P, x, y) ? [((x - cx) / Math.max(1, (x1 - x0) / 2)) * 0.95, ((y - cy) / Math.max(1, (y1 - y0) / 2)) * 0.3] : null), T, edge);
 };
 const dot = (cv, x, y, c) => { x = Math.floor(x); y = Math.floor(y); if (x >= 0 && y >= 0 && x < cv.w && y < cv.h && cv.c[y * cv.w + x]) cv.c[y * cv.w + x] = c; };
-function outline(cv) { // a one-pixel outline round the whole silhouette, in the darkest tone of what it borders
+function outline(cv) { // a one-pixel outline round the silhouette: a deep tone of what it borders, lighter on the lit side (up and left)
   const add = [];
   for (let k = 0; k < cv.c.length; k++) {
     if (cv.c[k]) continue;
     const x = k % cv.w; let o = null;
-    for (const kk of [k + cv.w, k - 1, k + 1, k - cv.w]) if (kk >= 0 && kk < cv.c.length && Math.abs((kk % cv.w) - x) <= 1 && cv.c[kk]) { o = cv.o[kk]; break; }
+    for (const [kk, lit] of [[k - 1, false], [k - cv.w, false], [k + cv.w, true], [k + 1, true]]) if (kk >= 0 && kk < cv.c.length && Math.abs((kk % cv.w) - x) <= 1 && cv.c[kk]) { o = lit ? mix(cv.o[kk], cv.c[kk], 0.4) : cv.o[kk]; break; }
     if (o) add.push([k, o]);
   }
   for (const [k, o] of add) cv.c[k] = o;
@@ -83,18 +85,20 @@ function figure(cv, J, L, s, ax, ay) {
       else {
         const m = [S0[0] + (E[0] - S0[0]) * sleeve, S0[1] + (E[1] - S0[1]) * sleeve], sr = R(L.sleeveR || 3.8);
         const St = [S0[0], S0[1] + sr * 0.5]; // the sleeve hangs from just under the shoulder line
-        cap(cv, m, E, R(L.armR || 3.1), SK); cap(cv, St, m, sr, TO, !L.boxy); // a loose sleeve melts into the body: no hard line where it overlaps
+        cap(cv, m, E, R(L.armR || 3.1), SK, true, R((L.armR || 3.1) * (L.taper ? 0.88 : 1))); cap(cv, St, m, sr, TO, !L.boxy); // a loose sleeve melts into the body: no hard line where it overlaps
         if (L.sleeveR) { const dx = E[0] - S0[0], dy = E[1] - S0[1], l = Math.hypot(dx, dy) || 1, px = (-dy / l) * sr * 0.9, py = (dx / l) * sr * 0.9; cap(cv, [m[0] + px, m[1] + py], [m[0] - px, m[1] - py], 0.5, [TO[3], TO[3], TO[3], TO[3], TO[4]], false); } // the hem
       }
     }
-    if (part !== "upper" && (a.fore ?? over) === over) { cap(cv, E, Hd, R(L.armR || 3.0), sleeve > 1.5 ? TO : SK); ell(cv, Hd[0], Hd[1], R(L.handR || 2.7), R(L.handR || 2.7), SK); }
+    if (part !== "upper" && (a.fore ?? over) === over) { cap(cv, E, Hd, R((L.armR || 3.0) * (L.taper ? 0.88 : 1)), sleeve > 1.5 ? TO : SK, true, R((L.armR || 3.0) * (L.taper ? 0.66 : 1))); ell(cv, Hd[0], Hd[1], R(L.handR || 2.7), R(L.handR || 2.7), SK); }
   };
   const mxh = (J.hip[0][0] + J.hip[1][0]) / 2;
   const leg = (g, hip) => {
     if (!g) return;
     const dx = L.hipSpread ? (hip[0] - mxh) * (L.hipSpread - 1) : 0, [tr, sr] = L.legR || [4.8, 3.6];
     const Hp = P([hip[0] + dx, hip[1]]), K = P([g.kn[0] + dx * 0.7, g.kn[1]]), A = P([g.an[0] + dx * 0.5, g.an[1]]);
-    cap(cv, Hp, K, R(tr), BO); cap(cv, K, A, R(sr), BO, false); // no line at the knee: one leg
+    cap(cv, Hp, K, R(tr), BO, true, R(tr * (L.taper ? 0.86 : 1))); cap(cv, K, A, R(sr), BO, false, R(sr * (L.taper ? 0.84 : 1))); // no line at the knee: one leg
+    if (L.taper) { const T2 = [BO[2], BO[2], BO[2], BO[2], BO[4]]; // denim creases behind the knee and stacked at the ankle
+      cap(cv, [K[0] - R(2.4), K[1] - R(1)], [K[0] + R(1.8), K[1] + R(1.2)], 0.45, T2, false); cap(cv, [A[0] - R(2.6), A[1] - R(5)], [A[0] + R(2.2), A[1] - R(4.2)], 0.45, T2, false); }
     if (L.cuffs) cap(cv, [A[0] - R(3.6), A[1] - R(1.4)], [A[0] + R(3.6), A[1] - R(1.4)], R(1.1), [BO[0], BO[0], BO[0], BO[3], BO[4]], false); // the rolled cuff
     const f = g.foot ?? 0, tip = g.tip ? 0.6 : 1;
     ell(cv, A[0] + f * R(2.2), A[1] + R(1.6), R(f ? 4.4 : 3.4) * tip, R(2.3), SH);
@@ -124,18 +128,17 @@ function figure(cv, J, L, s, ax, ay) {
     const wy = (Math.min(shN[1], shF[1]) + Math.max(hiN[1], hiF[1])) / 2 + 4, side = (a, b, k) => a + (b - a) * k;
     // work from the image's left and right edges: the near shoulder is on the right in front views but on the left from behind
     const [sl, sr] = shN[0] < shF[0] ? [shN, shF] : [shF, shN], [hl, hr] = hiN[0] < hiF[0] ? [hiN, hiF] : [hiF, hiN];
-    const hem = L.boxy ? 3 : 0, hx = L.boxy ? 5.5 : 2.5; // an oversized tee hangs straight down and past the hips
-    const wl = L.boxy ? sl[0] - 3 : side(sl[0], hl[0], 0.6) - 0.5, wr = L.boxy ? sr[0] + 3 : side(sr[0], hr[0], 0.6) + 0.5;
+    const hem = L.boxy ? 3 : 0, hx = L.boxy ? 4.5 : 2.5; // an oversized tee hangs straight down and past the hips
+    const wl = L.boxy ? sl[0] - 2.2 : side(sl[0], hl[0], 0.6) - 0.5, wr = L.boxy ? sr[0] + 2.2 : side(sr[0], hr[0], 0.6) + 0.5;
     // the shoulder line slopes up from each shoulder to the base of the neck (higher from behind, where the collar rides up the nape)
     const top = Math.min(sl[1], sr[1]), nx = (sl[0] + sr[0]) / 2 + (J.v === "b" ? 1 : 0), ny = top - (J.v === "b" ? 6.5 : 3.5);
     for (const sh of [sl, sr]) ell(cv, ...U([sh[0], sh[1] + 1.5]), R(L.shoulderR || 3.9), R(3.2), TO, false); // the deltoid, under the shoulder line
     poly(cv, [U([sl[0] - 1, sl[1] - 2.2]), U([nx - 3.8, ny]), U([nx + 3.8, ny]), U([sr[0] + 1, sr[1] - 2.2]), U([sr[0] + 2.5, sr[1] + 4]), U([wr, wy]), U([hr[0] + hx, hr[1] + hem]), U([hl[0] - hx, hl[1] + hem]), U([wl, wy]), U([sl[0] - 2.5, sl[1] + 4])], TO);
     cap(cv, U([hl[0] - hx + 0.5, hl[1] + hem - 0.8]), U([hr[0] + hx - 0.5, hr[1] + hem - 0.8]), R(0.7), [TO[3], TO[3], TO[3], TO[3], TO[4]], false); // the hem
   }
-  if (L.folds && J.legs !== undefined) { // a few soft creases in the cotton
-    const T2 = [TO[2], TO[2], TO[2], TO[2], TO[4]], my = (Math.min(shN[1], shF[1]) + Math.max(hiN[1], hiF[1])) / 2, mx = (shN[0] + shF[0]) / 2;
-    if (J.v === "b") { cap(cv, U([mx - 4, my - 8]), U([mx - 2.5, my + 6]), 0.45, T2, false); cap(cv, U([mx + 6, my - 4]), U([mx + 4, my + 9]), 0.45, T2, false); }
-    else { cap(cv, U([shN[0] - 2, shN[1] + 9]), U([mx + 1, my + 7]), 0.45, T2, false); cap(cv, U([shF[0] + 3, my + 4]), U([mx - 2, my + 11]), 0.45, T2, false); }
+  if (L.folds) { // a few short, soft creases where cotton gathers: under the arms and at the waist, in the mid-shade
+    const T2 = [TO[6], TO[6], TO[6], TO[6], TO[4]], top = Math.min(shN[1], shF[1]), bot = Math.max(hiN[1], hiF[1]), mx = (shN[0] + shF[0]) / 2, xl = Math.min(shN[0], shF[0]), xr = Math.max(shN[0], shF[0]);
+    for (const [x0, y0, x1, y1] of [[xl + 1.5, top + 9, xl + 5, top + 13], [xr - 1.5, top + 9, xr - 5, top + 13], [mx - 6, bot - 2, mx - 2.5, bot + 1.5], [mx + 4, bot - 3, mx + 6.5, bot + 1]]) cap(cv, U([x0, y0]), U([x1, y1]), 0.45, T2, false);
   }
   if (L.belt && L.topStyle !== "long") cap(cv, U([Math.min(hiF[0], hiN[0]) - 2, hiF[1] - 1]), U([Math.max(hiF[0], hiN[0]) + 2, hiN[1] - 1]), R(1.1), BO, false);
   if (L.dupatta) { // across the chest from the near shoulder; the end hangs behind the far one
@@ -158,36 +161,37 @@ function figure(cv, J, L, s, ax, ay) {
   for (const x of J.extra || []) x(cv, U, P, R, s);
 }
 
-/* Taif's head, drawn by hand from his photo: black hair short at the sides with lift on top, thick brows, a full short
-   beard round the mouth and over the chin and jaw, and the big smile. One letter per pixel; the outline comes after.
-   j H h hair (shine, base, shade) · f g the fade at the back · l S s E skin (light, base, shade, ear) · B b d beard (base, stubble, dark) · e eyes · w teeth · m mouth */
+/* Taif's head, drawn by hand from his photo at a natural size (about a sixth of his height, not a cartoon's quarter):
+   black hair short at the sides with lift on top, brows, a short beard (stubble on the cheeks, darker on the jaw and in the
+   moustache) and his smile with the teeth muted. One letter per pixel; the outline comes after.
+   j H h hair (shine, base, shade) · f g the fade at the back · l S s E skin (light, base, shade, ear) · o brows and lashes · B b d beard (base, stubble, dark) · e eyes · w teeth · m mouth */
 const TAIF_HEADS = {
   F: [
-    "........jHH...", "....jjjHHHHH..", "..jjjHHHHjHHH.", ".jjHHHHHjHHHHh", "jHHHHHHjHHHHhh", "hHHHHHHHHHHhhh", "hhHhhhllhhhHhh", "hhlllSSSSSSlhh",
-    "hSShhSSSShhSSh", "ESSSSSSSSSSSSE", "ESSeeSSSSeeSSE", ".sSllSSsSllSs.", ".bSSSSSsSSSSb.", ".BbddddddddbB.", ".BdmwwwwwwmdB.", ".BBdmmmmmmdBB.", "..BBBbbbbBBB..", "...BBBBBBBB...", ".....BBBB.....",
-  ], // full front, smiling, the eyes creased, cheeks up
+    "....jjHHH...", "..jjHHHHHHh.", ".jHHHHjHHHhh", "jHHHHHHHHHhh", "hHhhhhlhhHhh", "hhlSSSSSSlhh", "hSoohSSoohSh", "ESSeSSSSeSSE",
+    "ESlSSllSSlSE", ".sSSSSsSSSs.", ".bSSSSSSSSb.", ".BbddddddbB.", ".BbmwwwwmbB.", "..BbmmmmbB..", "...BBbbBB...", ".....BB.....",
+  ], // full front, smiling
   Fs: [
-    "........jHH...", "....jjjHHHHH..", "..jjjHHHHjHHH.", ".jjHHHHHjHHHHh", "jHHHHHHjHHHHhh", "hHHHHHHHHHHhhh", "hhHhhhllhhhHhh", "hhlllSSSSSSlhh",
-    "hSShhSSSShhSSh", "ESSSSSSSSSSSSE", "ESsseSSSSessSE", ".sSSSSSsSSSSs.", ".bSSSSSsSSSSb.", ".BbddddddddbB.", ".BBdmmmmmmdBB.", ".BBBBBBBBBBBB.", "..BBBbbbbBBB..", "...BBBBBBBB...", ".....BBBB.....",
+    "....jjHHH...", "..jjHHHHHHh.", ".jHHHHjHHHhh", "jHHHHHHHHHhh", "hHhhhhlhhHhh", "hhlSSSSSSlhh", "hSoohSSoohSh", "ESooSSSSooSE",
+    "ESlSSllSSlSE", ".sSSSSsSSSs.", ".bSSSSSSSSb.", ".BbddddddbB.", ".BbbmmmmbbB.", "..BbbbbbbB..", "...BBbbBB...", ".....BB.....",
   ], // asleep: eyes shut, mouth closed
   b: [
-    "......jjHH....", "...jjjHHjHHH..", "..jjHHHjHHHHH.", ".jHHHHjHHHHHhh", "jHHHHHHHHHHHhh", "HHHHHHHHHHHhhh", "hHHHHHHHHHhhhs", "hhHHHHHHHhhhSs",
-    "fhhhhhhhhhhESS", ".fgfhhhhhgfEsb", ".gfgfgfgfgfsBB", "..fgfgfgfgsBB.", "...sSSSSSsBB..", "....sSSSSs....",
+    "....jjHH....", "..jjHHjHHH..", ".jHHHHHHHHh.", "jHHHHHHHHHhh", "HHHHHHHHHhhh", "hHHHHHHHhhSs", "hhHHHHHhhhEs", ".hhhhhhhhhEB",
+    ".fgfgfgfgsBb", "..gfgfgfsBb.", "...sSSSSs...",
   ], // from behind his right shoulder: the faded back and sides, his right ear, the edge of the beard
 };
-const HEAD_PAL = {"j": "#4d4452", "H": "#241c20", "h": "#15101a", "f": "#5a3c32", "g": "#7a5340", "l": "#c78f6c", "S": "#a56d4f", "s": "#7e4e36", "E": "#8f5c42", "B": "#2b2124", "b": "#6a4636", "d": "#1a1316", "e": "#120c12", "w": "#f3ede4", "m": "#5c2c27"};
+const HEAD_PAL = {"j":  "#4a4250", "H":  "#251d22", "h":  "#17121a", "f":  "#5e4034", "g":  "#7c5644", "l":  "#c48c6a", "S":  "#a46d50", "s":  "#835439", "E":  "#93603f", "B":  "#3a2a27", "b":  "#7a523f", "d":  "#2a1f1f", "e":  "#1e1418", "w":  "#e2d2c2", "m":  "#6e3a31", "o":  "#5c3a30"};
 // stamp a hand-drawn head with its eye row on (x, y)
 function stamp(cv, rows, x, y, eyeRow = 8) {
   const id = cv.n++, ox = Math.round(x - rows[0].length / 2), oy = Math.round(y - eyeRow);
   rows.forEach((row, r) => { for (let c = 0; c < row.length; c++) {
     const ch = row[c]; if (ch === ".") continue;
     const X = ox + c, Y = oy + r; if (X < 0 || Y < 0 || X >= cv.w || Y >= cv.h) continue;
-    const k = Y * cv.w + X, col = rgb(HEAD_PAL[ch]); cv.c[k] = col; cv.o[k] = mix(col, INK, 0.75); cv.id[k] = id;
+    const k = Y * cv.w + X, col = rgb(HEAD_PAL[ch]); cv.c[k] = col; cv.o[k] = mix(col, INK, 0.6); cv.id[k] = id;
   } });
 }
 
 function head(cv, view, [cx, cy], s, L, eyes = "open") {
-  if (L.heads) { const v = view === "b" ? "b" : eyes === "closed" ? "Fs" : "F"; stamp(cv, TAIF_HEADS[v], cx, cy + (v === "b" ? 2 : 1), v === "b" ? 8 : 10); return; } // from behind his head sits down into the collar
+  if (L.heads) { const v = view === "b" ? "b" : eyes === "closed" ? "Fs" : "F"; stamp(cv, TAIF_HEADS[v], cx, cy + (v === "b" ? 2 : 1), v === "b" ? 6 : 7); return; } // from behind his head sits down into the collar
   const SK = tones(L.skin), HA = tones(L.hair), rx = 7.2 * s, ry = 8.3 * s, eye = [26, 20, 32], big = s > 0.6;
   const E = (x, y) => { dot(cv, x, y, eye); if (big && eyes !== "closed") dot(cv, x, y - 1, eye); };
   const closed = (x, y) => { dot(cv, x, y, SK[4]); if (big) dot(cv, x + 1, y, SK[4]); };
@@ -289,7 +293,7 @@ export const streetSheet = () => sheet(PEOPLE.flatMap((L, i) => personCells(L, B
 
 /* ---------- tiny Taif: 64 x 100 cells, the standing figure 88 texels tall; a cell's bottom row is what he stands or sits on ---------- */
 const TAIF_LOOK = { skin: "#a56d4f", hair: "#241c20", beard: "#2b2124", top: "#ad97c0", bottom: "#7b93b4", // his lilac tee and light jeans, a shade deeper than the photo so they hold their colour under the room's light
-   shoes: "#e9e4dc", sleeve: 0.8, sleeveR: 4.7, shoulderR: 4.8, armR: 3.4, handR: 3.0, neckR: 3.4, legR: [5.9, 4.5], hipSpread: 1.3, boxy: true, cuffs: true, folds: true, heads: true };
+   shoes: "#e9e4dc", sleeve: 0.8, sleeveR: 4.3, shoulderR: 4.3, armR: 3.4, handR: 2.5, neckR: 3.1, taper: true, legR: [5.9, 4.5], hipSpread: 1.3, boxy: true, cuffs: true, folds: true, heads: true };
 const TS = 0.88, TW = 64, TH = 100;
 // seated poses sit their hips on the cell's bottom row (y 100); the others stand on it
 const SEATED = (J) => J;
@@ -326,7 +330,7 @@ const POSES = {
 function sleeper(cv, breath) {
   const s = TS, at = (x, y) => [TW / 2 + (x - 50) * s, TH - 1 + (y - 100) * s], SK = tones(TAIF_LOOK.skin), BL = tones("#eeeae2"), TO = tones(TAIF_LOOK.top);
   const h = at(73, 78.5); // the head (the body runs down and left from it along the futon, about 0.35 down for 1 across)
-  stamp(cv, TAIF_HEADS.Fs, h[0], h[1] + 1, 10); // his face, turned up to the ceiling, eyes shut
+  stamp(cv, TAIF_HEADS.Fs, h[0], h[1] + 1, 7); // his face, turned up to the ceiling, eyes shut
   // his shoulder and an arm out over the blanket
   cap(cv, at(61, 86), at(51, 90), 4.6 * s, TO); cap(cv, at(51, 90), at(42, 92), 2.9 * s, SK); ell(cv, ...at(41, 92.3), 2.7 * s, 2.7 * s, SK);
   // the blanket over the rest of him, rising and falling a little
