@@ -404,7 +404,7 @@ void main(){
   box(0.05, 0.36, 0.05, C.bag, -0.1, 1.42, -0.63); box(0.05, 0.36, 0.05, C.bag, 0.26, 1.42, -0.63);
   const me = new THREE.Group(); me.position.copy(CH); scene.add(me);
   { const hit = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.75, 0.7), basic("#000000")); hit.position.set(0, 1.75, -0.15); hit.visible = false; me.add(hit); } // the raycaster ignores .visible
-  const meSprite = spriteLayer({ sheet: taifSheet(), count: 1, grad, unit: 0.038, layer: FX, parent: scene }); // drawn for the room shot: one texel per art pixel there
+  const meSprite = spriteLayer({ sheet: taifSheet(), count: 1, grad, unit: 0.0257, layer: FX, parent: scene }); // drawn for the room shot: one texel per art pixel there
   /* What tiny Taif is up to: picked for the visitor's hour on each visit, and changed every two or three minutes.
      at: where the sprite stands (or sits); flip: the drawings face up-right, so the left wall's things need it;
      beat: seconds per frame; hit: the click box round him [w, h, d, centre y]; zz: where the "z z z" rise from. */
@@ -689,7 +689,7 @@ void main(){
     // S is the size of one art pixel in *device* pixels: about 270 rows (or 290 columns on a phone), so pixels stay
     // crisp integers on any screen density and there are enough of them to tell a mug from a phone
     const wd = W * DPR, hd = H * DPR;
-    S = clamp(Math.round(Math.min(hd / 270, wd / (portrait ? 290 : 400))), 2, 9) + coarse;
+    S = clamp(Math.round(Math.min(hd / 400, wd / (portrait ? 430 : 590))), 2, 9) + coarse;
     lw = Math.ceil(wd / S); lh = Math.ceil(hd / S);
     renderer.setSize(lw, lh, false); ui.size({ w: (lw * S) / DPR, h: (lh * S) / DPR });
     makeSky(lw, lh); scene.background = bgTex; if (ENV) paintSky(reduced ? 0 : performance.now() / 1000);
@@ -805,7 +805,7 @@ void main(){
       else if (growth === 4) { box(0.22, 0.22, 0.22, C.flower, 0, 1.0, 0, plant); box(0.1, 0.1, 0.1, C.mug, 0, 1.12, 0, plant); ui.toast("It flowered."); }
       else ui.toast("That’s as big as it gets.");
     }
-    else if (n === "me") { if (ACTS[act].wave) { waveT = 0; ui.portrait(ACTS[act].say); } else ui.toast(ACTS[act].say); } // awake: he waves and his portrait opens
+    else if (n === "me") { if (ACTS[act].wave) waveT = 0; ui.toast(ACTS[act].say); }
     else if (n === "trophy") ui.toast(copy.trophy || "A trophy.");
     else if (n === "degree") ui.toast(copy.degree || "A degree.");
     else if (n === "frames") ui.go("#work");

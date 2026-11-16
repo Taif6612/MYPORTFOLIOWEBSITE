@@ -167,16 +167,21 @@ function figure(cv, J, L, s, ax, ay) {
    j H h hair (shine, base, shade) · f g the fade at the back · l S s E skin (light, base, shade, ear) · o brows and lashes · B b d beard (base, stubble, dark) · e eyes · w teeth · m mouth */
 const TAIF_HEADS = {
   F: [
-    "....jjHHH...", "..jjHHHHHHh.", ".jHHHHjHHHhh", "jHHHHHHHHHhh", "hHhhhhlhhHhh", "hhlSSSSSSlhh", "hSoohSSoohSh", "ESSeSSSSeSSE",
-    "ESlSSllSSlSE", ".sSSSSsSSSs.", ".bSSSSSSSSb.", ".BbddddddbB.", ".BbmwwwwmbB.", "..BbmmmmbB..", "...BBbbBB...", ".....BB.....",
-  ], // full front, smiling
+    "......jjjHHHH.....", "....jjjHHHHHHHh...", "...jjHHHHHjjHHHh..", "..jHHHHHHHHHjHHhh.", "..jHHHHHHHHHHHHhh.", ".hHHHHHHHHHHHHHhhh",
+    ".hhHHhhhhHHHhhHhhh", ".hhhllllllSSSShhh.", ".hhlllSSSSSSSSshh.", ".hlohhlSSSShhoSsh.", "EsllSSSSSSSSSSSssE", "EslSehSSSSShesSssE",
+    "EsllllSSlsSlllSssE", ".sllSSSSlsSSSSSss.", ".bSlSSSSssSSSSSsb.", ".BbSSSSbssbSSSsbB.", ".BBbddddddddddbBB.", ".BBdbmwwwwwwmbdBB.",
+    ".BBBdbmmmmmmbdBBB.", ".BBBBbbsbbsbbBBBB.", "..BBdBBbbbbBBdBB..", "...BBBBBddBBBBB...", "....BBBBBBBBBB....", "......BBBBBB......",
+  ], // full front, smiling: lit on the left, shaded on the right
   Fs: [
-    "....jjHHH...", "..jjHHHHHHh.", ".jHHHHjHHHhh", "jHHHHHHHHHhh", "hHhhhhlhhHhh", "hhlSSSSSSlhh", "hSoohSSoohSh", "ESooSSSSooSE",
-    "ESlSSllSSlSE", ".sSSSSsSSSs.", ".bSSSSSSSSb.", ".BbddddddbB.", ".BbbmmmmbbB.", "..BbbbbbbB..", "...BBbbBB...", ".....BB.....",
+    "......jjjHHHH.....", "....jjjHHHHHHHh...", "...jjHHHHHjjHHHh..", "..jHHHHHHHHHjHHhh.", "..jHHHHHHHHHHHHhh.", ".hHHHHHHHHHHHHHhhh",
+    ".hhHHhhhhHHHhhHhhh", ".hhhllllllSSSShhh.", ".hhlllSSSSSSSSshh.", ".hlohhlSSSShhoSsh.", "EsllSSSSSSSSSSSssE", "EslSooSSSSSoosSssE",
+    "EsllllSSlsSlllSssE", ".sllSSSSlsSSSSSss.", ".bSlSSSSssSSSSSsb.", ".BbSSSSbssbSSSsbB.", ".BBbddddddddddbBB.", ".BBBbmmmmmmmmbBBB.",
+    ".BBBBbbbbbbbbBBBB.", ".BBBBbbsbbsbbBBBB.", "..BBdBBbbbbBBdBB..", "...BBBBBddBBBBB...", "....BBBBBBBBBB....", "......BBBBBB......",
   ], // asleep: eyes shut, mouth closed
   b: [
-    "....jjHH....", "..jjHHjHHH..", ".jHHHHHHHHh.", "jHHHHHHHHHhh", "HHHHHHHHHhhh", "hHHHHHHHhhSs", "hhHHHHHhhhEs", ".hhhhhhhhhEB",
-    ".fgfgfgfgsBb", "..gfgfgfsBb.", "...sSSSSs...",
+    "......jjjHHH......", "....jjjHHHjHHHh...", "...jjHHHHHHHjHHh..", "..jHHHHHHHHHHHHhh.", ".jHHHHHHHHHHHHHhhh", ".HHHHHHHHHHHHHHhhh",
+    ".HHHHHHHHHHHHHhhhh", ".hHHHHHHHHHHHHhhSs", ".hhHHHHHHHHHHhhhSs", ".hhhHHHHHHHHhhhEsS", "..hhhhhhhhhhhhhEsS", "..fhhhhhhhhhhhfEsB",
+    "..ffgfgfgfgfgffsBB", "...gfgfgfgfgfgsBB.", "....gfgfgfgfgsBB..", ".....sSSSSSSSsB...", "......sSSSSSs.....",
   ], // from behind his right shoulder: the faded back and sides, his right ear, the edge of the beard
 };
 const HEAD_PAL = {"j":  "#4a4250", "H":  "#251d22", "h":  "#17121a", "f":  "#5e4034", "g":  "#7c5644", "l":  "#c48c6a", "S":  "#a46d50", "s":  "#835439", "E":  "#93603f", "B":  "#3a2a27", "b":  "#7a523f", "d":  "#2a1f1f", "e":  "#1e1418", "w":  "#e2d2c2", "m":  "#6e3a31", "o":  "#5c3a30"};
@@ -191,7 +196,7 @@ function stamp(cv, rows, x, y, eyeRow = 8) {
 }
 
 function head(cv, view, [cx, cy], s, L, eyes = "open") {
-  if (L.heads) { const v = view === "b" ? "b" : eyes === "closed" ? "Fs" : "F"; stamp(cv, TAIF_HEADS[v], cx, cy + (v === "b" ? 2 : 1), v === "b" ? 6 : 7); return; } // from behind his head sits down into the collar
+  if (L.heads) { const v = view === "b" ? "b" : eyes === "closed" ? "Fs" : "F"; stamp(cv, TAIF_HEADS[v], cx, cy + (v === "b" ? 3 : 1), v === "b" ? 9 : 11); return; } // from behind his head sits down into the collar
   const SK = tones(L.skin), HA = tones(L.hair), rx = 7.2 * s, ry = 8.3 * s, eye = [26, 20, 32], big = s > 0.6;
   const E = (x, y) => { dot(cv, x, y, eye); if (big && eyes !== "closed") dot(cv, x, y - 1, eye); };
   const closed = (x, y) => { dot(cv, x, y, SK[4]); if (big) dot(cv, x + 1, y, SK[4]); };
@@ -275,7 +280,7 @@ const PEOPLE = [
   { skin: "#9b6b4b", hair: "#1d1715", top: "#e9edf2", bottom: "#24252e", shoes: "#1a1a1e", sleeve: 1, belt: true },
 ];
 const BROLLY = [["#c8463c"], ["#3f9a7a"], ["#e0a83a"], ["#3e6e8e"], ["#e9e2d3"]];
-const SW = 24, SH = 46, SS = 0.38; // cell, and texels per figure unit (the figure 38 tall)
+const SW = 36, SH = 68, SS = 0.56; // cell, and texels per figure unit (the figure 56 tall)
 const PER = 17; // cells per person: front walk x4, back walk x4, each with and without an umbrella, and sitting
 const cell = (w, h, draw, rim) => { const cv = canvas(w, h); draw(cv); if (rim) rimLight(cv); outline(cv); return cv; };
 // lo-fi light: the edge facing away from the key light catches a cool rim (the monitor, the window), two pixels deep, fading
@@ -305,7 +310,7 @@ export const streetSheet = () => sheet(PEOPLE.flatMap((L, i) => personCells(L, B
 const TAIF_LOOK = { skin: "#a56d4f", hair: "#241c20", beard: "#2b2124", top: "#ad97c0", bottom: "#7b93b4", // his lilac tee and light jeans, a shade deeper than the photo so they hold their colour under the room's light
    shoes: "#e9e4dc", sleeve: 0.8, sleeveR: 4.3, shoulderR: 4.3, armR: 3.4, handR: 2.5, neckR: 3.1, taper: true, legR: [5.9, 4.5], hipSpread: 1.3, boxy: true, cuffs: true, folds: true, heads: true };
 for (const k of ["skin", "top", "bottom", "shoes"]) LOFI.add(TAIF_LOOK[k]);
-const TS = 0.88, TW = 64, TH = 100;
+const TS = 1.3, TW = 96, TH = 148; // the standing figure about 127 texels tall, at the room's 400-row grain
 // seated poses sit their hips on the cell's bottom row (y 100); the others stand on it
 const SEATED = (J) => J;
 const POSES = {
@@ -341,7 +346,7 @@ const POSES = {
 function sleeper(cv, breath) {
   const s = TS, at = (x, y) => [TW / 2 + (x - 50) * s, TH - 1 + (y - 100) * s], SK = tones(TAIF_LOOK.skin), BL = tones("#eeeae2"), TO = tones(TAIF_LOOK.top);
   const h = at(73, 78.5); // the head (the body runs down and left from it along the futon, about 0.35 down for 1 across)
-  stamp(cv, TAIF_HEADS.Fs, h[0], h[1] + 1, 7); // his face, turned up to the ceiling, eyes shut
+  stamp(cv, TAIF_HEADS.Fs, h[0], h[1] + 1, 11); // his face, turned up to the ceiling, eyes shut
   // his shoulder and an arm out over the blanket
   cap(cv, at(61, 86), at(51, 90), 4.6 * s, TO); cap(cv, at(51, 90), at(42, 92), 2.9 * s, SK); ell(cv, ...at(41, 92.3), 2.7 * s, 2.7 * s, SK);
   // the blanket over the rest of him, rising and falling a little

@@ -371,7 +371,7 @@ export async function buildStreet({ scene, grad, G, front, right, light, pause =
   walker("x", front + 2.5, -32.6, -32.6, 0, 0, 3); walker("x", front + 2.6, -29.5, -29.5, 0, 0, 4); // two regulars on the tea stall's stools
   const N = walkers.length;
   // the figure drawn 38 texels tall: about a person's height beside the cars, one texel per art pixel at street level
-  const people = spriteLayer({ sheet: streetSheet(), count: N, grad, unit: 0.065, parent: root });
+  const people = spriteLayer({ sheet: streetSheet(), count: N, grad, unit: 0.044, parent: root });
 
   let wasNight = null, flashT = 0, flashCar = null;
   function update(t, env, dt = 0, focus = null, view = null) {
