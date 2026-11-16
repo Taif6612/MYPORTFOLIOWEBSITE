@@ -1038,6 +1038,8 @@ void main(){
       if (name !== hovered) { hovered = name; ui.hover(name, PLACE[name]); } // street things carry their own label
     },
     leave() { ptr.inside = false; ptr.tx = ptr.ty = 0; if (hovered) { hovered = null; ui.hover(null); } },
+    /* a phone tilted from where it is held (-1..1 each way): steers the camera like the mouse does, without picking anything */
+    tilt(tx, ty) { ptr.tx = tx; ptr.ty = ty; ptr.inside = true; ptr.last = performance.now(); },
     click,
     probe(id, nx, ny) { ui.probe(id, inStreet() ? pickStreet(nx, ny) : pick(nx, ny)); }, // automated tests
     /* after the dive has landed: snap back to the room, no flight */

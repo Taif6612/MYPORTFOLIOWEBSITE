@@ -215,6 +215,23 @@ export default function Hero({ reduced }) {
     const onClick = (e) => { unlock(); if (!e.target.closest("a, button, .lv-album")) room?.("click", ...ndc(e.clientX, e.clientY)); };
     const onKey = (e) => { if (e.key === "Escape") { setShown(null); room?.("leaveWatch"); } };
     const onVis = () => { room?.("setActive", !document.hidden && inView); if (document.hidden) stopMusic(); };
+    // Phones: tilting steers the camera the way the mouse does on a desktop. However the phone is held is neutral (the
+    // resting angle drifts back to it over a few seconds), so tipping it left, right, toward or away turns the room.
+    // iOS only hands out the sensor after asking, and only from a tap: the first tap in the room asks.
+    const tilt = { g: null, b: null, raf: 0, e: null, asked: false };
+    const steer = () => {
+      tilt.raf = 0; const e = tilt.e; if (!e || !room) return;
+      const a = screen.orientation?.angle ?? window.orientation ?? 0, side = a === 90 || a === 270 || a === -90, k = a === 90 ? 1 : -1;
+      const x = side ? e.beta * k : e.gamma, y = side ? -e.gamma * k : e.beta; // a phone on its side swaps the axes
+      if (tilt.g === null) { tilt.g = x; tilt.b = y; }
+      tilt.g += (x - tilt.g) * 0.005; tilt.b += (y - tilt.b) * 0.005;
+      const c = (v) => Math.max(-1, Math.min(1, v));
+      room("tilt", c((x - tilt.g) / 16), c((y - tilt.b) / 16)); // about 16 degrees for the full swing
+    };
+    const onTilt = (e) => { if (e.gamma == null || e.beta == null) return; tilt.e = e; if (!tilt.raf) tilt.raf = requestAnimationFrame(steer); };
+    const askTilt = () => { if (tilt.asked) return; tilt.asked = true; DeviceOrientationEvent.requestPermission().then((r) => { if (r === "granted") window.addEventListener("deviceorientation", onTilt); }).catch(() => {}); };
+    const tiltable = !reduced && "DeviceOrientationEvent" in window && window.matchMedia("(hover: none)").matches;
+    if (tiltable) { if (typeof DeviceOrientationEvent.requestPermission === "function") st.addEventListener("click", askTilt); else window.addEventListener("deviceorientation", onTilt); }
     let inView = true;
     const ro = new ResizeObserver(() => { room?.("layout", textRight(), textBottom()); room?.("resize", st.clientWidth, st.clientHeight, window.devicePixelRatio || 1); });
     document.fonts?.ready.then(() => room?.("layout", textRight(), textBottom())); // the display font changes the tagline's width
@@ -237,6 +254,7 @@ export default function Hero({ reduced }) {
       st.removeEventListener("pointermove", onMove);
       st.removeEventListener("pointerleave", onLeave);
       st.removeEventListener("click", onClick);
+      st.removeEventListener("click", askTilt); window.removeEventListener("deviceorientation", onTilt); cancelAnimationFrame(tilt.raf);
       window.removeEventListener("scroll", sync);
       window.removeEventListener("keydown", onKey);
       document.removeEventListener("visibilitychange", onVis);
