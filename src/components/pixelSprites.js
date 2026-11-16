@@ -44,11 +44,12 @@ function fill(cv, x0, y0, x1, y1, inside, T, edge = true) {
     cv.c[k] = T[t]; cv.o[k] = T[4]; cv.id[k] = id;
   }
 }
-const cap = (cv, a, b, r, T, edge, r2 = r) => { // r at a, r2 at b (a limb that tapers)
+const cap = (cv, a, b, r, T, edge, r2 = r, flat = false) => { // r at a, r2 at b (a limb that tapers); flat: shaded across its width only, so its rounded ends don't light up like kneecaps
   const dx = b[0] - a[0], dy = b[1] - a[1], l2 = dx * dx + dy * dy || 1e-6, M = Math.max(r, r2);
   fill(cv, Math.min(a[0], b[0]) - M, Math.min(a[1], b[1]) - M, Math.max(a[0], b[0]) + M, Math.max(a[1], b[1]) + M, (x, y) => {
-    const t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (y - a[1]) * dy) / l2)), ox = x - a[0] - t * dx, oy = y - a[1] - t * dy, rt = r + (r2 - r) * t, rn = Math.max(rt, 0.8);
-    return ox * ox + oy * oy <= rt * rt ? [ox / rn, oy / rn] : null;
+    const u = ((x - a[0]) * dx + (y - a[1]) * dy) / l2, t = Math.max(0, Math.min(1, u)), ox = x - a[0] - t * dx, oy = y - a[1] - t * dy, rt = r + (r2 - r) * t, rn = Math.max(rt, 0.8);
+    if (ox * ox + oy * oy > rt * rt) return null;
+    return flat ? [(x - a[0] - u * dx) / rn, (y - a[1] - u * dy) / rn] : [ox / rn, oy / rn];
   }, T, edge);
 };
 const ell = (cv, cx, cy, rx, ry, T, edge) => fill(cv, cx - rx, cy - ry, cx + rx, cy + ry, (x, y) => { const u = (x - cx) / rx, v = (y - cy) / ry; return u * u + v * v <= 1 ? [u, v] : null; }, T, edge);
@@ -96,12 +97,16 @@ function figure(cv, J, L, s, ax, ay) {
     if (!g) return;
     const dx = L.hipSpread ? (hip[0] - mxh) * (L.hipSpread - 1) : 0, [tr, sr] = L.legR || [4.8, 3.6];
     const Hp = P([hip[0] + dx, hip[1]]), K = P([g.kn[0] + dx * 0.7, g.kn[1]]), A = P([g.an[0] + dx * 0.5, g.an[1]]);
-    cap(cv, Hp, K, R(tr), BO, true, R(tr * (L.taper ? 0.86 : 1))); cap(cv, K, A, R(sr), BO, false, R(sr * (L.taper ? 0.84 : 1))); // no line at the knee: one leg
-    if (L.taper) { const T2 = [BO[2], BO[2], BO[2], BO[2], BO[4]]; // denim creases behind the knee and stacked at the ankle
-      cap(cv, [K[0] - R(2.4), K[1] - R(1)], [K[0] + R(1.8), K[1] + R(1.2)], 0.45, T2, false); cap(cv, [A[0] - R(2.6), A[1] - R(5)], [A[0] + R(2.2), A[1] - R(4.2)], 0.45, T2, false); }
+    const flat = !!L.taper; // no line at the knee (one leg), and no lit dome where thigh and shin meet
+    cap(cv, Hp, K, R(tr), BO, true, R(tr * (L.taper ? 0.86 : 1)), flat); cap(cv, K, A, R(sr), BO, false, R(sr * (L.taper ? 0.84 : 1)), flat);
+    if (L.taper) { const T2 = [BO[2], BO[2], BO[2], BO[2], BO[4]]; // denim creases: behind the knee (two short folds from the back), stacked at the ankle
+      if (J.v === "b") { cap(cv, [K[0] - R(2.8), K[1] - R(0.6)], [K[0] + R(0.4), K[1] + R(0.6)], 0.45, T2, false); cap(cv, [K[0] - R(0.8), K[1] + R(2.2)], [K[0] + R(2.6), K[1] + R(1.2)], 0.45, T2, false); }
+      else cap(cv, [K[0] - R(2.4), K[1] - R(1)], [K[0] + R(1.8), K[1] + R(1.2)], 0.45, T2, false);
+      cap(cv, [A[0] - R(2.6), A[1] - R(5)], [A[0] + R(2.2), A[1] - R(4.2)], 0.45, T2, false); }
     if (L.cuffs) cap(cv, [A[0] - R(3.6), A[1] - R(1.4)], [A[0] + R(3.6), A[1] - R(1.4)], R(1.1), [BO[0], BO[0], BO[0], BO[3], BO[4]], false); // the rolled cuff
-    const f = g.foot ?? 0, tip = g.tip ? 0.6 : 1;
-    ell(cv, A[0] + f * R(2.2), A[1] + R(1.6), R(f ? 4.4 : 3.4) * tip, R(2.3), SH);
+    const f = g.foot ?? 0, tip = g.tip ? 0.6 : 1, fx = A[0] + f * R(2.2), fy = A[1] + R(1.6), frx = R(f ? 4.4 : 3.4) * tip, fry = R(2.3);
+    if (L.taper) { ell(cv, fx, fy, frx, fry, tones("#a39b92")); ell(cv, fx, fy - 1, frx, fry, SH, false); } // the sole shows as a grey rim under the white sneaker
+    else ell(cv, fx, fy, frx, fry, SH);
   };
   const [nearArm, farArm] = J.arms || [], [nearLeg, farLeg] = J.legs || [];
   const [shN, shF] = J.sh, [hiN, hiF] = J.hip;
@@ -112,6 +117,11 @@ function figure(cv, J, L, s, ax, ay) {
   // legs, far then near; a lungi or the lower half of a long top over them
   if (J.legs) {
     leg(farLeg, hiF); leg(nearLeg, hiN);
+    if (L.pockets && J.v === "b") for (const [hp, g] of [[hiF, farLeg], [hiN, nearLeg]]) { // standing, from behind: the back pockets show under the tee
+      if (g.kn[1] - hp[1] < 15) continue;
+      const x = hp[0] + (L.hipSpread ? (hp[0] - mxh) * (L.hipSpread - 1) : 0) + (g.kn[0] - hp[0]) * 0.15, y = hp[1];
+      poly(cv, [P([x - 3.1, y]), P([x + 3.1, y]), P([x + 2.8, y + 6.8]), P([x, y + 8.2]), P([x - 2.8, y + 6.8])], [BO[6], BO[6], BO[6], BO[3], BO[4]], true);
+    }
     if (L.bottomStyle === "lungi") {
       const lo = Math.max(farLeg.an[1], nearLeg.an[1]) - 6, l = Math.min(farLeg.an[0], nearLeg.an[0], hiF[0], hiN[0]) - 4.5, r = Math.max(farLeg.an[0], nearLeg.an[0], hiF[0], hiN[0]) + 4.5;
       poly(cv, [P([Math.min(hiF[0], hiN[0]) - 4, Math.min(hiF[1], hiN[1]) - 1]), P([Math.max(hiF[0], hiN[0]) + 4, Math.min(hiF[1], hiN[1]) - 1]), P([r, lo]), P([l, lo])], BO);
@@ -138,7 +148,11 @@ function figure(cv, J, L, s, ax, ay) {
   }
   if (L.folds) { // a few short, soft creases where cotton gathers: under the arms and at the waist, in the mid-shade
     const T2 = [TO[6], TO[6], TO[6], TO[6], TO[4]], top = Math.min(shN[1], shF[1]), bot = Math.max(hiN[1], hiF[1]), mx = (shN[0] + shF[0]) / 2, xl = Math.min(shN[0], shF[0]), xr = Math.max(shN[0], shF[0]);
-    for (const [x0, y0, x1, y1] of [[xl + 1.5, top + 9, xl + 5, top + 13], [xr - 1.5, top + 9, xr - 5, top + 13], [mx - 6, bot - 2, mx - 2.5, bot + 1.5], [mx + 4, bot - 3, mx + 6.5, bot + 1]]) cap(cv, U([x0, y0]), U([x1, y1]), 0.45, T2, false);
+    const F = J.v === "b" // from behind: the cotton falls from the shoulder blades toward the small of the back
+      ? [[xl + 3, top + 7, xl + 7, top + 12.5], [xr - 2.5, top + 7.5, xr - 6, top + 12.5], [mx - 1.5, bot - 10, mx - 2.5, bot - 4], [mx + 5.5, bot - 6, mx + 6.5, bot]]
+      : [[xl + 1.5, top + 9, xl + 5, top + 13], [xr - 1.5, top + 9, xr - 5, top + 13], [mx - 6, bot - 2, mx - 2.5, bot + 1.5], [mx + 4, bot - 3, mx + 6.5, bot + 1]];
+    for (const [x0, y0, x1, y1] of F) cap(cv, U([x0, y0]), U([x1, y1]), 0.45, T2, false);
+    if (J.v === "b") { const nx = mx + 1, ny = top - 6.5; cap(cv, U([nx - 3.4, ny + 1.6]), U([nx + 3.4, ny + 1.6]), 0.5, [TO[3], TO[3], TO[3], TO[3], TO[4]], false); } // the collar band at the nape
   }
   if (L.belt && L.topStyle !== "long") cap(cv, U([Math.min(hiF[0], hiN[0]) - 2, hiF[1] - 1]), U([Math.max(hiF[0], hiN[0]) + 2, hiN[1] - 1]), R(1.1), BO, false);
   if (L.dupatta) { // across the chest from the near shoulder; the end hangs behind the far one
@@ -181,7 +195,7 @@ const TAIF_HEADS = {
   b: [
     "......jjjHHH......", "....jjjHHHjHHHh...", "...jjHHHHHHHjHHh..", "..jHHHHHHHHHHHHhh.", ".jHHHHHHHHHHHHHhhh", ".HHHHHHHHHHHHHHhhh",
     ".HHHHHHHHHHHHHhhhh", ".hHHHHHHHHHHHHhhSs", ".hhHHHHHHHHHHhhhSs", ".hhhHHHHHHHHhhhEsS", "..hhhhhhhhhhhhhEsS", "..fhhhhhhhhhhhfEsB",
-    "..ffgfgfgfgfgffsBB", "...gfgfgfgfgfgsBB.", "....gfgfgfgfgsBB..", ".....sSSSSSSSsB...", "......sSSSSSs.....",
+    "..fffhfffffhfffsBB", "...ggfgggggfggsBB.", "....ssgggggsssBB..", ".....sSSSSSSSsB...", "......sSSSSSs.....",
   ], // from behind his right shoulder: the faded back and sides, his right ear, the edge of the beard
 };
 const HEAD_PAL = {"j":  "#4a4250", "H":  "#251d22", "h":  "#17121a", "f":  "#5e4034", "g":  "#7c5644", "l":  "#c48c6a", "S":  "#a46d50", "s":  "#835439", "E":  "#93603f", "B":  "#3a2a27", "b":  "#7a523f", "d":  "#2a1f1f", "e":  "#1e1418", "w":  "#e2d2c2", "m":  "#6e3a31", "o":  "#5c3a30"};
@@ -308,36 +322,39 @@ export const streetSheet = () => sheet(PEOPLE.flatMap((L, i) => personCells(L, B
 
 /* ---------- tiny Taif: 64 x 100 cells, the standing figure 88 texels tall; a cell's bottom row is what he stands or sits on ---------- */
 const TAIF_LOOK = { skin: "#a56d4f", hair: "#241c20", beard: "#2b2124", top: "#ad97c0", bottom: "#7b93b4", // his lilac tee and light jeans, a shade deeper than the photo so they hold their colour under the room's light
-   shoes: "#e9e4dc", sleeve: 0.8, sleeveR: 4.3, shoulderR: 4.3, armR: 3.4, handR: 2.5, neckR: 3.1, taper: true, legR: [5.9, 4.5], hipSpread: 1.3, boxy: true, cuffs: true, folds: true, heads: true };
+   shoes: "#e9e4dc", sleeve: 0.8, sleeveR: 4.3, shoulderR: 4.3, armR: 3.4, handR: 2.5, neckR: 3.1, taper: true, legR: [5.9, 4.5], hipSpread: 1.3, boxy: true, cuffs: true, folds: true, pockets: true, heads: true };
 for (const k of ["skin", "top", "bottom", "shoes"]) LOFI.add(TAIF_LOOK[k]);
-const TS = 1.3, TW = 96, TH = 148; // the standing figure about 127 texels tall, at the room's 400-row grain
+const TS = 1.17, TW = 96, TH = 148; // the standing figure about 114 texels tall at the room's 400-row grain: about 1.6 m against its 0.76 m desk
 // seated poses sit their hips on the cell's bottom row (y 100); the others stand on it
 const SEATED = (J) => J;
 const POSES = {
+  // Seen from behind he faces up and right, so his right side is the near one: on the image's right, a little lower, drawn
+  // over his back. Index 0 of sh, hip, arms and legs is that near side; his left arm and leg mostly hide behind him.
   // at the desk, seen from behind his right shoulder, typing (the chair back hides his lower back)
-  desk0: SEATED({ v: "b", head: [52.5, 58.5], sh: [[41, 73.5], [61, 72.5]], hip: [[44, 100], [57, 100]], arms: [{ el: [37.5, 87], ha: [50, 84], fore: false }, { el: [65.5, 86], ha: [70, 80.5], upper: false, fore: false }] }),
-  desk1: SEATED({ v: "b", head: [52.5, 59], sh: [[41, 73.8], [61, 72.8]], hip: [[44, 100], [57, 100]], arms: [{ el: [37.8, 87.6], ha: [50, 84], fore: false }, { el: [65.5, 86.2], ha: [70.6, 79.6], upper: false, fore: false }] }),
+  desk0: SEATED({ v: "b", head: [52.5, 58.5], sh: [[61, 73.5], [41, 72.5]], hip: [[57, 100], [44, 100]], arms: [{ el: [65.5, 86], ha: [70, 80.5] }, { el: [37.5, 86.5], ha: [47, 83], upper: false, fore: false }] }),
+  desk1: SEATED({ v: "b", head: [52.5, 59], sh: [[61, 73.8], [41, 72.8]], hip: [[57, 100], [44, 100]], arms: [{ el: [65.5, 86.2], ha: [70.6, 79.6] }, { el: [37.8, 87], ha: [47, 83], upper: false, fore: false }] }),
   // turned round in the chair to wave
   deskWave0: { v: "F", head: [50.5, 57.5], sh: [[61, 72.5], [40, 72.5]], hip: [[56, 100], [45, 100]], arms: [{ el: [70, 63.5], ha: [72, 52] }, { el: [37, 86.5], ha: [42, 95] }] },
   deskWave1: { v: "F", head: [50.5, 57.5], sh: [[61, 72.5], [40, 72.5]], hip: [[56, 100], [45, 100]], arms: [{ el: [70.5, 63], ha: [76.5, 53] }, { el: [37, 86.5], ha: [42, 95] }] },
-  // sunk into the bean bag with the DualShock, facing the CRT (drawn facing up-right; flipped to face the left wall)
-  ps20: { v: "b", head: [50.5, 44.5], sh: [[40.5, 59], [58.5, 58]], hip: [[46, 84], [56, 83]],
-    arms: [{ el: [38.5, 73], ha: [50, 67], fore: false }, { el: [61.5, 71], ha: [64.5, 65.5], upper: false, fore: false }],
-    legs: [{ kn: [58, 71], an: [63, 94], foot: 1, tip: true }, { kn: [67, 70.5], an: [73, 92.5], foot: 1, tip: true }],
-    extra: [(cv, U, P, R) => { const c = U([61.5, 64.5]); ell(cv, c[0], c[1], R(4.2), R(2.4), tones("#2a2b31")); }] },
-  ps21: { v: "b", head: [51, 45], sh: [[40.8, 59.4], [58.8, 58.4]], hip: [[46, 84], [56, 83]],
-    arms: [{ el: [38.8, 73.4], ha: [50, 67.5], fore: false }, { el: [61.8, 71.4], ha: [65, 66], upper: false, fore: false }],
-    legs: [{ kn: [58, 71], an: [63, 94], foot: 1, tip: true }, { kn: [67, 70.5], an: [73, 92.5], foot: 1, tip: true }],
-    extra: [(cv, U, P, R) => { const c = U([62, 65]); ell(cv, c[0], c[1], R(4.2), R(2.4), tones("#2a2b31")); }] },
-  // looking up at the papers and the TechFest trophy, hands clasped behind his back (flipped: faces the left wall)
-  trophy0: { v: "b", head: [52, 9.5], sh: [[41, 25], [60, 24.5]], hip: [[44.5, 53], [56, 52.5]], arms: [{ el: [37.5, 38], ha: [48, 50], upper: true, fore: true }, { el: [62.5, 38], ha: [52.5, 50.5], upper: true, fore: true }], legs: [{ kn: [44.5, 75.5], an: [43.5, 95.5], foot: 1 }, { kn: [56.5, 75], an: [58, 95], foot: 1 }] },
-  trophy1: { v: "b", head: [53, 9.2], sh: [[41, 24.6], [60, 24.1]], hip: [[44.5, 53], [56, 52.5]], arms: [{ el: [37.5, 37.6], ha: [48, 49.6], upper: true, fore: true }, { el: [62.5, 37.6], ha: [52.5, 50.1], upper: true, fore: true }], legs: [{ kn: [44.5, 75.5], an: [43.5, 95.5], foot: 1 }, { kn: [56.5, 75], an: [58, 95], foot: 1 }] },
+  // sunk into the bean bag facing the CRT (drawn facing up-right; flipped to face the left wall): knees up, feet planted on the
+  // floor toward the TV, so his near knee and shin show past his side; the DualShock held over that knee, elbows out
+  ps20: { v: "b", head: [52, 44.5], sh: [[59, 59.5], [41, 58.5]], hip: [[55.5, 84], [46, 83]],
+    arms: [{ el: [61.5, 72.5], ha: [61.5, 66] }, { el: [38.5, 72], ha: [49, 67], upper: false, fore: false }],
+    legs: [{ kn: [66.5, 71], an: [70, 81], foot: 1 }, { kn: [54, 71], an: [58, 80], foot: 1 }],
+    extra: [(cv, U, P, R) => { const c = U([62, 64.5]); ell(cv, c[0], c[1], R(4.2), R(2.4), tones("#2a2b31")); }] },
+  ps21: { v: "b", head: [52.6, 45], sh: [[59.2, 59.9], [41.2, 58.9]], hip: [[55.5, 84], [46, 83]],
+    arms: [{ el: [61.6, 72.9], ha: [61.9, 66.4] }, { el: [38.7, 72.4], ha: [49, 67.5], upper: false, fore: false }],
+    legs: [{ kn: [66.5, 71], an: [70, 81], foot: 1 }, { kn: [54, 71], an: [58, 80], foot: 1 }],
+    extra: [(cv, U, P, R) => { const c = U([62.4, 65]); ell(cv, c[0], c[1], R(4.2), R(2.4), tones("#2a2b31")); }] },
+  // looking up at the papers and the TechFest trophy, hands clasped behind his back, his weight on his right leg (flipped: faces the left wall)
+  trophy0: { v: "b", head: [52, 9.5], sh: [[60, 25.4], [41, 24.4]], hip: [[56, 52.2], [44.5, 53.4]], arms: [{ el: [62.5, 38], ha: [52.5, 50.3] }, { el: [37.5, 37.6], ha: [48, 50.6] }], legs: [{ kn: [55.5, 74.5], an: [55, 95.5], foot: 1 }, { kn: [46.5, 75.5], an: [42.5, 94.5], foot: 0.6 }] },
+  trophy1: { v: "b", head: [53, 9.2], sh: [[60, 25], [41, 24]], hip: [[56, 52.2], [44.5, 53.4]], arms: [{ el: [62.5, 37.6], ha: [52.5, 49.9] }, { el: [37.5, 37.2], ha: [48, 50.2] }], legs: [{ kn: [55.5, 74.5], an: [55, 95.5], foot: 1 }, { kn: [46.5, 75.5], an: [42.5, 94.5], foot: 0.6 }] },
   // on tiptoe, both hands up at the top shelf (flipped: faces the left wall)
-  book0: { v: "b", head: [52.5, 8.5], bob: -1.5, sh: [[42, 23.5], [60, 23]], hip: [[44.5, 52], [56, 51.5]], arms: [{ el: [43.5, 9.5], ha: [50, -3.5] }, { el: [63, 9], ha: [64.5, -5.5], upper: true, fore: true }], legs: [{ kn: [45.5, 74.5], an: [45, 93], foot: 1, tip: true }, { kn: [55.5, 74], an: [55.5, 92.5], foot: 1, tip: true }] },
-  book1: { v: "b", head: [52.5, 7.5], bob: -3, sh: [[42, 23.5], [60, 23]], hip: [[44.5, 52], [56, 51.5]], arms: [{ el: [44, 8.5], ha: [50.5, -5.5] }, { el: [63.5, 8], ha: [65, -8], upper: true, fore: true }], legs: [{ kn: [45.5, 74.5], an: [45, 92], foot: 1, tip: true }, { kn: [55.5, 74], an: [55.5, 91.5], foot: 1, tip: true }] },
-  // leaning on the desk to look out of the window, by the cat
-  window0: { v: "b", head: [54, 11.5], sh: [[42.5, 26.5], [61.5, 25.5]], hip: [[44.5, 54], [56, 53.5]], arms: [{ el: [39.5, 39], ha: [47, 46], fore: false }, { el: [64.5, 37.5], ha: [69, 44], upper: false, fore: false }], legs: [{ kn: [45, 76], an: [44, 95.5], foot: 1 }, { kn: [55.5, 75.5], an: [56.5, 95.5], foot: 1 }] },
-  window1: { v: "b", head: [55.2, 11], sh: [[42.5, 26.5], [61.5, 25.5]], hip: [[44.5, 54], [56, 53.5]], arms: [{ el: [39.5, 39], ha: [47, 46], fore: false }, { el: [64.5, 37.5], ha: [69, 44], upper: false, fore: false }], legs: [{ kn: [45, 76], an: [44, 95.5], foot: 1 }, { kn: [55.5, 75.5], an: [56.5, 95.5], foot: 1 }] },
+  book0: { v: "b", head: [52.5, 8.5], bob: -1.5, sh: [[60, 23.5], [42, 23]], hip: [[56, 51.5], [44.5, 52]], arms: [{ el: [63, 9], ha: [64.5, -5.5] }, { el: [43.5, 9.5], ha: [50, -3.5] }], legs: [{ kn: [55.5, 74], an: [55.5, 92.5], foot: 1, tip: true }, { kn: [45.5, 74.5], an: [45, 93], foot: 1, tip: true }] },
+  book1: { v: "b", head: [52.5, 7.5], bob: -3, sh: [[60, 23.5], [42, 23]], hip: [[56, 51.5], [44.5, 52]], arms: [{ el: [63.5, 8], ha: [65, -8] }, { el: [44, 8.5], ha: [50.5, -5.5] }], legs: [{ kn: [55.5, 74], an: [55.5, 91.5], foot: 1, tip: true }, { kn: [45.5, 74.5], an: [45, 92], foot: 1, tip: true }] },
+  // leaning on the desk to look out of the window, by the cat: his right hand on the desk, the left one hidden in front of him
+  window0: { v: "b", head: [54, 11.5], sh: [[61.5, 26.5], [42.5, 25.5]], hip: [[56, 53.2], [44.5, 54]], arms: [{ el: [64.5, 38], ha: [69, 44.5] }, { el: [39.5, 38.5], ha: [46, 45], upper: false, fore: false }], legs: [{ kn: [56, 75.5], an: [56.5, 95.5], foot: 1 }, { kn: [46, 76.5], an: [43.5, 95], foot: 0.7 }] },
+  window1: { v: "b", head: [55.2, 11], sh: [[61.5, 26.5], [42.5, 25.5]], hip: [[56, 53.2], [44.5, 54]], arms: [{ el: [64.5, 38], ha: [69, 44.5] }, { el: [39.5, 38.5], ha: [46, 45], upper: false, fore: false }], legs: [{ kn: [56, 75.5], an: [56.5, 95.5], foot: 1 }, { kn: [46, 76.5], an: [43.5, 95], foot: 0.7 }] },
   // standing, turned to the camera, waving
   wave0: { v: "F", head: [50, 10], sh: [[61, 25], [39, 25]], hip: [[55.5, 53], [44.5, 53]], arms: [{ el: [69.5, 18], ha: [71, 6] }, { el: [37, 39], ha: [38.5, 51] }], legs: [{ kn: [55, 75.5], an: [55, 95.5] }, { kn: [45, 75.5], an: [45, 95.5] }] },
   wave1: { v: "F", head: [50, 10], sh: [[61, 25], [39, 25]], hip: [[55.5, 53], [44.5, 53]], arms: [{ el: [70.5, 19], ha: [75.5, 7.5] }, { el: [37, 39], ha: [38.5, 51] }], legs: [{ kn: [55, 75.5], an: [55, 95.5] }, { kn: [45, 75.5], an: [45, 95.5] }] },

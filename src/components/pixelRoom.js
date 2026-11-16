@@ -412,9 +412,9 @@ void main(){
     desk: { at: new V3(CH.x, 0.88, CH.z), cells: [TAIF.desk0, TAIF.desk1], wave: [TAIF.deskWave0, TAIF.deskWave1], beat: 0.14, hit: [0.8, 1.75, 0.7, 0.87], zz: new V3(CH.x + 0.05, 2.0, CH.z - 0.3), say: "Hi! Thanks for stopping by." },
     ps2: { at: new V3(-0.55, -0.12, 2.2), flip: true, cells: [TAIF.ps20, TAIF.ps21], wave: [TAIF.deskWave0, TAIF.deskWave1], waveAt: new V3(-0.55, 0.56, 2.2), beat: 0.3, hit: [0.9, 1.6, 0.9, 1.0], say: "One more race, then back to work." },
     sleep: { at: new V3(2.12, 0.18, 2.15), fwd: 0.45, cells: [TAIF.sleep0, TAIF.sleep1], beat: 1.8, hit: [1.1, 0.6, 1.5, 0.25], zz: new V3(FU.x + 0.45, 0.45, FU.z - 1.1), say: "Shh. He's asleep." },
-    trophy: { at: new V3(-1.8, 0, -1.15), flip: true, cells: [TAIF.trophy0, TAIF.trophy1], wave: [TAIF.wave0, TAIF.wave1], beat: 2.2, hit: [0.8, 3.3, 0.7, 1.65], say: "Best Algorithm Project at TechFest. Still proud of it." },
-    book: { at: new V3(-2.0, 0, -0.75), flip: true, cells: [TAIF.book0, TAIF.book1], wave: [TAIF.wave0, TAIF.wave1], beat: 0.55, hit: [0.8, 3.6, 0.7, 1.8], say: "Almost got it…" },
-    window: { at: new V3(1.2, 0, -1.35), cells: [TAIF.window0, TAIF.window1], wave: [TAIF.wave0, TAIF.wave1], beat: 2.6, hit: [0.8, 3.3, 0.7, 1.65], say: "Nice out there, isn't it?" },
+    trophy: { at: new V3(-1.8, 0, -1.15), flip: true, cells: [TAIF.trophy0, TAIF.trophy1], wave: [TAIF.wave0, TAIF.wave1], beat: 2.2, hit: [0.8, 3.0, 0.7, 1.5], say: "Best Algorithm Project at TechFest. Still proud of it." },
+    book: { at: new V3(-2.0, 0, -0.75), flip: true, cells: [TAIF.book0, TAIF.book1], wave: [TAIF.wave0, TAIF.wave1], beat: 0.55, hit: [0.8, 3.25, 0.7, 1.62], say: "Almost got it…" },
+    window: { at: new V3(1.2, 0, -1.35), cells: [TAIF.window0, TAIF.window1], wave: [TAIF.wave0, TAIF.wave1], beat: 2.6, hit: [0.8, 3.0, 0.7, 1.5], say: "Nice out there, isn't it?" },
   };
   // the visitor's hour decides what is likely: asleep in the small hours, the window in the morning, the desk by day, the PS2 at night
   const actOdds = (h, rain) => h >= 1 && h < 6 ? { sleep: 8, desk: 1 } : h < 9 ? { window: 3, desk: 3, book: 1.5, trophy: 1 }
