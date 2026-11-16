@@ -473,6 +473,10 @@ html::-webkit-scrollbar { display: none; }
 .lv-print span { font: 0.72rem/1.4 var(--font-pixel); color: #00629b; }
 .lv-print b { font: 600 clamp(1.15rem, 1rem + 0.8vw, 1.6rem)/1.2 var(--font-display); letter-spacing: -0.01em; }
 .lv-print a { justify-self: start; margin-top: 0.4rem; font-weight: 600; color: var(--signal-deep); }
+/* clicking tiny Taif: his pixel portrait, scaled in whole pixels so it stays crisp */
+.lv-pixcard { margin: 0; display: grid; gap: 0.7rem; justify-items: center; padding: 14px 14px 12px; background: #1d1726; border: 2px solid #3a2f4a; box-shadow: 0 0 0 2px #120d18, 0 24px 60px rgb(0 0 0 / 0.55); } /* kept straight: a tilted pixel image goes jagged */
+.lv-album .lv-pixcard img { width: min(400px, 76vw); max-width: none; height: auto; max-height: 64vh; object-fit: contain; padding: 0; background: none; box-shadow: none; transform: none; image-rendering: pixelated; }
+.lv-pixcard figcaption { max-width: min(400px, 76vw); font: 0.72rem/1.6 var(--font-pixel); color: #e9e2f2; text-align: center; }
 .lv-album img { max-width: 86vw; max-height: 72vh; width: auto; height: auto; padding: 10px 10px 30px; background: var(--paper); box-shadow: 0 24px 60px rgb(0 0 0 / 0.5); transform: rotate(-1.5deg); }
 .lv-dive { position: fixed; inset: 0; z-index: 80; display: none; background: var(--paper); transition: opacity 0.45s var(--ease-out); }
 .lv-dive canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; }

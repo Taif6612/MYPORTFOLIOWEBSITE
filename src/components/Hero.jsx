@@ -134,6 +134,7 @@ export default function Hero({ reduced }) {
       ready: () => { setReady(true); boot(); },
       sound: (name) => play(name),
       album: (i) => setShown({ img: ALBUM[i] }),
+      portrait: (say) => setShown({ img: "/room/taif-pixel.png", pixel: true, cap: say }), // clicking tiny Taif: the real likeness, drawn large
       paper: (i) => setShown({ paper: profile.publications[i] }),
       probe: (id, name) => { probes.get(id)?.(name); probes.delete(id); },
       fail: (msg) => { boot(); if (location.search.includes("roomdebug")) console.error("room failed:", msg); }, // the worker couldn't build the room
@@ -303,7 +304,9 @@ export default function Hero({ reduced }) {
         )}
         {shown && (
           <div className="lv-album" onClick={() => setShown(null)}>
-            {shown.img ? <img src={shown.img} alt="" /> : (
+            {shown.pixel ? (
+              <figure className="lv-pixcard"><img src={shown.img} alt="Taif Ur Rahman in pixel art" width="80" height="88" /><figcaption>{shown.cap}</figcaption></figure>
+            ) : shown.img ? <img src={shown.img} alt="" /> : (
               <div className="lv-print">
                 <span>{shown.paper.venue}</span>
                 <b>{shown.paper.title}</b>

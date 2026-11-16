@@ -428,6 +428,9 @@ void main(){
   const forced = ACTS[Q.get("act")] ? Q.get("act") : null; // ?act=ps2 shows one activity, for checks
   let act = null, actT = 0, actNext = 130;
   const hitBox = me.children[0];
+  // a soft shadow on the floorboards under him when he stands, so the sprite sits in the room instead of floating on it
+  const meShadow = new THREE.Mesh(new THREE.CircleGeometry(1, 20).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: "#120a18", transparent: true, opacity: 0.32, depthWrite: false }));
+  meShadow.scale.set(0.62, 1, 0.42); meShadow.visible = false; scene.add(meShadow);
   // "z z z" for the small hours
   const zGeo = mergeGeometries([new THREE.BoxGeometry(0.16, 0.04, 0.01).translate(0, 0.075, 0), new THREE.BoxGeometry(0.2, 0.04, 0.01).rotateZ(0.72), new THREE.BoxGeometry(0.16, 0.04, 0.01).translate(0, -0.075, 0)]);
   const zs = [0, 1, 2].map(() => { const m = fx(new THREE.Mesh(zGeo, basic("#ffffff", { transparent: true, depthWrite: false }))); m.visible = false; scene.add(m); return m; });
@@ -802,7 +805,7 @@ void main(){
       else if (growth === 4) { box(0.22, 0.22, 0.22, C.flower, 0, 1.0, 0, plant); box(0.1, 0.1, 0.1, C.mug, 0, 1.12, 0, plant); ui.toast("It flowered."); }
       else ui.toast("That’s as big as it gets.");
     }
-    else if (n === "me") { if (ACTS[act].wave) waveT = 0; ui.toast(ACTS[act].say); }
+    else if (n === "me") { if (ACTS[act].wave) { waveT = 0; ui.portrait(ACTS[act].say); } else ui.toast(ACTS[act].say); } // awake: he waves and his portrait opens
     else if (n === "trophy") ui.toast(copy.trophy || "A trophy.");
     else if (n === "degree") ui.toast(copy.degree || "A degree.");
     else if (n === "frames") ui.go("#work");
@@ -825,6 +828,7 @@ void main(){
   function placeMe() { // move his click box and his sparkle to where he is now
     const A = ACTS[act], [w, h, d2, cy] = A.hit;
     me.position.copy(A.at).setY(0); hitBox.scale.set(w / 0.8, h / 1.75, d2 / 0.7); hitBox.position.set(0, A.at.y + cy, 0);
+    meShadow.visible = A.at.y === 0 && !A.fwd; meShadow.position.set(A.at.x, 0.015, A.at.z); // standing on the floor: trophy, top shelf, window
     const spark = hints.find((m) => m.userData.name === "me"); if (spark) spark.position.set(A.at.x + 0.3, A.at.y + cy + h / 2 + 0.2, A.at.z);
     dirty = true;
   }

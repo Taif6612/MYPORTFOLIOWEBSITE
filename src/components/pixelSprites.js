@@ -20,9 +20,9 @@ import * as THREE from "three";
 const rgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
 const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
 const WARM = [255, 236, 206], COOL = [46, 32, 70], INK = [28, 18, 34];
-const TONES = new Map();
+const TONES = new Map(), LOFI = new Set(); // LOFI: colours lit with more contrast, the lamp-warm and violet-shadow way of the cozy references
 const tones = (h) => {
-  if (!TONES.has(h)) { const b = rgb(h); const L0 = mix(b, WARM, 0.3), S0 = mix(b, COOL, 0.34); TONES.set(h, [L0, b, S0, mix(b, INK, 0.38), mix(b, INK, 0.62), mix(L0, b, 0.5), mix(b, S0, 0.5)]); }
+  if (!TONES.has(h)) { const b = rgb(h); const L0 = mix(b, WARM, LOFI.has(h) ? 0.42 : 0.3), S0 = mix(b, COOL, LOFI.has(h) ? 0.46 : 0.34); TONES.set(h, [L0, b, S0, mix(b, INK, 0.38), mix(b, INK, 0.62), mix(L0, b, 0.5), mix(b, S0, 0.5)]); }
   return TONES.get(h);
 };
 const LX = -0.55, LY = -0.83; // the light comes from the upper left (y grows down the sprite)
@@ -277,7 +277,17 @@ const PEOPLE = [
 const BROLLY = [["#c8463c"], ["#3f9a7a"], ["#e0a83a"], ["#3e6e8e"], ["#e9e2d3"]];
 const SW = 24, SH = 46, SS = 0.38; // cell, and texels per figure unit (the figure 38 tall)
 const PER = 17; // cells per person: front walk x4, back walk x4, each with and without an umbrella, and sitting
-const cell = (w, h, draw) => { const cv = canvas(w, h); draw(cv); outline(cv); return cv; };
+const cell = (w, h, draw, rim) => { const cv = canvas(w, h); draw(cv); if (rim) rimLight(cv); outline(cv); return cv; };
+// lo-fi light: the edge facing away from the key light catches a cool rim (the monitor, the window), two pixels deep, fading
+function rimLight(cv) {
+  const RIM = [176, 196, 255], out = [];
+  for (let k = 0; k < cv.c.length; k++) {
+    if (!cv.c[k]) continue;
+    const x = k % cv.w; if (x + 1 >= cv.w) continue;
+    if (!cv.c[k + 1]) out.push([k, 0.42]); else if (x + 2 < cv.w && !cv.c[k + 2]) out.push([k, 0.18]);
+  }
+  for (const [k, a] of out) cv.c[k] = mix(cv.c[k], RIM, a);
+}
 function personCells(L, pal) {
   const out = [];
   for (const v of ["f", "b"]) for (let f = 0; f < 4; f++) for (const umb of [0, 1]) {
@@ -294,6 +304,7 @@ export const streetSheet = () => sheet(PEOPLE.flatMap((L, i) => personCells(L, B
 /* ---------- tiny Taif: 64 x 100 cells, the standing figure 88 texels tall; a cell's bottom row is what he stands or sits on ---------- */
 const TAIF_LOOK = { skin: "#a56d4f", hair: "#241c20", beard: "#2b2124", top: "#ad97c0", bottom: "#7b93b4", // his lilac tee and light jeans, a shade deeper than the photo so they hold their colour under the room's light
    shoes: "#e9e4dc", sleeve: 0.8, sleeveR: 4.3, shoulderR: 4.3, armR: 3.4, handR: 2.5, neckR: 3.1, taper: true, legR: [5.9, 4.5], hipSpread: 1.3, boxy: true, cuffs: true, folds: true, heads: true };
+for (const k of ["skin", "top", "bottom", "shoes"]) LOFI.add(TAIF_LOOK[k]);
 const TS = 0.88, TW = 64, TH = 100;
 // seated poses sit their hips on the cell's bottom row (y 100); the others stand on it
 const SEATED = (J) => J;
@@ -340,7 +351,7 @@ function sleeper(cv, breath) {
 }
 export const TAIF = Object.fromEntries([...Object.keys(POSES), "sleep0", "sleep1"].map((k, i) => [k, i]));
 export const taifSheet = () => sheet([
-  ...Object.values(POSES).map((J) => cell(TW, TH, (cv) => figure(cv, J, TAIF_LOOK, TS, TW / 2, TH - 1))),
+  ...Object.values(POSES).map((J) => cell(TW, TH, (cv) => figure(cv, J, TAIF_LOOK, TS, TW / 2, TH - 1), true)),
   cell(TW, TH, (cv) => sleeper(cv, false)), cell(TW, TH, (cv) => sleeper(cv, true)),
 ], TW, TH);
 
