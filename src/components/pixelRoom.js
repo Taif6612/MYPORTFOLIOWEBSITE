@@ -27,7 +27,7 @@ const AZ0 = degToRad(40), EL0 = degToRad(28);
 const CAMD = 160, NEAR = 1, FAR = CAMD + 260, FX = 1; // FX layer: rain/steam/stars/sparkles, never outlined (and never ray-picked)
 
 /* hour → sky, sun colour, sun intensity, sun elevation°, lamp, hemi sky, hemi ground, hemi intensity, stars, moon/sun disc.
-   The sky column is mirrored by the inline script in index.html (first paint, before this loads). */
+   The sky column is mirrored by public/head.js (first paint, before this loads). */
 export const KEYS = [
   [0, "#0e1326", "#9fb2ff", 1.1, 32, 1, "#5a6aa8", "#3a2630", 1.5, 1, "#f4f1e2"],
   [5, "#141a36", "#a7b4ff", 1.0, 20, 1, "#5a6aa8", "#3a2630", 1.5, 0.8, "#f4f1e2"],

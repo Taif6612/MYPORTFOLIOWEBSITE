@@ -10,7 +10,7 @@ import { unlock, play, startMusic, stopMusic } from "./roomSound.js";
    toasts and the dive overlay. The section is tall with a sticky stage: scrolling pulls
    the camera back until the room is one lit corner of an apartment block. The sky
    follows the visitor's clock and is mirrored into --hero-bg / --hero-fg (first set by
-   the inline script in index.html so there is no flash before the room arrives). */
+   public/head.js, run from index.html, so there is no flash before the room arrives). */
 
 const SCREEN = "/hero-screen.webp"; // screenshot of #about: on the monitor, and what the dive resolves into
 const PORTRAIT = "/taif-portrait-480.webp"; // the About photo, hung on the room's wall as a pixel portrait
