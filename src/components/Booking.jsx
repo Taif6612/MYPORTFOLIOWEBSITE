@@ -14,6 +14,13 @@ export default function Booking({ profile }) {
     const form = e.currentTarget;
     const d = Object.fromEntries(new FormData(form).entries());
 
+    // Honeypot: people never see this field, bots fill it. Pretend it worked.
+    if (d.website) {
+      setStatus("sent");
+      form.reset();
+      return;
+    }
+
     // No key configured → compose an email with the details.
     if (!WEB3FORMS_KEY) {
       const subject = `Project booking — ${d.name || "New enquiry"}`;
@@ -33,7 +40,9 @@ export default function Booking({ profile }) {
         body: JSON.stringify({
           access_key: WEB3FORMS_KEY,
           subject: `Project booking — ${d.name}`,
-          ...d,
+          name: d.name,
+          email: d.email,
+          message: d.message,
         }),
       });
       const json = await res.json();
@@ -68,18 +77,27 @@ export default function Booking({ profile }) {
           <div className="booking-row">
             <div className="field">
               <label htmlFor="bk-name">Name</label>
-              <input id="bk-name" name="name" type="text" required autoComplete="name" />
+              <input id="bk-name" name="name" type="text" required maxLength={100} autoComplete="name" />
             </div>
             <div className="field">
               <label htmlFor="bk-email">Email</label>
-              <input id="bk-email" name="email" type="email" required autoComplete="email" />
+              <input id="bk-email" name="email" type="email" required maxLength={254} autoComplete="email" />
             </div>
           </div>
 
           <div className="field">
             <label htmlFor="bk-message">What are you building?</label>
-            <textarea id="bk-message" name="message" rows="5" required></textarea>
+            <textarea id="bk-message" name="message" rows="5" required maxLength={5000}></textarea>
           </div>
+
+          <input
+            type="text"
+            name="website"
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }}
+          />
 
           <div className="booking-actions">
             <button type="submit" className="btn btn--primary" disabled={status === "sending"}>

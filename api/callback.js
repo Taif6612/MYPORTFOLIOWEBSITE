@@ -4,7 +4,8 @@
    GitHub redirects here with ?code=...  We exchange it for an access token,
    then hand the token to the Decap CMS window via the postMessage handshake.
 
-   The token has `repo` scope, so the handshake only ever talks to this
+   The token has `public_repo` scope (write access to the owner's public
+   repos; requested in api/auth.js), so the handshake only ever talks to this
    site's own origin (where /admin lives): it ignores messages from any other
    origin and never posts the token to "*". Otherwise any page that opened
    /api/auth in a popup could collect the owner's token.

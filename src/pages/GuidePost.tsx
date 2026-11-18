@@ -112,7 +112,7 @@ export default function GuidePost() {
 
             <div
               className="post-body"
-              // Content is authored by the site owner and compiled at build time.
+              // Compiled and sanitised (rehype-sanitize) at build time in src/cms/load.ts.
               dangerouslySetInnerHTML={{ __html: guide.html }}
             />
           </div>
