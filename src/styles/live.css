@@ -525,3 +525,37 @@ html::-webkit-scrollbar { display: none; }
 .lv-room-cap { bottom: 18px; }
 .lv-room-hint { bottom: 18px; }
 .lv-stage.is-out :is(.lv-room-cap, .lv-room-hint) { visibility: hidden; }
+
+/* ---- Awards & certificates -------------------------------------------- */
+.lv-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.lv-awards { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(2rem, 5vw, 5rem); align-items: center; padding-block: clamp(4rem, 9vw, 7rem); }
+.lv-award { margin: 0; }
+.lv-award img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--radius); box-shadow: var(--shadow); transform: rotate(-1.5deg); }
+.lv-award-copy .lv-muted { margin-top: 0.75rem; }
+.lv-slot { display: grid; place-items: center; aspect-ratio: 4 / 3; border-radius: var(--radius); border: 1.5px dashed var(--line); color: var(--stone); background: var(--paper-2); font-family: var(--font-mono); font-size: 0.75rem; }
+/* bento: one wide featured card for a grouped issuer, singles beside it */
+.lv-certs { grid-column: 1 / -1; list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.lv-cert--group { grid-column: 1 / -1; }
+.lv-cert { background: var(--paper-2, #e9e4d8); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.lv-cert > a { display: grid; gap: 0.5rem; height: 100%; padding: 1rem; text-decoration: none; }
+.lv-cert > a img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; box-shadow: var(--shadow); transition: transform 0.3s var(--ease-out); }
+.lv-cert > a:hover img, .lv-cert > a:focus-visible img { transform: translateY(-4px) rotate(-1deg); }
+.lv-cert > a:hover .lv-cert-title { color: var(--signal-deep); }
+.lv-cert-meta { display: flex; justify-content: space-between; gap: 1rem; font-family: var(--font-pixel); font-size: 0.7rem; color: var(--stone); margin: 0; }
+.lv-cert-meta span:first-child { color: var(--signal-deep); }
+.lv-cert-title { display: block; font-family: var(--font-display); font-size: var(--step-0); font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; margin: 0; }
+.lv-cert--group { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.25rem; padding: 1.25rem; align-items: center; background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.lv-cert--group .lv-cert-meta { color: #a9adb1; }
+.lv-cert--group .lv-cert-meta span:first-child { color: var(--signal); }
+.lv-cert--group .lv-cert-title { font-size: var(--step-1); margin: 0.4rem 0 0.8rem; }
+.lv-cert-fan { position: relative; aspect-ratio: 4 / 3; }
+.lv-cert-fan img { position: absolute; inset: 14% 24%; width: 52%; height: 72%; object-fit: cover; border-radius: 6px; box-shadow: 0 10px 24px -10px rgb(0 0 0 / 0.6); transform: translateX(calc(var(--i) * 13%)) rotate(calc(var(--i) * 5deg)); transition: transform 0.35s var(--ease-out); }
+.lv-cert--group:hover .lv-cert-fan img { transform: translateX(calc(var(--i) * 18%)) rotate(calc(var(--i) * 7deg)); }
+.lv-cert-links { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.15rem; font-size: var(--step--1); }
+.lv-cert-links a { display: block; padding: 0.3rem 0; text-decoration: none; border-bottom: 1px solid rgb(255 255 255 / 0.12); }
+.lv-cert-links a:hover { color: var(--signal); }
+.lv-cert--group :focus-visible { outline-color: var(--signal); }
+@media (max-width: 760px) { .lv-certs { grid-template-columns: 1fr; } }
+@media (max-width: 860px) { .lv-awards { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .lv-certs, .lv-cert--group { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .lv-cert-fan img, .lv-cert > a img { transition: none; } }

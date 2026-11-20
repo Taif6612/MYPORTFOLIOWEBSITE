@@ -345,22 +345,35 @@ export default function App() {
           <div className="lv-award-copy reveal">
             <h2 id="awards-title" className="lv-h2">{award.title}.</h2>
             <p className="lv-muted">{award.event}</p>
-            <ul className="lv-certs">
-              {[...certificates, ...Array(Math.max(0, 3 - certificates.length)).fill(null)].map((c, k) => (
-                <li key={k} className={c ? "" : "is-empty"}>
-                  {c ? (
-                    <a href={c.url || c.image} target="_blank" rel="noopener noreferrer">
-                      {c.image && <img src={c.image} alt="" loading="lazy" />}
-                      <strong>{c.name}</strong>
-                      <span className="lv-muted">{c.issuer}{c.year ? ` · ${c.year}` : ""}</span>
-                    </a>
-                  ) : (
-                    <div className="lv-slot lv-slot--cert" aria-hidden="true">Certificate</div>
-                  )}
-                </li>
-              ))}
-            </ul>
           </div>
+          {/* Certificates sharing a `group` become one featured card (fanned images + a link per credential); the rest get their own card. */}
+          <ul className="lv-certs" aria-label="Certificates">
+            {[...new Set(certificates.map((c) => c.group).filter(Boolean))].map((g) => [g, certificates.filter((c) => c.group === g)]).map(([g, set]) => (
+              <li key={g} className="lv-cert lv-cert--group reveal">
+                <div className="lv-cert-fan" aria-hidden="true">
+                  {set.map((c, k) => <img key={c.name} src={c.image} alt="" loading="lazy" style={{ "--i": k - (set.length - 1) / 2 }} />)}
+                </div>
+                <div className="lv-cert-body">
+                  <p className="lv-cert-meta"><span>{g}</span><span>{set.length} credentials · {set[0].year}</span></p>
+                  <h3 className="lv-cert-title">{g} certified practitioner</h3>
+                  <ul className="lv-cert-links">
+                    {set.map((c) => (
+                      <li key={c.name}><a href={c.url || c.image} target="_blank" rel="noopener noreferrer">{c.name}<span className="lv-sr"> ({c.issuer} credential, opens in a new tab)</span><span aria-hidden="true"> ↗</span></a></li>
+                    ))}
+                  </ul>
+                </div>
+              </li>
+            ))}
+            {certificates.filter((c) => !c.group).map((c) => (
+              <li key={c.name} className="lv-cert reveal">
+                <a href={c.url || c.image} target="_blank" rel="noopener noreferrer" aria-label={`${c.name}, ${c.issuer} certificate, ${c.year} (opens in a new tab)`}>
+                  <img src={c.image} alt={`${c.name} certificate from ${c.issuer}`} loading="lazy" />
+                  <span className="lv-cert-meta"><span>{c.issuer}</span><span>{c.year}</span></span>
+                  <strong className="lv-cert-title">{c.name}</strong>
+                </a>
+              </li>
+            ))}
+          </ul>
         </section>
 
         {/* AVAILABILITY — clock band */}

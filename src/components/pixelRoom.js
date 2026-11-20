@@ -57,7 +57,7 @@ const nextFrame = (cb) => (globalThis.requestAnimationFrame ? globalThis.request
 const stopFrame = (id) => (globalThis.cancelAnimationFrame ? globalThis.cancelAnimationFrame(id) : clearTimeout(id));
 const makeCanvas = (w, h) => (typeof OffscreenCanvas !== "undefined" ? new OffscreenCanvas(w, h) : Object.assign(document.createElement("canvas"), { width: w, height: h }));
 
-export async function createPixelRoom({ canvas, width, height, dpr = 1, textRight = 0.46, textBottom = 0.45, reduced = false, query = "", screenSrc, portraitSrc, frames = [], album = 0, papers = 0, copy = {}, ui, signal }) {
+export async function createPixelRoom({ canvas, width, height, dpr = 1, textRight = 0.46, textBottom = 0.45, reduced = false, query = "", screenSrc, portraitSrc, frames = [], awards = [], album = 0, papers = 0, copy = {}, ui, signal }) {
   let dirty = true, shadowsDirty = true, gone = false; // first: async callbacks (texture loads) may set these mid-construction
   const Q = new URLSearchParams(query);
   const hourOverride = Q.has("h") ? +Q.get("h") : null;
@@ -127,9 +127,10 @@ void main(){
   // so V is flipped in the texture transform: show `rep` of the height, starting `off` up from the bottom.
   const bitmaps = new THREE.ImageBitmapLoader();
   const setV = (t, rep, off) => { t.repeat.y = -rep; t.offset.y = 1 - off; };
-  const loadTex = (src) => {
+  const loadTex = (src, small = 0) => { // small: decode straight to that many texels wide (the room's grain), nearest both ways
     const t = new THREE.Texture(); t.colorSpace = THREE.SRGBColorSpace; t.magFilter = THREE.NearestFilter; t.flipY = false; setV(t, 1, 0);
-    bitmaps.load(src, (bmp) => { if (gone) return; t.image = bmp; t.needsUpdate = true; dirty = true; }, undefined, () => {});
+    if (small) { t.minFilter = THREE.NearestFilter; t.generateMipmaps = false; }
+    (small ? new THREE.ImageBitmapLoader().setOptions({ ...bitmaps.options, resizeWidth: small, resizeQuality: "pixelated" }) : bitmaps).load(src, (bmp) => { if (gone) return; t.image = bmp; t.needsUpdate = true; dirty = true; }, undefined, () => {});
     return t;
   };
 
@@ -301,6 +302,12 @@ void main(){
   const paperFrames = [-2.5, -1.82].slice(0, papers).map((z) => {
     box(0.05, 0.64, 0.5, C.ink, -2.97, 2.55, z);
     const m = mesh(new THREE.PlaneGeometry(0.42, 0.56), paperMat, -2.935, 2.55, z, scene); m.rotation.y = Math.PI / 2; m.castShadow = false; return m;
+  });
+  // left wall, under the trophy between the portrait and the project frames: the TechFest win photo and two certificates,
+  // framed like the portrait and the degree, decoded at the room's grain (click → the awards section)
+  const awardFrames = awards.slice(0, 3).map(([src, w, h, y, z, px], i) => {
+    box(0.05, h + 0.08, w + 0.08, i ? C.gold : "#2a2433", -2.97, y, z);
+    const m = mesh(new THREE.PlaneGeometry(w, h), frameMat(loadTex(src, px)), -2.935, y, z, scene); m.rotation.y = Math.PI / 2; m.castShadow = false; return m;
   });
   // laptops: base, keyboard, touchpad, a lid on a hinge, a painted screen. Built facing +z (the user), then turned into place.
   const laptop = (x, y, z, ry, w, d, shell, deck, keys, tex, tilt = 0.3) => {
@@ -751,7 +758,7 @@ void main(){
   const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
   const clickables = [["screen", [screen]], ["watch", [watch]], ["mug", [mug, handle, coffee]], ["lamp", [shade, bulb, la1, la2]], ["plant", [plant]], ["me", [me]],
     ["trophy", [pTrophy]], ["degree", [pDegree]], ["frames", shots], ["phone", [phone]], ["cat", [cat]], ["duck", [duck]], ["photo", [photo]], ["pc", [pPC]], ["loq", [loq.g]], ["asus", [asus.g]], ["hp", [hp.g]], ["retro", [pRetro]],
-    ["futon", [pFuton]], ...albumFrames.map((p, i) => [`album${i}`, [p]]), ...paperFrames.map((p, i) => [`paper${i}`, [p]])];
+    ["futon", [pFuton]], ...(awardFrames.length ? [["awards", awardFrames]] : []), ...albumFrames.map((p, i) => [`album${i}`, [p]]), ...paperFrames.map((p, i) => [`paper${i}`, [p]])];
   const owns = (o) => clickables.some(([, objs]) => objs.some((c) => { for (let p = o; p; p = p.parent) if (p === c) return true; return false; }));
   function pick(nx, ny) {
     ndc.set(nx, ny); ray.setFromCamera(ndc, cam);
@@ -775,6 +782,7 @@ void main(){
     plant: new V3(2.45, 1.55, -2.35), me: new V3(0.32, 2.5, -1.1), trophy: new V3(-2.78, TROPHY_Y + 0.62, 0), degree: new V3(0.24, 4.06, -2.9), frames: new V3(-2.9, 3.62, 1.55), phone: new V3(1.95, DESK_Y + 0.32, -1.85),
     cat: new V3(2.3, WY0 + 0.86, -2.7), duck: new V3(2.03, DESK_Y + 0.42, -2.36), photo: new V3(-2.9, 3.3, -0.4), pc: new V3(PC.x + 0.3, 1.28, PC.z + 0.3), loq: new V3(1.4, DESK_Y + 0.78, -2.35),
     asus: new V3(-2.5, 1.18, 1.95), hp: new V3(-2.5, 1.1, 2.6), retro: new V3(-2.45, 1.38, 1.05), futon: new V3(2.2, 0.62, 1.6),
+    ...(awardFrames.length ? { awards: new V3(-2.9, 3.55, 0.35) } : {}),
     ...Object.fromEntries(paperFrames.map((m, i) => [`paper${i}`, new V3(-2.9, 2.95, m.position.z + 0.18)])),
   };
   const sparkGeo = mergeGeometries([new THREE.BoxGeometry(0.24, 0.05, 0.01), new THREE.BoxGeometry(0.05, 0.24, 0.01)]), sparkMat = basic("#ffffff", { transparent: true, depthTest: false, depthWrite: false });
@@ -820,6 +828,7 @@ void main(){
     else if (n === "hp") ui.toast("HP Pavilion 14 · i5-4200U · 8 GB. Where it started.");
     else if (n === "retro") { crtT = 3; ui.toast("PS2 Slim. Still plugged in."); }
     else if (n === "photo") ui.toast("That’s me, give or take a few pixels.");
+    else if (n === "awards") { ui.toast(copy.awards || "Awards."); ui.go("#awards"); }
     else if (n === "futon") ui.toast("The futon. Most nights, anyway.");
     else if (n.startsWith("album")) ui.album(+n.slice(5));
     else if (n.startsWith("paper")) ui.paper(+n.slice(5));

@@ -16,8 +16,10 @@ const SCREEN = "/hero-screen.webp"; // screenshot of #about: on the monitor, and
 const PORTRAIT = "/taif-portrait-480.webp"; // the About photo, hung on the room's wall as a pixel portrait
 const FRAMES = ["proctorless", "autohub-premium", "luxeglow-spa", "solar-panel"].map((id) => `/projects/shots/${id}-800.webp`);
 const ALBUM = [1, 2, 3, 4, 5].map((n) => `/room/${n}.jpg`); // the photos on the little table: fetched only when a frame is clicked
-const COPY = { trophy: "Winner, Algorithm Project Showcase · TechFest", degree: "B.Sc. in Computer Science, 2026" };
-const LABELS = { screen: "Step inside", watch: "Your time", mug: "Coffee", lamp: "Lamp", plant: "Plant", me: "Say hi", trophy: "Trophy", degree: "Degree", frames: "See my work", phone: "My phone", cat: "Kaltush", duck: "Rubber duck", photo: "That’s me", pc: "My PC", loq: "Lenovo LOQ", asus: "ASUS X556UF", hp: "HP Pavilion 14", retro: "PS2 Slim", paper0: "Research paper", paper1: "Research paper", futon: "Futon" };
+// left wall, under the trophy between the portrait and the project frames: [image, width, height, y, z, texels wide]
+const AWARDS = [["/awards/techfest-win.webp", 0.44, 0.33, 3.27, 0.05, 30], ["/awards/cert-prompt-engineering.webp", 0.32, 0.23, 2.8, 0.05, 22], ["/awards/cert-openai-technical.webp", 0.32, 0.23, 2.45, 0.05, 22]];
+const COPY = { awards: "TechFest Autumn 2023: Algorithm Project Showcase champions", trophy: "Winner, Algorithm Project Showcase · TechFest", degree: "B.Sc. in Computer Science, 2026" };
+const LABELS = { screen: "Step inside", watch: "Your time", mug: "Coffee", lamp: "Lamp", plant: "Plant", me: "Say hi", trophy: "Trophy", degree: "Degree", frames: "See my work", phone: "My phone", cat: "Kaltush", duck: "Rubber duck", photo: "That’s me", pc: "My PC", loq: "Lenovo LOQ", asus: "ASUS X556UF", hp: "HP Pavilion 14", retro: "PS2 Slim", paper0: "Research paper", paper1: "Research paper", futon: "Futon", awards: "Awards" };
 const CARS = { jeep: ["2005 Jeep Liberty", "Sold as the Cherokee outside North America."], crv: ["1999 Honda CR-V", "The first generation."] };
 const greet = (h) => (h >= 5 && h < 12 ? "Good morning" : h >= 12 && h < 17 ? "Good afternoon" : h >= 17 && h < 23 ? "Good evening" : "You’re up late");
 
@@ -146,7 +148,7 @@ export default function Hero({ reduced }) {
       return Math.min(0.7, (right - st.getBoundingClientRect().left) / Math.max(1, st.clientWidth));
     };
     const textBottom = () => Math.min(0.72, (hud.current.getBoundingClientRect().bottom - st.getBoundingClientRect().top) / Math.max(1, st.clientHeight));
-    const options = () => ({ width: st.clientWidth, height: st.clientHeight, dpr: window.devicePixelRatio || 1, textRight: textRight(), textBottom: textBottom(), reduced, query: location.search, screenSrc: SCREEN, portraitSrc: PORTRAIT, frames: FRAMES, album: ALBUM.length, papers: profile.publications.length, copy: COPY });
+    const options = () => ({ width: st.clientWidth, height: st.clientHeight, dpr: window.devicePixelRatio || 1, textRight: textRight(), textBottom: textBottom(), reduced, query: location.search, screenSrc: SCREEN, portraitSrc: PORTRAIT, frames: FRAMES, awards: AWARDS, album: ALBUM.length, papers: profile.publications.length, copy: COPY });
     // the real weather in Dhaka (api/weather.js, cached at the edge), checked again every 15 minutes; no answer means no rain
     const weather = () => fetch("/api/weather").then((r) => (r.ok ? r.json() : null)).then((w) => w && room?.("setWeather", w)).catch(() => {});
     let wTimer = 0;
