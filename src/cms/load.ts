@@ -58,7 +58,11 @@ async function compile(markdown: string): Promise<string> {
 
 export async function loadOneGuide(file: string): Promise<Guide | null> {
   const raw = fs.readFileSync(file, "utf8");
-  const { data, content } = matter(raw);
+  // gray-matter evals `---js` front matter; refuse it instead (aliases resolve to these keys).
+  const noJs = () => {
+    throw new Error(`js front matter disabled (${path.basename(file)})`);
+  };
+  const { data, content } = matter(raw, { engines: { js: noJs, javascript: noJs } });
 
   const parsed = guideFrontmatterSchema.safeParse(data);
   if (!parsed.success) {

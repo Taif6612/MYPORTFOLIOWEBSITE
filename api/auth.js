@@ -20,18 +20,23 @@ export default function handler(req, res) {
 
   const redirectUri = `${process.env.SITE_URL || "https://www.taif.codes"}/api/callback`;
   const state = crypto.randomBytes(16).toString("hex");
+  // PKCE (S256): 32 random bytes -> 43 url-safe chars.
+  const verifier = crypto.randomBytes(32).toString("base64url");
+  const challenge = crypto.createHash("sha256").update(verifier).digest("base64url");
 
   const authorize = new URL("https://github.com/login/oauth/authorize");
   authorize.searchParams.set("client_id", clientId);
   authorize.searchParams.set("redirect_uri", redirectUri);
   authorize.searchParams.set("scope", "public_repo"); // least privilege: the content repo is public
   authorize.searchParams.set("state", state);
+  authorize.searchParams.set("code_challenge", challenge);
+  authorize.searchParams.set("code_challenge_method", "S256");
 
-  // Short-lived cookie to verify the state on the way back (CSRF guard).
-  res.setHeader(
-    "Set-Cookie",
-    `oauth_state=${state}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=600`
-  );
+  // Short-lived cookies to verify the state (CSRF guard) and finish PKCE on the way back.
+  res.setHeader("Set-Cookie", [
+    `oauth_state=${state}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=600`,
+    `oauth_verifier=${verifier}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=600`,
+  ]);
   res.writeHead(302, { Location: authorize.toString() });
   res.end();
 }

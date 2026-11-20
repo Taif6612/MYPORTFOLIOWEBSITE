@@ -54,8 +54,13 @@ export default async function handler(req, res) {
     res.status(httpStatus).send(renderHandshake(origin, status, content));
 
   res.setHeader("Content-Type", "text/html; charset=utf-8");
-  // The state cookie is single-use: expire it whatever the outcome.
-  res.setHeader("Set-Cookie", "oauth_state=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0");
+  // The page can carry the access token: never store it in any cache.
+  res.setHeader("Cache-Control", "no-store");
+  // The state and PKCE cookies are single-use: expire them whatever the outcome.
+  res.setHeader("Set-Cookie", [
+    "oauth_state=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0",
+    "oauth_verifier=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0",
+  ]);
 
   if (!clientId || !clientSecret) {
     reply("error", 503, { message: "Sign-in is not available." });
@@ -74,11 +79,23 @@ export default async function handler(req, res) {
     return;
   }
 
+  // PKCE: the verifier set by /api/auth must be present to redeem the code.
+  const verifier = /(?:^|;\s*)oauth_verifier=([^;]+)/.exec(req.headers.cookie || "");
+  if (!verifier) {
+    reply("error", 400, { message: "Invalid or expired OAuth state. Please try logging in again." });
+    return;
+  }
+
   try {
     const tokenRes = await fetch("https://github.com/login/oauth/access_token", {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({ client_id: clientId, client_secret: clientSecret, code }),
+      body: JSON.stringify({
+        client_id: clientId,
+        client_secret: clientSecret,
+        code,
+        code_verifier: verifier[1],
+      }),
     });
     const data = await tokenRes.json();
 

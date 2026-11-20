@@ -16,6 +16,7 @@ import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js
 import { spriteLayer, taifSheet, TAIF } from "./pixelSprites.js";
 import { buildStreet, STREET_LABELS } from "./pixelStreet.js";
 import { buildWorld, WORLD_LABELS } from "./pixelWorld.js";
+import { decorate } from "./pixelDecor.js";
 const PLACE = { ...STREET_LABELS, ...WORLD_LABELS };
 
 const V3 = THREE.Vector3;
@@ -342,6 +343,7 @@ void main(){
   box(FU.w - 0.22, 0.05, 1.15, "#eeeae2", FU.x - 0.08, 0.215, FU.z + 0.5); box(FU.w - 0.2, 0.06, 0.14, "#f6f3ec", FU.x - 0.08, 0.245, FU.z - 0.02); // the blanket (sage shows round it), its folded edge
   box(0.32, 0.04, 0.55, "#eeeae2", FU.x - FU.w / 2 - 0.02, 0.1, FU.z + 0.75).rotation.z = 0.7;
   const pFuton = proxy(FU.w + 0.1, 0.4, FU.l + 0.1, FU.x, 0.2, FU.z);
+  decorate({ box, cyl, statics, C }); // decorative props only (pixelDecor.js): baked with the statics, never picked
   // dust in the window light (daytime only)
   const MOTES = 34, motes = fx(new THREE.Points(new THREE.BufferGeometry(), new THREE.PointsMaterial({ color: "#fff4d6", size: 1, sizeAttenuation: false, transparent: true, depthWrite: false })));
   const moteSeed = Array.from({ length: MOTES }, () => [Math.random(), Math.random(), Math.random(), Math.random() * 6.28]);
